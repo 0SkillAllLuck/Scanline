@@ -22,6 +22,8 @@
     &middot;
     <a href="https://matrix.to/#/%23scanline:skillless.dev">Join the Matrix Room</a>
   </p>
+  
+  <img width="700" src=".github/images/home.png" alt="Screenshot of the home page of Scanline">
 
 </div>
 
