@@ -31,6 +31,10 @@ func OnActivate(application *adw.Application) func(gio.Application) {
 			router.Wait()
 		}))
 
+		if mgr.HasAccounts() {
+			go mgr.RefreshServers(ctx)
+		}
+
 		window := windows.NewWindow(application, appCtx)
 		appCtx.Window = &window.Window
 

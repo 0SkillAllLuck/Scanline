@@ -27,6 +27,11 @@ func NewSourceSelection(window *gtk.Window, mgr *sources.Manager, onDone func())
 	addButton := gtk.NewButtonFromIconName("list-add-symbolic")
 	addButton.SetTooltipText(gettext.Get("Add Account"))
 	headerBar.PackStart(&addButton.Widget)
+
+	refreshButton := gtk.NewButtonFromIconName("view-refresh-symbolic")
+	refreshButton.SetTooltipText(gettext.Get("Refresh Servers"))
+	headerBar.PackEnd(&refreshButton.Widget)
+
 	toolbarView.AddTopBar(&headerBar.Widget)
 
 	dialog.SetChild(&toolbarView.Widget)
@@ -129,6 +134,19 @@ func NewSourceSelection(window *gtk.Window, mgr *sources.Manager, onDone func())
 			onSuccess = onDone
 		}
 		appauth.PerformSignIn(ctx, window, &dialog.Widget, mgr, showLoading, refreshContent, onSuccess)
+	}))
+
+	// Refresh button: re-discover servers and re-resolve URLs
+	refreshButton.ConnectClicked(new(func(b gtk.Button) {
+		refreshButton.SetSensitive(false)
+		showLoading()
+		go func() {
+			mgr.RefreshServers(ctx)
+			schwifty.OnMainThreadOncePure(func() {
+				refreshButton.SetSensitive(true)
+				refreshContent()
+			})
+		}()
 	}))
 
 	// Initial load
