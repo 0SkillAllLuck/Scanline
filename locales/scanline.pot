@@ -1,0 +1,498 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-27 23:02+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/poster_season.go:14
+msgid "%d Episode"
+msgid_plural "%d Episodes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/poster_show.go:14
+msgid "%d Season"
+msgid_plural "%d Seasons"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .flatpak-builder/build/scanline-1/app/windows/main_content.go:50
+msgid "About Scanline"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/sources/sources.go:26
+msgid "Add Account"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/windows/main.go:81
+msgid "Add Sources"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/windows/main.go:78
+msgid "Add your Plex media sources to get started."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:20
+msgid "Allow Poster Images"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:14
+msgid "Allow Preview Images"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:15
+msgid "Allow Scanline to load images for the \"Continue Watching\" section."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:21
+msgid "Allow Scanline to load images poster images for libraries and details pages."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_linux.go:55
+msgid ""
+"An unknown error occurred when checking for a secret service provider.\n"
+"\n"
+"Signing in may or may not work. Please see the raw error message for more details:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/media_info.go:51
+msgid "Audio"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:20
+msgid "Back"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:18
+msgid "Basic Shortcuts"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:28
+msgid "Cache Images"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:34
+msgid "Cache Libraries"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:40
+msgid "Cache Metadata"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:29
+msgid "Cache images locally to improve performance and reduce network traffic."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:35
+msgid "Cache library content locally to improve performance and reduce network traffic."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:41
+msgid "Cache metadata locally to improve performance and reduce network traffic."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:54
+msgid "Caching"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/linking/linking.go:78
+msgid "Cancel Login"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:121
+msgid "Cast"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:46
+msgid "Clear Cache"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:13
+msgid "Close"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/general.go:24
+msgid "Configure the behaviour of Scanline when navigating between pages."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/media_info.go:58
+msgid "Container"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/secret_service/secret_service.go:30
+msgid "Continue"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/movie.go:49
+msgid "Directed by"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/sources/sources.go:117
+msgid "Discovering servers..."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/secret_service/secret_service.go:23
+msgid "Don't show again"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/search.go:27
+msgid "E.g. The Matrix"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:28
+msgid "Enable EMBY support"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:25
+msgid "Enable Jellyfin support"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:19
+msgid "Enable Non-Fullscreen support"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:22
+msgid "Enable PiP support"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:13
+msgid "Enable Watchlist"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:29
+msgid "Enable support for EMBY servers."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:26
+msgid "Enable support for Jellyfin servers."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:20
+msgid "Enable support for non-fullscreen mode."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:23
+msgid "Enable support for picture-in-picture mode."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:27
+msgid "Episode"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/season_episode.go:37
+msgid "Episode %d"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:31
+msgid "Experimental"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/auth/signin.go:73
+msgid "Failed to discover servers"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:30
+msgid "Features"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/general.go:25
+msgid "General"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/general.go:17
+msgid "History Length"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/home.go:71
+msgid "Home"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:25
+msgid "Images"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/router/handler_error.go:10
+msgid "Internal Error"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:16
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_darwin.go:25
+msgid "Keychain Unavailable"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/library.go:22
+msgid "Library"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:15
+msgid "Main Menu"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:48
+msgid "Mark as Unwatched"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:45
+msgid "Mark as Watched"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:49
+msgid "Mark this episode as unwatched"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:46
+msgid "Mark this episode as watched"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/movie.go:61
+msgid "Mark this movie as unwatched"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/movie.go:58
+msgid "Mark this movie as watched"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/general.go:18
+msgid "Maximum history length before dropping old entries."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/movie.go:29
+msgid "Movie"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/windows/main_content.go:214
+msgid "Navigate Back"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/windows/main_content.go:75
+msgid "Navigate to Home"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:22
+msgid "Navigation"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/general.go:23
+msgid "Navigation Behaviour"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/sources/sources.go:44
+msgid "No accounts configured."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_linux.go:40
+msgid ""
+"No secret service provider is available.\n"
+"\n"
+"Scanline will not be able to store any authentication-related data and you will not be able to sign in.\n"
+"\n"
+"Please install a secret service provider such as GNOME Keyring or KDE Wallet."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/player/settings.go:110
+msgid "None"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/router/handler_notfound.go:10
+msgid "Not Found"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/sources/sources.go:152
+msgid "Not connected"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/router/handler_notfound.go:12
+msgid "Not found"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/linking/linking.go:71
+msgid "Open Plex page"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/performance.go:55
+msgid "Performance"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:40
+msgid "Play"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/episode.go:68
+msgid "Play this episode"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/movie.go:80
+msgid "Play this movie"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/player.go:8
+msgid "Player"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:17
+msgid "Preferences"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/player/settings.go:146
+msgid "Quality"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:14
+msgid "Quit"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/media_info.go:33
+msgid "Resolution"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/linking/linking.go:56
+msgid "Scan this QR code to sign into your Plex account."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/lists/horizontal_list.go:65
+msgid "Scroll to the left"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/lists/horizontal_list.go:54
+msgid "Scroll to the right"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/shortcuts/shortcuts.go:21
+msgid "Search"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/season.go:23
+msgid "Season"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/show.go:68
+msgid "Seasons"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_linux.go:54
+msgid "Secret Service Error"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_linux.go:47
+msgid "Secret Service Issue"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_linux.go:39
+msgid "Secret Service Unavailable"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/sources/sources.go:18
+msgid "Select Sources"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:14
+msgid "Show the Watchlist tab in the navigation bar."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/linking/linking.go:56
+msgid "Sign In"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/sources/sources.go:86
+msgid "Sign Out"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/auth/signin.go:44
+msgid "Sign in failed or aborted"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/auth/signin.go:81
+msgid "Signed in to Plex"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/search/search.go:13
+msgid "Start typing in the search bar to search for movies, shows, and more."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/player/settings.go:150
+msgid "Subtitles"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/show.go:24
+msgid "TV Show"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_darwin.go:26
+msgid ""
+"The macOS Keychain is not available or accessible.\n"
+"\n"
+"Tonearm will not be able to store any authentication-related data and you will not be able to sign in.\n"
+"\n"
+"Please ensure your keychain is unlocked and accessible."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/router/handler_notfound.go:13
+msgid "The requested deeplink did not have any available handlers."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/preferences/experimental.go:30
+msgid "Toggle experimental features. These may be incomplete or unstable."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/router/handler_error.go:13
+msgid ""
+"Unfortunately an error occurred while loading this view. Please try again later. If the error persists, please open an issue!\n"
+"\n"
+"Error Message: "
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/cards/media_info.go:40
+msgid "Video"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/components/lists/horizontal_list.go:34
+msgid "View All"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/watchlist.go:14
+msgid "Watchlist"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/windows/main.go:77
+msgid "Welcome to Scanline"
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/pages/watchlist.go:18
+msgid "Work in progress."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/linking/linking.go:26
+msgid "You can also open the linking page using the button below."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/internal/secrets/service_linux.go:48
+msgid ""
+"Your secret service provider was found, but refused to interact with Scanline.\n"
+"\n"
+"This could because you cancelled a prompt or, if you are using a Flatpak, the provider not implementing the XDG Secret Portal service.\n"
+"\n"
+"Scanline will not be able to store any authentication-related data and you will not be able to sign in."
+msgstr ""
+
+#: .flatpak-builder/build/scanline-1/app/dialogs/about/about.go:128
+msgid "translator-credits"
+msgstr ""
+

@@ -1,0 +1,10 @@
+{
+  "project_name": "Scanline",
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.direnv",
+    "**/.flatpak-builder",
+  ],
+}

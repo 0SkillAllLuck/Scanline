@@ -1,0 +1,133 @@
+@function gtk-alpha($color, $amount) {
+    // Preserve the exact text GTK expects
+    @return unquote("alpha(#{$color}, #{$amount})");
+}
+
+button.transparent:not(:hover):not(.active) {
+    background-color: transparent;
+}
+
+menubutton.transparent button:not(:hover):not(.active) {
+    background-color: transparent;
+}
+
+.no-response .response-area {
+    padding: 0;
+    padding-bottom: 10px;
+}
+
+.player {
+    .quality-selector {
+        > button {
+            padding: 0;
+            background-color: transparent;
+
+            label {
+                text-transform: uppercase;
+
+                &.low {
+                    background-color: #ffffff1a;
+                    color: #e4e4e7;
+
+                    @media (prefers-color-scheme: light) {
+                        background-color: #0000001a;
+                        color: #1b1b18;
+                    }
+                }
+
+                &.high {
+                    background-color: #21feec1a;
+                    color: #33ffee;
+
+                    @media (prefers-color-scheme: light) {
+                        /* Light cyan */
+                        background-color: #04a69a1a;
+                        /* Darker teal */
+                        color: #039187;
+                    }
+                }
+
+                &.max {
+                    background-color: #ffd4321a;
+                    color: #ffd432;
+
+                    @media (prefers-color-scheme: light) {
+                        /* Soft yellow */
+                        background-color: #ffd4327a;
+                        /* Dark yellow/brown */
+                        color: #905300;
+                    }
+                }
+            }
+        }
+        > popover {
+            .selector {
+                .low {
+                    color: #e4e4e7;
+
+                    @media (prefers-color-scheme: light) {
+                        color: #1b1b18;
+                    }
+                }
+
+                .high {
+                    color: #33ffee;
+
+                    @media (prefers-color-scheme: light) {
+                        /* Darker teal */
+                        color: #039187;
+                    }
+                }
+
+                .max {
+                    color: #ffd432;
+
+                    @media (prefers-color-scheme: light) {
+                        /* Dark yellow/brown */
+                        color: #905300;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.lyrics-panel {
+    .lyric {
+        background-color: gtk-alpha(var(--view-fg-color), 0.05);
+        transition-property: background, color;
+        transition-duration: 300ms;
+        transition-timing-function: ease-in-out;
+
+        &.timed {
+            color: gtk-alpha(var(--view-fg-color), 0.5);
+
+            &.active {
+                background-color: gtk-alpha(var(--view-fg-color), 0.2);
+                color: var(--view-fg-color);
+            }
+
+            &:hover {
+                background-color: gtk-alpha(var(--view-fg-color), 0.1);
+            }
+        }
+    }
+}
+
+.color-accent {
+    color: var(--accent-color);
+}
+
+.tracklist {
+    background-color: transparent;
+
+    grid.playing {
+        color: var(--accent-color);
+        background-color: gtk-alpha(var(--accent-color), 0.1);
+        border-radius: 10px;
+    }
+}
+
+checkbutton.space-2 check {
+    margin-right: 0.5rem;
+}

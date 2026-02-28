@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<component type="desktop-application">
+  <id>dev.skillless.Scanline</id>
+  <metadata_license>MIT</metadata_license>
+  <name>Scanline</name>
+  <summary>Stream your favorite music</summary>
+  <description>
+    <p>
+    With Scanline you are able to play tracks at their highest quality, explore new tracks using discovery mixes or the explore tab or just enjoy the songs you already know you love from your collection. Just like you would expect from the real app. Scanline also has some additional features such as
+    </p>
+    <ul>
+      <li>Background Playback</li>
+      <li>Gapless playback</li>
+      <li>MPRIS integration</li>
+      <li>Scrobbling to ListenBrainz</li>
+    </ul>
+    <p>
+    Don't have a TIDAL account? You can still try the app and enjoy song previews of up to 30 seconds to see if it's for you.
+    </p>
+  </description>
+  <icon type="stock">dev.skillless.Scanline</icon>
+
+  <categories>
+      <category>Video</category>
+  </categories>
+
+  <keywords>
+    <keyword translate="no">Plex</keyword>
+    <keyword>movies</keyword>
+    <keyword>tv-shows</keyword>
+    <keyword>streaming</keyword>
+  </keywords>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#3a2aef</color>
+    <color type="primary" scheme_preference="dark">#690daf</color>
+  </branding>
+
+  <url type="homepage">https://dergs.dev/projects/scanline</url>
+  <url type="bugtracker">https://github.com/0skillallluck/scanline/issues</url>
+  <url type="vcs-browser">https://github.com/0skillallluck/scanline</url>
+  <url type="contact">https://matrix.to/#/%23scanline:derg.social</url>
+
+  <releases>
+    <release version="1.2.0" date="2026-02-05">
+        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.2.0</url>
+        <description>
+            <p>Bug Fixes:</p>
+            <ul>
+                <li>Fixed an issue where we would not deallocate GObjects properly</li>
+                <li>Fixed an issue where the track list in the search UI was misaligned</li>
+                <li>Fixed an issue where repeating a track would not work</li>
+                <li>Fixed an issue where scrobbling could block playback</li>
+                <li>Fixed an issue where Scanline would fail to show window decorations when set to the left side</li>
+            </ul>
+            <p>New Features:</p>
+            <ul>
+                <li>You can now configure whether Scanline should autoplay track radios after your queue ends</li>
+                <li>Added pagination to collection pages</li>
+                <li>Added sub-pages to all search result types</li>
+                <li>You can now configure your preferred maximum audio quality</li>
+                <li>You can now view your feed in Scanline</li>
+            </ul>
+        </description>
+    </release>
+    <release version="1.1.0" date="2026-01-31">
+        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.1.0</url>
+        <description>
+            <p>Bug Fixes:</p>
+            <ul>
+                <li>Fixed gapless playback not always being gapless</li>
+                <li>Fixed a bug where starting a track list in shuffle-mode would not shuffle the tracks</li>
+                <li>Improved compliance with the MPRIS spec, fixing an issue with the KDE media player applet</li>
+                <li>Improved accessibility by adding tooltips to all icon buttons</li>
+            </ul>
+            <p>New Features:</p>
+            <ul>
+                <li>Added Secret Service self-test</li>
+                <li>Added French translations</li>
+                <li>Added Polish translations (LukaszH77)</li>
+                <li>Added support for custom ListenBrainz servers (thatonecalculator)</li>
+                <li>Added support for playing top tracks on the artist page</li>
+                <li>Added support for navigating backwards using the mouse button</li>
+                <li>Redesigned the sidebar player</li>
+            </ul>
+        </description>
+    </release>
+    <release version="1.0.1" date="2026-01-28">
+        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.0.1</url>
+        <description>
+            <p>Bug Fixes:</p>
+            <ul>
+                <li>Fixed a bug where shuffling an empty queue would crash the app</li>
+                <li>Fixed a bug where Scanline would always request the english home and explore pages</li>
+                <li>Now using the correct icons for skipping instead of seeking</li>
+                <li>Fixed a bug where large track lists would start overlaying after ~200 tracks</li>
+                <li>Fixed a rare concurrent map access that would crash the app</li>
+            </ul>
+            <p>New Features</p>
+            <ul>
+                <li>Scanline is now translated into German</li>
+                <li>Scanline now marks the currently playing track in the tracklists</li>
+            </ul>
+            <p>Scanline now also has a Matrix room for contributions and issues!</p>
+        </description>
+    </release>
+    <release version="1.0.0" date="2026-01-22">
+      <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.0.0</url>
+      <description>
+        <p
+                >Welcome to the first beta release of Scanline. In this version, we added, well, everything. Give it a look and let us know what we can improve!</p>
+          <ul>
+            <li>Home, Explore and Collection pages</li>
+            <li>View playlist, mixes, albums and artists</li>
+            <li>Search functionality</li>
+            <li>Play tracks, playlists, mixes and albums</li>
+            <li>Sing along with the lyrics tab</li>
+            <li>Control Scanline using MPRIS</li>
+            <li>Scrobble your listening activity with ListenBrainz</li>
+          </ul>
+      </description>
+    </release>
+  </releases>
+
+  <launchable type="desktop-id">dev.skillless.Scanline.desktop</launchable>
+
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </recommends>
+
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <developer id="dev.dergs">
+    <name translate="no">The Dergs and Contributors</name>
+  </developer>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Scanline displaying the public, unauthenticated home page</caption>
+      <image>
+      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/home.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Scanline showing the explore page</caption>
+      <image>
+      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/explore.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Scanline showing the search page, while displaying the lyrics of the current song</caption>
+      <image>
+      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/search_lyrics.png
+      </image>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1" />
+
+
+</component>

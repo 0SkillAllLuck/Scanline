@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<gresources>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/apps/">
+    <file alias="logo.svg">hicolor/scalable/apps/dev.skillless.Scanline.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/actions/">
+    <file alias="bell-outline-symbolic.svg">scalable/actions/bell-outline-symbolic.svg</file>
+    <file alias="go-home-symbolic.svg">scalable/actions/go-home-symbolic.svg</file>
+    <file alias="plus-square-filled-symbolic.svg">scalable/actions/plus-square-filled-symbolic.svg</file>
+    <file alias="loupe-symbolic.svg">scalable/actions/loupe-symbolic.svg</file>
+    <file alias="menu-symbolic.svg">scalable/actions/menu-symbolic.svg</file>
+    <file alias="chat-bubble-text-symbolic.svg">scalable/actions/chat-bubble-text-symbolic.svg</file>
+    <file alias="music-note-outline-symbolic.svg">scalable/actions/music-note-outline-symbolic.svg</file>
+    <file alias="music-queue-symbolic.svg">scalable/actions/music-queue-symbolic.svg</file>
+    <file alias="library-symbolic.svg">scalable/actions/library-symbolic.svg</file>
+    <file alias="compass2-symbolic.svg">scalable/actions/compass2-symbolic.svg</file>
+    <file alias="left-symbolic.svg">scalable/actions/left-symbolic.svg</file>
+    <file alias="plus-symbolic.svg">scalable/actions/plus-symbolic.svg</file>
+    <file alias="heart-outline-thick-symbolic.svg">scalable/actions/heart-outline-thick-symbolic.svg</file>
+    <file alias="playlist-repeat-song-symbolic.svg">scalable/actions/playlist-repeat-song-symbolic.svg</file>
+    <file alias="playlist-repeat-symbolic.svg">scalable/actions/playlist-repeat-symbolic.svg</file>
+    <file alias="settings-symbolic.svg">scalable/actions/settings-symbolic.svg</file>
+    <file alias="podcast-symbolic.svg">scalable/actions/podcast-symbolic.svg</file>
+    <file alias="sentiment-dissatisfied-symbolic.svg">scalable/actions/sentiment-dissatisfied-symbolic.svg</file>
+    <file alias="right-symbolic.svg">scalable/actions/right-symbolic.svg</file>
+    <file alias="arrow-circular-top-right-symbolic.svg">scalable/actions/arrow-circular-top-right-symbolic.svg</file>
+    <file alias="pause-symbolic.svg">scalable/actions/pause-symbolic.svg</file>
+    <file alias="play-symbolic.svg">scalable/actions/play-symbolic.svg</file>
+    <file alias="speakers-symbolic.svg">scalable/actions/speakers-symbolic.svg</file>
+    <file alias="share-alt-symbolic.svg">scalable/actions/share-alt-symbolic.svg</file>
+    <file alias="playlist-shuffle-symbolic.svg">scalable/actions/playlist-shuffle-symbolic.svg</file>
+    <file alias="user-trash-symbolic.svg">scalable/actions/user-trash-symbolic.svg</file>
+    <file alias="skip-backward-large-symbolic.svg">scalable/actions/skip-backward-large-symbolic.svg</file>
+    <file alias="skip-forward-large-symbolic.svg">scalable/actions/skip-forward-large-symbolic.svg</file>
+    <file alias="image-missing-symbolic.svg">scalable/actions/image-missing-symbolic.svg</file>
+    <file alias="speedometer5-symbolic.svg">scalable/actions/speedometer5-symbolic.svg</file>
+    <file alias="dock-left-symbolic.svg">scalable/actions/dock-left-symbolic.svg</file>
+    <file alias="cd-symbolic.svg">scalable/actions/cd-symbolic.svg</file>
+    <file alias="music-artist2-symbolic.svg">scalable/actions/music-artist2-symbolic.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/state/">
+    <file alias="missing-album.svg">scalable/state/missing-album.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/ratings/">
+    <file alias="imdb.svg">scalable/ratings/imdb.svg</file>
+    <file alias="rt-tomato.svg">scalable/ratings/rt-tomato.svg</file>
+    <file alias="rt-popcorn.svg">scalable/ratings/rt-popcorn.svg</file>
+    <file alias="tmdb.svg">scalable/ratings/tmdb.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/symbolic/apps/">
+    <file alias="logo-symbolic.svg">hicolor/symbolic/apps/dev.skillless.Scanline-symbolic.svg</file>
+  </gresource>
+</gresources>

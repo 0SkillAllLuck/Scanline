@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schemalist gettext-domain="scanline">
+    <!-- General Settings -->
+	<schema id="dev.skillless.Scanline" path="/dev/skillless/Scanline/">
+	    <key name="allow-running-in-background" type="b">
+    		<default>true</default>
+    		<summary>Run in Background</summary>
+    		<description
+            >Whether the application should run in the background when the window is closed</description>
+    	</key>
+		<key name="hide-secret-service-warning" type="b">
+            <default>false</default>
+            <summary>Hide Secret Service Warning</summary>
+            <description
+            >Do not show any warning when the secret service health check fails on startup</description>
+        </key>
+    	<key name="window-height" type="i">
+    		<default>920</default>
+    		<summary>Window Height</summary>
+    		<description
+            >Stores the last used window height to restore on next startup</description>
+    	</key>
+		<key name="window-width" type="i">
+			<default>1460</default>
+			<summary>Window Width</summary>
+			<description
+            >Stores the last used window width to restore on next startup</description>
+		</key>
+	</schema>
+
+	<!-- Performance Settings -->
+    <schema
+        id="dev.skillless.Scanline.performance"
+        path="/dev/skillless/Scanline/performance/"
+    >
+        <!-- Images -->
+        <key name="allow-preview-images" type="b">
+      		<default>true</default>
+      		<summary>Allow Preview Images</summary>
+      		<description
+            >Whether the application will load the images for media cards</description>
+       	</key>
+        <key name="allow-poster-images" type="b">
+      		<default>true</default>
+      		<summary>Allow Poster Images</summary>
+      		<description
+            >Whether the application will load poster images for libraries and details pages</description>
+       	</key>
+        <key name="allow-shortcuts-images" type="b">
+      		<default>true</default>
+      		<summary>Allow Shortcuts Images</summary>
+      		<description
+            >Whether the application will load the images for shortcuts</description>
+       	</key>
+        <key name="allow-tracklist-images" type="b">
+      		<default>true</default>
+      		<summary>Allow Tracklist Images</summary>
+      		<description
+            >Whether the application will load the cover for each track in a tracklist</description>
+       	</key>
+
+        <!-- Caching -->
+        <key name="cache-images" type="b">
+      		<default>true</default>
+      		<summary>Cache Images</summary>
+      		<description
+            >Whether the application will temporarily cache images on the filesystem</description>
+       	</key>
+        <key name="cache-libraries" type="b">
+      		<default>true</default>
+      		<summary>Cache Libraries</summary>
+      		<description
+            >Whether the application will cache library content locally</description>
+       	</key>
+        <key name="cache-metadata" type="b">
+      		<default>true</default>
+      		<summary>Cache Metadata</summary>
+      		<description
+            >Whether the application will cache metadata locally</description>
+       	</key>
+
+        <!-- Navigation -->
+        <key name="max-router-history-size" type="i">
+			<default>10</default>
+			<summary>Maximum Router History Size</summary>
+			<description>The maximum number of router history entries to keep</description>
+		</key>
+    </schema>
+
+	<!-- Experimental Settings -->
+    <schema
+        id="dev.skillless.Scanline.experimental"
+        path="/dev/skillless/Scanline/experimental/"
+    >
+        <key name="enable-watchlist" type="b">
+      		<default>false</default>
+      		<summary>Enable Watchlist</summary>
+      		<description
+            >Whether the Watchlist tab should be shown in the navigation bar</description>
+       	</key>
+    </schema>
+
+</schemalist>
