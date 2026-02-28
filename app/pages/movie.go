@@ -16,6 +16,7 @@ import (
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/router"
+	"github.com/0skillallluck/scanline/utils/notifications"
 	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
@@ -101,7 +102,47 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 							).Spacing(6),
 						).
 						TooltipText(watchTooltip).
-						WithCSSClass("pill"),
+						WithCSSClass("pill").
+						ConnectClicked(func(b gtk.Button) {
+							b.SetSensitive(false)
+							watched := meta.ViewCount > 0
+							go func() {
+								var err error
+								if watched {
+									err = src.Unscrobble(context.Background(), ratingKey)
+								} else {
+									err = src.Scrobble(context.Background(), ratingKey)
+								}
+								if err != nil {
+									slog.Error("failed to update watch status", "ratingKey", ratingKey, "error", err)
+									schwifty.OnMainThreadOncePure(func() {
+										b.SetSensitive(true)
+										notifications.OnToast.Notify(gettext.Get("Failed to update watch status"))
+									})
+									return
+								}
+								schwifty.OnMainThreadOncePure(func() {
+									b.SetSensitive(true)
+									if watched {
+										meta.ViewCount = 0
+										b.SetTooltipText(gettext.Get("Mark this movie as watched"))
+										b.SetChild(HStack(
+											Image().FromIconName("check-plain-symbolic"),
+											Label(gettext.Get("Mark as Watched")),
+										).Spacing(6).ToGTK())
+										notifications.OnToast.Notify(gettext.Get("Marked as unwatched"))
+									} else {
+										meta.ViewCount = 1
+										b.SetTooltipText(gettext.Get("Mark this movie as unwatched"))
+										b.SetChild(HStack(
+											Image().FromIconName("check-plain-symbolic"),
+											Label(gettext.Get("Mark as Unwatched")),
+										).Spacing(6).ToGTK())
+										notifications.OnToast.Notify(gettext.Get("Marked as watched"))
+									}
+								})
+							}()
+						}),
 				)
 		},
 		Tagline: meta.Tagline,
