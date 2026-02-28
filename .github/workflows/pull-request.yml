@@ -7,12 +7,52 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: pull-request-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  go-changes:
+    name: Go Changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.filter.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Detect Changes
+        id: filter
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -c '^go\.\(mod\|sum\)$' || true)
+          if [ "$CHANGED" -gt 0 ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+  nix-changes:
+    name: Nix Changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.filter.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Detect Changes
+        id: filter
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -c '^nix\.flake$' || true)
+          if [ "$CHANGED" -gt 0 ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   go-lint:
     name: Go Lint
     runs-on: ubuntu-latest
@@ -37,6 +77,8 @@ jobs:
   nix-lint:
     name: Nix Lint
     runs-on: ubuntu-latest
+    needs: nix-changes
+    if: needs.nix-changes.outputs.changed == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -85,8 +127,13 @@ jobs:
     name: Nix Build
     runs-on: ubuntu-latest
     needs:
+      - go-changes
+      - nix-changes
       - nix-lint
       - go-build
+    if: >-
+      !cancelled() && !failure() &&
+      (needs.go-changes.outputs.changed == 'true' || needs.nix-changes.outputs.changed == 'true')
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -99,7 +146,9 @@ jobs:
     name: Flatpak Check
     runs-on: ubuntu-latest
     needs:
+      - go-changes
       - go-build
+    if: needs.go-changes.outputs.changed == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
