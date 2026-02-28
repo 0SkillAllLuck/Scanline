@@ -46,6 +46,10 @@ jobs:
         uses: DeterminateSystems/flake-checker-action@3164002371bc90729c68af0e24d5aacf20d7c9f6 # v12
       - name: Validate flake
         run: nix flake check
+      - name: Lint with statix
+        run: nix run nixpkgs#statix -- check .
+      - name: Check dead code with deadnix
+        run: nix run nixpkgs#deadnix -- --fail .
 
   go-test:
     name: Go Test
@@ -60,15 +64,58 @@ jobs:
           cache: true
       - name: Test
         run: go test -v ./...
-  nix-test:
-    name: Nix Test
+
+  go-build:
+    name: Go Build
     runs-on: ubuntu-latest
+    needs:
+      - go-lint
+      - go-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version: "1.26"
+          cache: true
+      - name: Build
+        run: go build -o build/scanline
+  nix-build:
+    name: Nix Build
+    runs-on: ubuntu-latest
+    needs:
+      - nix-lint
+      - go-build
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@c5a866b6ab867e88becbed4467b93592bce69f8a # v21
-      - name: Check flake
-        uses: DeterminateSystems/flake-checker-action@3164002371bc90729c68af0e24d5aacf20d7c9f6 # v12
-      - name: Validate flake
-        run: nix flake check
+      - name: Build
+        run: nix build
+
+  flatpak-check:
+    name: Flatpak Check
+    runs-on: ubuntu-latest
+    needs:
+      - go-build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version: "1.26"
+          cache: true
+      - name: Generate
+        run: go run github.com/dennwc/flatpak-go-mod@latest
+      - name: Diff
+        run: |
+          if ! diff -q go.mod.yml build/flatpak/go.mod.yml > /dev/null 2>&1 || \
+             ! diff -q modules.txt build/flatpak/modules.txt > /dev/null 2>&1; then
+            echo "::error::Flatpak module data is out of date. Run 'go run github.com/dennwc/flatpak-go-mod@latest' and copy the generated files to build/flatpak/."
+            diff go.mod.yml build/flatpak/go.mod.yml || true
+            diff modules.txt build/flatpak/modules.txt || true
+            exit 1
+          fi

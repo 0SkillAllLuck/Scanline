@@ -17,7 +17,7 @@
         pkgs = import nixpkgs { inherit system; };
         libraryPath = pkgs.symlinkJoin {
           name = "scanline-puregotk-lib-folder";
-          paths = (
+          paths =
             with pkgs;
             [
               cairo
@@ -30,8 +30,7 @@
               gobject-introspection
               librsvg
               libsecret
-            ]
-          );
+            ];
         };
       in
       {

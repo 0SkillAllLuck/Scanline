@@ -42,6 +42,7 @@ Scanline is not affiliated with or endorsed by Plex. Scanline is provided as-is 
   - Audio presets 
   - Subtitles **W.I.P.**
   - Auto-hiding player controls
+  - Changing playback speed **W.I.P.**
 - Continue watching with progress tracking **W.I.P.**
 - Watchlist support **W.I.P.**
 - Jellyfin support **W.I.P.**
