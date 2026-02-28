@@ -3,6 +3,7 @@ package sources
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"sort"
@@ -49,6 +50,7 @@ func findBestConnection(ctx context.Context, httpClient *http.Client, connection
 	for _, conn := range sorted {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, conn.URI+"/identity", nil)
 		if err != nil {
+			slog.Debug("plex: connection attempt failed to create request", "uri", conn.URI, "error", err)
 			continue
 		}
 		req.Header.Set("X-Plex-Token", token)
@@ -56,12 +58,15 @@ func findBestConnection(ctx context.Context, httpClient *http.Client, connection
 
 		resp, err := httpClient.Do(req)
 		if err != nil {
+			slog.Debug("plex: connection attempt failed", "uri", conn.URI, "local", conn.Local, "relay", conn.Relay, "ipv6", conn.IPv6, "error", err)
 			continue
 		}
 		resp.Body.Close()
 		if resp.StatusCode == http.StatusOK {
+			slog.Debug("plex: connection selected", "uri", conn.URI, "local", conn.Local, "relay", conn.Relay, "ipv6", conn.IPv6)
 			return conn.URI, nil
 		}
+		slog.Debug("plex: connection attempt rejected", "uri", conn.URI, "local", conn.Local, "relay", conn.Relay, "ipv6", conn.IPv6, "status", resp.StatusCode)
 	}
 
 	return "", fmt.Errorf("no reachable connection found")

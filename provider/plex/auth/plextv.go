@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 )
 
@@ -102,6 +103,7 @@ func NewPlexTV(clientIdentifier string) *PlexTV {
 // DiscoverServers retrieves the list of available Plex Media Servers for the authenticated user.
 // The token parameter is the authentication token obtained from PIN authentication.
 func (p *PlexTV) DiscoverServers(ctx context.Context, token string) ([]Resource, error) {
+	slog.Debug("plex: discovering servers")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, plexTVBaseURL+"/api/v2/resources", nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
@@ -130,6 +132,7 @@ func (p *PlexTV) DiscoverServers(ctx context.Context, token string) ([]Resource,
 	if err := json.NewDecoder(resp.Body).Decode(&resources); err != nil {
 		return nil, fmt.Errorf("decoding response: %w", err)
 	}
+	slog.Debug("plex: servers discovered", "resource_count", len(resources))
 	return resources, nil
 }
 
@@ -147,6 +150,7 @@ type User struct {
 
 // GetUser retrieves the Plex account information for the authenticated user.
 func (p *PlexTV) GetUser(ctx context.Context, token string) (*User, error) {
+	slog.Debug("plex: fetching user info")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, plexTVBaseURL+"/api/v2/user", nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
@@ -170,6 +174,7 @@ func (p *PlexTV) GetUser(ctx context.Context, token string) (*User, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
 		return nil, fmt.Errorf("decoding response: %w", err)
 	}
+	slog.Debug("plex: user fetched", "username", user.Username)
 	return &user, nil
 }
 

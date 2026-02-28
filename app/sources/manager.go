@@ -119,6 +119,13 @@ func (m *Manager) AddPlexAccount(ctx context.Context, token, username, clientID 
 
 	// Network I/O outside lock — resolve connections for owned servers
 	connClient := newConnectionClient()
+	serverCount := 0
+	for _, r := range resources {
+		if strings.Contains(r.Provides, "server") {
+			serverCount++
+		}
+	}
+	slog.Debug("plex: adding account", "resource_count", len(resources), "server_count", serverCount)
 	var servers []*Server
 	for _, r := range resources {
 		if !strings.Contains(r.Provides, "server") {
@@ -142,6 +149,7 @@ func (m *Manager) AddPlexAccount(ctx context.Context, token, username, clientID 
 				slog.Warn("failed to resolve server connection", "server", r.Name, "error", err)
 				srv.Enabled = false
 			} else {
+				slog.Debug("plex: server connection resolved", "server", r.Name, "url", url)
 				srv.URL = url
 			}
 		}
@@ -290,6 +298,7 @@ func (m *Manager) RefreshServers(ctx context.Context) {
 	m.mu.RUnlock()
 
 	// All network/keyring I/O outside lock — parallelize across accounts
+	slog.Debug("plex: refreshing servers", "account_count", len(infos))
 	connClient := newConnectionClient()
 	var resultsMu sync.Mutex
 	var results []refreshResult
@@ -308,6 +317,7 @@ func (m *Manager) RefreshServers(ctx context.Context) {
 				slog.Warn("failed to refresh servers for account", "account", info.username, "error", err)
 				return
 			}
+			slog.Debug("plex: refresh discovered resources", "account", info.username, "resource_count", len(resources))
 
 			var newServers []*Server
 			newSources := make(map[string]Source)
