@@ -93,6 +93,7 @@ The following projects and resources served as inspiration or were helpful durin
 - [Tonearm](https://codeberg.org/dergs/Tonearm) and its [schwifty](https://codeberg.org/dergs/Tonearm/src/branch/main/pkg/schwifty) UI framework for providing the foundation
 - [puregotk](https://github.com/jwijenbergh/puregotk) for making this project possible with only minimal CGO bindings
 - [Plex](https://www.plex.tv/) for the media server platform
+- [Dråfølin](https://drafolin.ch/) for the beautiful icon
 
 
 [license-shield]: https://img.shields.io/github/license/0SkillAllLuck/Scanline?style=for-the-badge
