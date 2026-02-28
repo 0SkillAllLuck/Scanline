@@ -68,6 +68,25 @@ func NewPlayer(params PlayerParams) {
 	win.AddCssClass("scanline-player-window")
 	overlay.AddCssClass("scanline-player-overlay")
 
+	// --- Progress reporting ---
+	var lastProgressUpdate atomic.Int64 // monotonic ms of last progress report
+
+	sendProgress := func(state sources.PlaybackState) {
+		if media == nil {
+			return
+		}
+		ts := media.GetTimestamp()
+		dur := media.GetDuration()
+		if dur <= 0 {
+			return
+		}
+		// GTK uses microseconds; Plex uses milliseconds
+		timeMs := int(ts / 1000)
+		durationMs := int(dur / 1000)
+		rk := params.RatingKey
+		go src.UpdateProgress(context.Background(), rk, state, timeMs, durationMs)
+	}
+
 	// --- Close button (top-right) ---
 	closeBtnWidget := Button().
 		IconName("window-close-symbolic").
@@ -168,10 +187,12 @@ func NewPlayer(params PlayerParams) {
 				media.Pause()
 				playing.Store(false)
 				b.SetIconName("media-playback-start-symbolic")
+				sendProgress(sources.StatePaused)
 			} else {
 				media.Play()
 				playing.Store(true)
 				b.SetIconName("media-playback-pause-symbolic")
+				sendProgress(sources.StatePlaying)
 			}
 		})
 
@@ -457,12 +478,14 @@ func NewPlayer(params PlayerParams) {
 				if playPauseBtn != nil {
 					playPauseBtn.SetIconName("media-playback-start-symbolic")
 				}
+				sendProgress(sources.StatePaused)
 			} else {
 				media.Play()
 				playing.Store(true)
 				if playPauseBtn != nil {
 					playPauseBtn.SetIconName("media-playback-pause-symbolic")
 				}
+				sendProgress(sources.StatePlaying)
 			}
 			return true
 		case uint(gdk.KEY_Left):
@@ -538,6 +561,17 @@ func NewPlayer(params PlayerParams) {
 			remaining := max(dur-ts, 0)
 			remainingTimeLabel.SetText("-" + formatMicroseconds(remaining))
 		}
+		// Periodic progress reporting (every 10 seconds while playing)
+		if playing.Load() && dur > 0 {
+			nowMs := glib.GetMonotonicTime() / 1000
+			if nowMs-lastProgressUpdate.Load() >= 10000 {
+				lastProgressUpdate.Store(nowMs)
+				timeMs := int(ts / 1000)
+				durationMs := int(dur / 1000)
+				rk := params.RatingKey
+				go src.UpdateProgress(context.Background(), rk, sources.StatePlaying, timeMs, durationMs)
+			}
+		}
 		// Update play/pause icon if stream ended
 		if media.GetEnded() && playPauseBtn != nil {
 			playing.Store(false)
@@ -555,6 +589,8 @@ func NewPlayer(params PlayerParams) {
 	closeRequestCb := func(w gtk.Window) bool {
 		ctxCancel()
 		if media != nil {
+			// Report stopped state to server
+			sendProgress(sources.StateStopped)
 			// Scrobble if >90% watched
 			dur := media.GetDuration()
 			ts := media.GetTimestamp()

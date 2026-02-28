@@ -6,6 +6,7 @@ import (
 	"github.com/0skillallluck/scanline/provider/plex"
 	"github.com/0skillallluck/scanline/provider/plex/hubs"
 	"github.com/0skillallluck/scanline/provider/plex/library"
+	"github.com/0skillallluck/scanline/provider/plex/timeline"
 )
 
 // Type aliases for provider-agnostic access to media types.
@@ -26,6 +27,13 @@ type LibrarySection = library.LibrarySection
 type ContentOptions = library.ContentOptions
 type Hub = hubs.Hub
 type TranscodeParams = plex.TranscodeParams
+type PlaybackState = timeline.PlaybackState
+
+const (
+	StatePlaying = timeline.StatePlaying
+	StatePaused  = timeline.StatePaused
+	StateStopped = timeline.StateStopped
+)
 
 // ArtURL returns the best art URL for a metadata item, with fallbacks
 // for types where the primary art may be missing (e.g. episodes falling

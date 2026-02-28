@@ -57,4 +57,7 @@ type Source interface {
 
 	// Scrobble marks an item as watched.
 	Scrobble(ctx context.Context, ratingKey string) error
+
+	// UpdateProgress reports playback position to the server.
+	UpdateProgress(ctx context.Context, ratingKey string, state PlaybackState, timeMs, durationMs int) error
 }
