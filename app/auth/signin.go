@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
@@ -25,6 +26,7 @@ import (
 // onSuccess is called on the main thread after the account is added (may be nil).
 func PerformSignIn(ctx context.Context, window *gtk.Window, presentOn *gtk.Widget, mgr *sources.Manager, onLoading, onError, onSuccess func()) {
 	go func() {
+		slog.Debug("plex: sign-in flow started")
 		var dialog *adw.AlertDialog
 		clientID := secrets.GetOrCreateClientID()
 		token, err := auth.StartPinLinking(clientID, func(pin *auth.Pin, authURL string, cancel context.CancelFunc) {
@@ -44,9 +46,11 @@ func PerformSignIn(ctx context.Context, window *gtk.Window, presentOn *gtk.Widge
 		})
 
 		if err != nil {
+			slog.Debug("plex: PIN linking failed", "error", err)
 			notifications.OnToast.Notify(gettext.Get("Sign in failed or aborted"))
 			return
 		}
+		slog.Debug("plex: PIN linking succeeded")
 
 		var (
 			user      *auth.User
@@ -68,11 +72,15 @@ func PerformSignIn(ctx context.Context, window *gtk.Window, presentOn *gtk.Widge
 		wg.Wait()
 
 		username := "Plex User"
-		if userErr == nil && user.Username != "" {
+		if userErr != nil {
+			slog.Debug("plex: user fetch failed", "error", userErr)
+		} else if user.Username != "" {
 			username = user.Username
+			slog.Debug("plex: user fetched", "username", username)
 		}
 
 		if discErr != nil {
+			slog.Debug("plex: server discovery failed", "error", discErr)
 			notifications.OnToast.Notify(gettext.Get("Failed to discover servers"))
 			if onError != nil {
 				schwifty.OnMainThreadOncePure(onError)
@@ -80,7 +88,9 @@ func PerformSignIn(ctx context.Context, window *gtk.Window, presentOn *gtk.Widge
 			return
 		}
 
+		slog.Debug("plex: servers discovered", "server_count", len(resources))
 		mgr.AddPlexAccount(ctx, token, username, clientID, resources)
+		slog.Debug("plex: account added", "username", username)
 		notifications.OnToast.Notify(gettext.Get("Signed in to Plex"))
 
 		if onSuccess != nil {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -70,6 +71,7 @@ func RequestPin(clientIdentifier string) (*Pin, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&pin); err != nil {
 		return nil, fmt.Errorf("decoding pin response: %w", err)
 	}
+	slog.Debug("plex: PIN requested", "pin_id", pin.ID, "expires_in", pin.ExpiresIn)
 	return &pin, nil
 }
 
@@ -108,6 +110,7 @@ func CheckPin(pinID int, pinCode, clientIdentifier string) (*Pin, error) {
 // It checks the PIN status at the specified interval.
 // Returns the authentication token when authorization is complete.
 func PollPin(ctx context.Context, pinID int, pinCode, clientIdentifier string, interval time.Duration) (string, error) {
+	slog.Debug("plex: polling PIN for authorization", "pin_id", pinID)
 	for {
 		select {
 		case <-ctx.Done():
@@ -118,6 +121,7 @@ func PollPin(ctx context.Context, pinID int, pinCode, clientIdentifier string, i
 				return "", err
 			}
 			if pin.AuthToken != "" {
+				slog.Debug("plex: PIN authorized", "pin_id", pinID)
 				return pin.AuthToken, nil
 			}
 			time.Sleep(interval)
@@ -144,6 +148,7 @@ const Product = "Scanline"
 // The caller should display the auth URL to the user and call cancel if they want to abort.
 // This function blocks until the user completes authentication or the context is cancelled.
 func StartPinLinking(clientIdentifier string, cb func(*Pin, string, context.CancelFunc)) (string, error) {
+	slog.Debug("plex: starting PIN linking flow")
 	pin, err := RequestPin(clientIdentifier)
 	if err != nil {
 		return "", err
@@ -158,5 +163,6 @@ func StartPinLinking(clientIdentifier string, cb func(*Pin, string, context.Canc
 	if err != nil {
 		return "", err
 	}
+	slog.Debug("plex: PIN linking flow completed")
 	return token, nil
 }
