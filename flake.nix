@@ -59,7 +59,7 @@
             [
               appstream
               delve
-              go
+              go_1_26
               gopls
               gtk4
               librsvg
@@ -80,11 +80,11 @@
             ];
         };
 
-        packages.scanline = pkgs.buildGoModule (finalAttrs: {
+        packages.scanline = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) (finalAttrs: {
           pname = "scanline";
           version = "1.0.1";
           src = pkgs.lib.cleanSource ./.;
-          vendorHash = "sha256-j+7cobxVGNuZFYeRn5ad7XT4um8WNWE1byFo7qo9zK0=";
+          vendorHash = "sha256-GksJcnLcmHZKwhyHauHbGweZAOmQ3K/FV4FeMszpMYI=";
 
           ldflags = [
             "-X \"github.com/0skillallluck/scanline/app/dialogs/about.Commit=${
