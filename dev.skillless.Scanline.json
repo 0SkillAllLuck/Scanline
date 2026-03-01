@@ -11,8 +11,7 @@
     "--socket=wayland",
     "--socket=fallback-x11",
     "--socket=pulseaudio",
-    "--device=dri",
-    "--talk-name=org.freedesktop.secrets"
+    "--device=dri"
   ],
   "cleanup": ["/include", "/lib/pkgconfig"],
   "modules": [
