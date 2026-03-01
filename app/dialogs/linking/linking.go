@@ -31,7 +31,7 @@ func (q *QRBuffer) Close() error {
 }
 
 func NewLinking(window *gtk.Window, authURL string, cancel context.CancelFunc) schwifty.AlertDialog {
-	encodedUrl, err := qrcode.New(authURL)
+	encodedURL, err := qrcode.New(authURL)
 	if err != nil {
 		slog.Error("could not generate QR code to sign in", "error", err)
 	}
@@ -40,7 +40,7 @@ func NewLinking(window *gtk.Window, authURL string, cancel context.CancelFunc) s
 	shape := shapes.Assemble(shapes.RoundedFinder(), shapes.LiquidBlock())
 	writer := standard.NewWithWriter(&buf, standard.WithCustomShape(shape))
 
-	if err := encodedUrl.Save(writer); err != nil {
+	if err := encodedURL.Save(writer); err != nil {
 		slog.Error("could not write QR code to sign in", "error", err)
 	}
 

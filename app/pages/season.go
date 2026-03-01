@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -23,7 +22,7 @@ func Season(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respo
 		return router.FromError(gettext.Get("Season"), errSourceNotFound(serverID))
 	}
 
-	ctx := context.Background()
+	ctx := appCtx.Ctx
 
 	meta, err := src.GetMetadata(ctx, ratingKey)
 	if err != nil {

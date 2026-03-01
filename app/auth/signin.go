@@ -29,7 +29,7 @@ func PerformSignIn(ctx context.Context, window *gtk.Window, presentOn *gtk.Widge
 		slog.Debug("plex: sign-in flow started")
 		var dialog *adw.AlertDialog
 		clientID := secrets.GetOrCreateClientID()
-		token, err := auth.StartPinLinking(clientID, func(pin *auth.Pin, authURL string, cancel context.CancelFunc) {
+		token, err := auth.StartPinLinking(ctx, clientID, func(pin *auth.Pin, authURL string, cancel context.CancelFunc) {
 			schwifty.OnMainThreadOnce(func(u uintptr) {
 				dialog = linking.NewLinking(window, authURL, cancel)()
 				dialog.Present(presentOn)

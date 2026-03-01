@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -24,7 +23,7 @@ func Show(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respons
 		return router.FromError(gettext.Get("TV Show"), errSourceNotFound(serverID))
 	}
 
-	ctx := context.Background()
+	ctx := appCtx.Ctx
 
 	meta, err := src.GetMetadata(ctx, ratingKey)
 	if err != nil {

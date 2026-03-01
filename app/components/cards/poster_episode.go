@@ -10,14 +10,14 @@ import (
 )
 
 // NewEpisodePoster creates a new poster card for a tv-show episode.
-func NewEpisodePoster(metadata *sources.Metadata, coverUrl, serverID string) schwifty.Button {
+func NewEpisodePoster(metadata *sources.Metadata, coverURL, serverID string) schwifty.Button {
 	return poster(
 		metadata.GrandparentTitle,
 		VStack(
 			subTitle(metadata.Title),
 			subTitle(fmt.Sprintf("S%d - E%d", metadata.ParentIndex, metadata.Index)),
 		),
-		coverUrl,
+		coverURL,
 	).
 		ActionName("win.route.episode").
 		ActionTargetValue(glib.NewVariantString(serverID + "/" + metadata.RatingKey))

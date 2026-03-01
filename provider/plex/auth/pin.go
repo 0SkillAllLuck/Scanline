@@ -61,7 +61,7 @@ func RequestPin(clientIdentifier string) (*Pin, error) {
 	if err != nil {
 		return nil, fmt.Errorf("executing pin request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("failed to request PIN: %s", resp.Status)
@@ -93,7 +93,7 @@ func CheckPin(pinID int, pinCode, clientIdentifier string) (*Pin, error) {
 	if err != nil {
 		return nil, fmt.Errorf("executing check request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to check PIN: %s", resp.Status)
@@ -147,7 +147,7 @@ const Product = "Scanline"
 // The callback function is called with the PIN, authentication URL, and a cancel function.
 // The caller should display the auth URL to the user and call cancel if they want to abort.
 // This function blocks until the user completes authentication or the context is cancelled.
-func StartPinLinking(clientIdentifier string, cb func(*Pin, string, context.CancelFunc)) (string, error) {
+func StartPinLinking(ctx context.Context, clientIdentifier string, cb func(*Pin, string, context.CancelFunc)) (string, error) {
 	slog.Debug("plex: starting PIN linking flow")
 	pin, err := RequestPin(clientIdentifier)
 	if err != nil {
@@ -156,7 +156,7 @@ func StartPinLinking(clientIdentifier string, cb func(*Pin, string, context.Canc
 
 	authURL := AuthAppURL(clientIdentifier, pin.Code, Product)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	cb(pin, authURL, cancel)
 
 	token, err := PollPin(ctx, pin.ID, pin.Code, clientIdentifier, 2*time.Second)

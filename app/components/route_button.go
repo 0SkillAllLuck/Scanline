@@ -34,7 +34,7 @@ func (r *RouteButton) Icon(iconName string) *RouteButton {
 }
 
 func (r *RouteButton) TooltipText(tooltip string) *RouteButton {
-	r.Button.SetTooltipText(tooltip)
+	r.SetTooltipText(tooltip)
 	return r
 }
 

@@ -111,7 +111,7 @@ func (w *Window) presentSourceSelection() {
 	mgr := w.appCtx.Manager
 	var dialog *adw.Dialog
 	schwifty.OnMainThreadOnce(func(u uintptr) {
-		dialog = sources.NewSourceSelection(&w.Window, mgr, func() {
+		dialog = sources.NewSourceSelection(w.appCtx.Ctx, &w.Window, mgr, func() {
 			dialog.ForceClose()
 			router.Refresh()
 		})

@@ -10,7 +10,7 @@ import (
 )
 
 // NewEpisodePreviewCard creates a new 16:9 preview card for a tv-show episode.
-func NewEpisodePreviewCard(metadata *sources.Metadata, artUrl, serverID string) schwifty.Button {
+func NewEpisodePreviewCard(metadata *sources.Metadata, artURL, serverID string) schwifty.Button {
 	var progress float64
 	if metadata.Duration > 0 && metadata.ViewOffset > 0 {
 		progress = float64(metadata.ViewOffset) / float64(metadata.Duration)
@@ -22,7 +22,7 @@ func NewEpisodePreviewCard(metadata *sources.Metadata, artUrl, serverID string) 
 			subTitle(metadata.Title),
 			subTitle(fmt.Sprintf("S%d · E%d", metadata.ParentIndex, metadata.Index)),
 		),
-		artUrl,
+		artURL,
 		progress,
 	).
 		ActionName("win.route.episode").

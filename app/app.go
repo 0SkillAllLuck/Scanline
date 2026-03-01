@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/0skillallluck/scanline/app/appctx"
-	"github.com/0skillallluck/scanline/app/dialogs/secret_service"
+	"github.com/0skillallluck/scanline/app/dialogs/secretservice"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/app/windows"
@@ -42,7 +42,7 @@ func OnActivate(application *adw.Application) func(gio.Application) {
 
 		if err := secrets.Healthcheck(); err != nil {
 			slog.Error("Secret service health check failed", "title", err.Title, "body", err.Body, "fatal", err.Fatal)
-			secret_service.PresentSecretServiceErrorDialog(err, &window.Widget)
+			secretservice.PresentSecretServiceErrorDialog(err, &window.Widget)
 		}
 	}
 }

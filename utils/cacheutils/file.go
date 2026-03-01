@@ -49,12 +49,12 @@ func getFromFile(hashedKey string, ttl int) ([]byte, bool) {
 
 	var cached fileCachedEntry
 	if err := json.Unmarshal(raw, &cached); err != nil {
-		os.Remove(filePath)
+		_ = os.Remove(filePath)
 		return nil, false
 	}
 
 	if ttl > 0 && time.Now().After(cached.ExpiresAt) {
-		os.Remove(filePath)
+		_ = os.Remove(filePath)
 		return nil, false
 	}
 
@@ -91,7 +91,7 @@ func storeInFile(hashedKey string, data []byte, ttl int) error {
 func deleteFromFile(hashedKey string) {
 	cacheDir := getFileCacheDir()
 	filePath := filepath.Join(cacheDir, hashedKey+".json")
-	os.Remove(filePath)
+	_ = os.Remove(filePath)
 }
 
 func clearFileDir() error {
@@ -106,7 +106,7 @@ func clearFileDir() error {
 
 	for _, entry := range entries {
 		if !entry.IsDir() {
-			os.Remove(filepath.Join(cacheDir, entry.Name()))
+			_ = os.Remove(filepath.Join(cacheDir, entry.Name()))
 		}
 	}
 

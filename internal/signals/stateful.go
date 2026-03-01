@@ -23,12 +23,12 @@ func (s *StatefulSignal[T]) Notify(callback func(oldValue T) T) {
 	newValue := s.currentValue
 	s.lock.Unlock()
 
-	handlers := s.Signal.snapshot()
+	handlers := s.snapshot()
 	wg := sync.WaitGroup{}
 	for sub, handler := range handlers {
 		wg.Go(func() {
 			if handler(newValue) {
-				s.Signal.removeHandler(sub)
+				s.removeHandler(sub)
 			}
 		})
 	}

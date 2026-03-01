@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"context"
 	"log/slog"
 
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
@@ -22,7 +21,7 @@ func home(appCtx *appctx.AppContext) *router.Response {
 	body := VStack().Spacing(25).VMargin(20)
 
 	for _, src := range mgr.EnabledSources() {
-		hubList, err := src.HomeHubs(context.Background())
+		hubList, err := src.HomeHubs(appCtx.Ctx)
 		if err != nil {
 			slog.Error("failed to fetch home hubs", "source", src.Name(), "error", err)
 			continue
@@ -42,14 +41,14 @@ func home(appCtx *appctx.AppContext) *router.Response {
 			if hub.HubIdentifier == "home.continue" {
 				for j := range hub.Metadata {
 					meta := &hub.Metadata[j]
-					artUrl := sources.ArtURL(meta)
-					if artUrl != "" {
+					artURL := sources.ArtURL(meta)
+					if artURL != "" {
 						switch meta.Type {
 						case "movie":
-							list.Append(cards.NewMoviePreviewCard(meta, src.PhotoTranscodeURL(artUrl, 480, 270), serverID))
+							list.Append(cards.NewMoviePreviewCard(meta, src.PhotoTranscodeURL(artURL, 480, 270), serverID))
 							hasItems = true
 						case "episode":
-							list.Append(cards.NewEpisodePreviewCard(meta, src.PhotoTranscodeURL(artUrl, 480, 270), serverID))
+							list.Append(cards.NewEpisodePreviewCard(meta, src.PhotoTranscodeURL(artURL, 480, 270), serverID))
 							hasItems = true
 						}
 					}

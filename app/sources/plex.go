@@ -91,3 +91,11 @@ func (s *PlexSource) TranscodeStartURL(q url.Values) string {
 func (s *PlexSource) Scrobble(ctx context.Context, ratingKey string) error {
 	return s.client.Timeline.Scrobble(ctx, ratingKey)
 }
+
+func (s *PlexSource) Unscrobble(ctx context.Context, ratingKey string) error {
+	return s.client.Timeline.Unscrobble(ctx, ratingKey)
+}
+
+func (s *PlexSource) UpdateProgress(ctx context.Context, ratingKey string, state PlaybackState, timeMs, durationMs int) error {
+	return s.client.Timeline.UpdateProgress(ctx, ratingKey, state, timeMs, durationMs)
+}

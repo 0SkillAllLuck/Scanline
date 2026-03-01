@@ -7,12 +7,12 @@ type StatelessSignal[T any] struct {
 }
 
 func (s *StatelessSignal[T]) Notify(newValue T) {
-	handlers := s.Signal.snapshot()
+	handlers := s.snapshot()
 	wg := sync.WaitGroup{}
 	for sub, handler := range handlers {
 		wg.Go(func() {
 			if handler(newValue) {
-				s.Signal.removeHandler(sub)
+				s.removeHandler(sub)
 			}
 		})
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/jwijenbergh/puregotk/v4/pango"
 )
 
-func poster[T any](title string, subTitle schwifty.Widgetable[T], coverUrl string) schwifty.Button {
+func poster[T any](title string, subTitle schwifty.Widgetable[T], coverURL string) schwifty.Button {
 	return Button().
 		Child(
 			VStack(
@@ -19,7 +19,7 @@ func poster[T any](title string, subTitle schwifty.Widgetable[T], coverUrl strin
 					FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 					ConnectRealize(func(w gtk.Widget) {
 						if preference.Performance().AllowPreviewImages() {
-							imageutils.LoadIntoPictureScaled(coverUrl, 180, 270, gtk.PictureNewFromInternalPtr(w.Ptr))
+							imageutils.LoadIntoPictureScaled(coverURL, 180, 270, gtk.PictureNewFromInternalPtr(w.Ptr))
 						}
 					}).
 					CornerRadius(10).Overflow(gtk.OverflowHiddenValue),

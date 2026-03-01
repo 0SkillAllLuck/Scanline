@@ -1,4 +1,4 @@
-package secret_service
+package secretservice
 
 import (
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"

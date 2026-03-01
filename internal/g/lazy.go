@@ -2,7 +2,7 @@ package g
 
 func Lazy[T any](fn func() T) func() T {
 	var result T
-	var initialized bool = false
+	var initialized bool
 	return func() T {
 		if initialized {
 			return result

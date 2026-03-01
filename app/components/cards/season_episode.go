@@ -13,7 +13,7 @@ import (
 	"github.com/jwijenbergh/puregotk/v4/pango"
 )
 
-func NewSeasonEpisode(metadata *sources.Metadata, coverUrl, serverID string) schwifty.Button {
+func NewSeasonEpisode(metadata *sources.Metadata, coverURL, serverID string) schwifty.Button {
 	return Button().
 		Child(
 			VStack(
@@ -23,7 +23,7 @@ func NewSeasonEpisode(metadata *sources.Metadata, coverUrl, serverID string) sch
 					FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 					ConnectRealize(func(w gtk.Widget) {
 						if preference.Performance().AllowPreviewImages() {
-							imageutils.LoadIntoPictureScaled(coverUrl, 320, 180, gtk.PictureNewFromInternalPtr(w.Ptr))
+							imageutils.LoadIntoPictureScaled(coverURL, 320, 180, gtk.PictureNewFromInternalPtr(w.Ptr))
 						}
 					}).
 					CSS("picture { min-width: 320px; min-height: 180px; }").

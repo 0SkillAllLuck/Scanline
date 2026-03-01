@@ -31,13 +31,13 @@ type (
 // Hub types
 type Hub = hubs.Hub
 
-// Search types
+// SearchHub is the Hub type from the search sub-package.
 type SearchHub = search.Hub
 
 // Playlist types
 type Playlist = playlists.Playlist
 
-// Timeline types
+// PlaybackState is the PlaybackState type from the timeline sub-package.
 type PlaybackState = timeline.PlaybackState
 
 // Timeline state constants
