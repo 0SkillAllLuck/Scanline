@@ -74,7 +74,7 @@ func findBestConnection(ctx context.Context, httpClient *http.Client, connection
 				slog.Debug("plex: connection attempt failed", "uri", conn.URI, "local", conn.Local, "relay", conn.Relay, "ipv6", conn.IPv6, "error", err)
 				return
 			}
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if resp.StatusCode == http.StatusOK {
 				slog.Debug("plex: connection reachable", "uri", conn.URI, "local", conn.Local, "relay", conn.Relay, "ipv6", conn.IPv6)
 				results[i].ok = true

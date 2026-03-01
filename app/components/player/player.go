@@ -84,7 +84,11 @@ func NewPlayer(params PlayerParams) {
 		timeMs := int(ts / 1000)
 		durationMs := int(dur / 1000)
 		rk := params.RatingKey
-		go src.UpdateProgress(context.Background(), rk, state, timeMs, durationMs)
+		go func() {
+			if err := src.UpdateProgress(context.Background(), rk, state, timeMs, durationMs); err != nil {
+				slog.Error("failed to update progress", "error", err)
+			}
+		}()
 	}
 
 	// --- Close button (top-right) ---
@@ -164,10 +168,10 @@ func NewPlayer(params PlayerParams) {
 				return
 			}
 			ts := media.GetTimestamp()
-			newTs := max(
+			newTS := max(
 				// 30 seconds in microseconds
 				ts-30*1000000, 0)
-			doSeek(newTs)
+			doSeek(newTS)
 		})
 
 	playPauseSchwifty := Button().
@@ -208,11 +212,11 @@ func NewPlayer(params PlayerParams) {
 			}
 			ts := media.GetTimestamp()
 			dur := media.GetDuration()
-			newTs := ts + 30*1000000 // 30 seconds in microseconds
-			if dur > 0 && newTs > dur {
-				newTs = dur
+			newTS := ts + 30*1000000 // 30 seconds in microseconds
+			if dur > 0 && newTS > dur {
+				newTS = dur
 			}
-			doSeek(newTs)
+			doSeek(newTS)
 		})
 
 	centerControlsWidget := HStack(
@@ -493,8 +497,8 @@ func NewPlayer(params PlayerParams) {
 				return true
 			}
 			ts := media.GetTimestamp()
-			newTs := max(ts-30*1000000, 0)
-			doSeek(newTs)
+			newTS := max(ts-30*1000000, 0)
+			doSeek(newTS)
 			return true
 		case uint(gdk.KEY_Right):
 			if media == nil {
@@ -502,11 +506,11 @@ func NewPlayer(params PlayerParams) {
 			}
 			ts := media.GetTimestamp()
 			dur := media.GetDuration()
-			newTs := ts + 30*1000000
-			if dur > 0 && newTs > dur {
-				newTs = dur
+			newTS := ts + 30*1000000
+			if dur > 0 && newTS > dur {
+				newTS = dur
 			}
-			doSeek(newTs)
+			doSeek(newTS)
 			return true
 		case uint(gdk.KEY_Up):
 			if media == nil {
@@ -569,7 +573,11 @@ func NewPlayer(params PlayerParams) {
 				timeMs := int(ts / 1000)
 				durationMs := int(dur / 1000)
 				rk := params.RatingKey
-				go src.UpdateProgress(context.Background(), rk, sources.StatePlaying, timeMs, durationMs)
+				go func() {
+					if err := src.UpdateProgress(context.Background(), rk, sources.StatePlaying, timeMs, durationMs); err != nil {
+						slog.Error("failed to update progress", "error", err)
+					}
+				}()
 			}
 		}
 		// Update play/pause icon if stream ended

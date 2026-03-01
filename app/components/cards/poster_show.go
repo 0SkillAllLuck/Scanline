@@ -8,11 +8,11 @@ import (
 )
 
 // NewShowPoster creates a new poster card for a tv-show.
-func NewShowPoster(metadata *sources.Metadata, seasonCount int, coverUrl, serverID string) schwifty.Button {
+func NewShowPoster(metadata *sources.Metadata, seasonCount int, coverURL, serverID string) schwifty.Button {
 	return poster(
 		metadata.Title,
 		subTitle(gettext.GetN("%d Season", "%d Seasons", seasonCount, seasonCount)),
-		coverUrl,
+		coverURL,
 	).
 		ActionName("win.route.show").
 		ActionTargetValue(glib.NewVariantString(serverID + "/" + metadata.RatingKey))

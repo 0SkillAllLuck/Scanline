@@ -9,11 +9,11 @@ import (
 )
 
 // NewMoviePoster creates a new poster card for a movie.
-func NewMoviePoster(metadata *sources.Metadata, coverUrl, serverID string) schwifty.Button {
+func NewMoviePoster(metadata *sources.Metadata, coverURL, serverID string) schwifty.Button {
 	return poster(
 		metadata.Title,
 		subTitle(strconv.Itoa(metadata.Year)),
-		coverUrl,
+		coverURL,
 	).
 		ActionName("win.route.movie").
 		ActionTargetValue(glib.NewVariantString(serverID + "/" + metadata.RatingKey))

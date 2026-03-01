@@ -42,14 +42,14 @@ func home(appCtx *appctx.AppContext) *router.Response {
 			if hub.HubIdentifier == "home.continue" {
 				for j := range hub.Metadata {
 					meta := &hub.Metadata[j]
-					artUrl := sources.ArtURL(meta)
-					if artUrl != "" {
+					artURL := sources.ArtURL(meta)
+					if artURL != "" {
 						switch meta.Type {
 						case "movie":
-							list.Append(cards.NewMoviePreviewCard(meta, src.PhotoTranscodeURL(artUrl, 480, 270), serverID))
+							list.Append(cards.NewMoviePreviewCard(meta, src.PhotoTranscodeURL(artURL, 480, 270), serverID))
 							hasItems = true
 						case "episode":
-							list.Append(cards.NewEpisodePreviewCard(meta, src.PhotoTranscodeURL(artUrl, 480, 270), serverID))
+							list.Append(cards.NewEpisodePreviewCard(meta, src.PhotoTranscodeURL(artURL, 480, 270), serverID))
 							hasItems = true
 						}
 					}

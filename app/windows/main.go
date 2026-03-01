@@ -200,7 +200,7 @@ func (w *Window) buildContentLayout() *gtk.Widget {
 		return signals.Continue
 	})
 
-	toolbarView.Widget.ConnectDestroy(new(func(w gtk.Widget) {
+	toolbarView.ConnectDestroy(new(func(w gtk.Widget) {
 		if navStartedSub != nil {
 			router.NavigationStarted.Unsubscribe(navStartedSub)
 			navStartedSub = nil

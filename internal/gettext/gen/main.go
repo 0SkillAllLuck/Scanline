@@ -261,42 +261,54 @@ func writePOTContent(w io.Writer, messages []Message) error {
 		version = strings.TrimSpace(string(output))
 	}
 
-	fmt.Fprintln(w, "# SOME DESCRIPTIVE TITLE.")
-	fmt.Fprintln(w, "# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER")
-	fmt.Fprintln(w, "# This file is distributed under the same license as the PACKAGE package.")
-	fmt.Fprintln(w, "# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.")
-	fmt.Fprintln(w, "#")
-	fmt.Fprintln(w, "#, fuzzy")
-	fmt.Fprintln(w, "msgid \"\"")
-	fmt.Fprintln(w, "msgstr \"\"")
-	fmt.Fprintln(w, "\"Project-Id-Version: "+version+"\\n\"")
-	fmt.Fprintln(w, "\"Report-Msgid-Bugs-To: \\n\"")
-	fmt.Fprintf(w, "\"POT-Creation-Date: %s\\n\"\n", time.Now().Format("2006-01-02 15:04-0700"))
-	fmt.Fprintln(w, "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"")
-	fmt.Fprintln(w, "\"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n\"")
-	fmt.Fprintln(w, "\"Language-Team: LANGUAGE <LL@li.org>\\n\"")
-	fmt.Fprintln(w, "\"Language: \\n\"")
-	fmt.Fprintln(w, "\"MIME-Version: 1.0\\n\"")
-	fmt.Fprintln(w, "\"Content-Type: text/plain; charset=UTF-8\\n\"")
-	fmt.Fprintln(w, "\"Content-Transfer-Encoding: 8bit\\n\"")
-	fmt.Fprintln(w)
-
-	for _, msg := range messages {
-		fmt.Fprintf(w, "#: %s:%d\n", msg.File, msg.Line)
-
-		if msg.IsPlural {
-			fmt.Fprintf(w, "msgid %s\n", quotePOString(msg.ID))
-			fmt.Fprintf(w, "msgid_plural %s\n", quotePOString(msg.IDPlural))
-			fmt.Fprintln(w, "msgstr[0] \"\"")
-			fmt.Fprintln(w, "msgstr[1] \"\"")
-		} else {
-			fmt.Fprintf(w, "msgid %s\n", quotePOString(msg.ID))
-			fmt.Fprintln(w, "msgstr \"\"")
+	var writeErr error
+	writeln := func(args ...any) {
+		if writeErr == nil {
+			_, writeErr = fmt.Fprintln(w, args...)
 		}
-		fmt.Fprintln(w)
+	}
+	writef := func(format string, args ...any) {
+		if writeErr == nil {
+			_, writeErr = fmt.Fprintf(w, format, args...)
+		}
 	}
 
-	return nil
+	writeln("# SOME DESCRIPTIVE TITLE.")
+	writeln("# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER")
+	writeln("# This file is distributed under the same license as the PACKAGE package.")
+	writeln("# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.")
+	writeln("#")
+	writeln("#, fuzzy")
+	writeln("msgid \"\"")
+	writeln("msgstr \"\"")
+	writeln("\"Project-Id-Version: " + version + "\\n\"")
+	writeln("\"Report-Msgid-Bugs-To: \\n\"")
+	writef("\"POT-Creation-Date: %s\\n\"\n", time.Now().Format("2006-01-02 15:04-0700"))
+	writeln("\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"")
+	writeln("\"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n\"")
+	writeln("\"Language-Team: LANGUAGE <LL@li.org>\\n\"")
+	writeln("\"Language: \\n\"")
+	writeln("\"MIME-Version: 1.0\\n\"")
+	writeln("\"Content-Type: text/plain; charset=UTF-8\\n\"")
+	writeln("\"Content-Transfer-Encoding: 8bit\\n\"")
+	writeln()
+
+	for _, msg := range messages {
+		writef("#: %s:%d\n", msg.File, msg.Line)
+
+		if msg.IsPlural {
+			writef("msgid %s\n", quotePOString(msg.ID))
+			writef("msgid_plural %s\n", quotePOString(msg.IDPlural))
+			writeln("msgstr[0] \"\"")
+			writeln("msgstr[1] \"\"")
+		} else {
+			writef("msgid %s\n", quotePOString(msg.ID))
+			writeln("msgstr \"\"")
+		}
+		writeln()
+	}
+
+	return writeErr
 }
 
 func messagesEqual(content1, content2 []byte) bool {

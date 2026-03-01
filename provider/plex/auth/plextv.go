@@ -122,7 +122,7 @@ func (p *PlexTV) DiscoverServers(ctx context.Context, token string) ([]Resource,
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to discover servers: %s", resp.Status)
@@ -164,7 +164,7 @@ func (p *PlexTV) GetUser(ctx context.Context, token string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to get user: %s", resp.Status)

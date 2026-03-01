@@ -1,5 +1,12 @@
-linters-settings:
-  staticcheck:
-    checks:
-      - "all"
-      - "-ST1001" # Dot imports
+version: "2"
+
+linters:
+  settings:
+    govet:
+      disable:
+        - unsafeptr # Required for puregotk FFI bindings (uintptr → *glib.Variant)
+    staticcheck:
+      checks:
+        - "all"
+        - "-ST1000" # Package comments
+        - "-ST1001" # Dot imports

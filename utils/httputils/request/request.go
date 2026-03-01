@@ -115,7 +115,7 @@ func (r *Request) Do() (*response.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Read the body
 	body, err := io.ReadAll(resp.Body)

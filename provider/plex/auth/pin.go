@@ -61,7 +61,7 @@ func RequestPin(clientIdentifier string) (*Pin, error) {
 	if err != nil {
 		return nil, fmt.Errorf("executing pin request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("failed to request PIN: %s", resp.Status)
@@ -93,7 +93,7 @@ func CheckPin(pinID int, pinCode, clientIdentifier string) (*Pin, error) {
 	if err != nil {
 		return nil, fmt.Errorf("executing check request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to check PIN: %s", resp.Status)

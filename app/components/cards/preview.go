@@ -10,7 +10,7 @@ import (
 	"github.com/jwijenbergh/puregotk/v4/pango"
 )
 
-func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artUrl string, progress float64) schwifty.Button {
+func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL string, progress float64) schwifty.Button {
 	// Progress bar width based on progress
 	progressWidth := int(480 * progress)
 
@@ -21,7 +21,7 @@ func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artUrl st
 		ContentFit(gtk.ContentFitCoverValue).
 		ConnectRealize(func(w gtk.Widget) {
 			if preference.Performance().AllowPreviewImages() {
-				imageutils.LoadIntoPictureScaled(artUrl, 480, 270, gtk.PictureNewFromInternalPtr(w.Ptr))
+				imageutils.LoadIntoPictureScaled(artURL, 480, 270, gtk.PictureNewFromInternalPtr(w.Ptr))
 			}
 		})
 
