@@ -79,7 +79,7 @@
 
         packages.scanline = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) (finalAttrs: {
           pname = "scanline";
-          version = "1.0.1";
+          version = "0.1.0";
           src = pkgs.lib.cleanSource ./.;
           vendorHash = "sha256-GksJcnLcmHZKwhyHauHbGweZAOmQ3K/FV4FeMszpMYI=";
 
@@ -114,12 +114,13 @@
               name = "dev.skillless.Scanline";
               exec = "scanline %u";
               icon = "dev.skillless.Scanline";
-              comment = "Scanline is a unoffficial native GTK4 / Adwaita client for Plex.";
+              comment = "An unofficial native GTK4 / Adwaita client for Plex";
               desktopName = "Scanline";
               mimeTypes = [
                 "x-scheme-handler/plex"
               ];
               categories = [
+                "AudioVideo"
                 "Video"
                 "GNOME"
                 "GTK"
@@ -140,7 +141,7 @@
           '';
 
           meta = {
-            description = "Scanline is a unoffficial native GTK4 / Adwaita client for Plex.";
+            description = "Scanline is an unofficial native GTK4 / Adwaita client for Plex";
             homepage = "https://github.com/0skillallluck/scanline";
             license = pkgs.lib.licenses.gpl3Plus;
             maintainers = with pkgs.lib.maintainers; [

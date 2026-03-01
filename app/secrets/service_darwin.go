@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	serviceName = "dev.dergs.Tonearm"
+	serviceName = "dev.skillless.Scanless"
 )
 
 type serviceDarwin struct{}

@@ -1,9 +1,11 @@
 [Desktop Entry]
-Categories=AudioVideo;Video;Music;GNOME;GTK
-Comment=Scanline is a unoffficial native GTK4 / Adwaita client for Plex.
+Version=1.0
+Type=Application
+Name=Scanline
+Comment=An unofficial native GTK4 / Adwaita client for Plex
 Exec=scanline %u
 Icon=dev.skillless.Scanline
-MimeType=x-scheme-handler/plex
-Name=Scanline
-Type=Application
-Version=1.5
+Categories=AudioVideo;Video;GNOME;GTK;
+Keywords=Plex;media;movies;tv-shows;streaming;video;
+MimeType=x-scheme-handler/plex;
+StartupNotify=true

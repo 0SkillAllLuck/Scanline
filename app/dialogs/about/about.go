@@ -127,9 +127,9 @@ func NewAboutDialog() *adw.AboutDialog {
 	})
 	dialog.SetTranslatorCredits(gettext.Get("translator-credits"))
 	dialog.SetCopyright("© 2026 Nila The Dragon")
-	dialog.SetWebsite("https://dergs.dev/projects/scanline")
+	dialog.SetWebsite("https://scanline.skillless.dev")
 	dialog.SetIssueUrl("https://github.com/0skillallluck/scanline/issues")
-	dialog.SetSupportUrl("https://matrix.to/#/%23scanline:derg.social")
+	dialog.SetSupportUrl("https://matrix.to/#/%23scanline:skillless.dev")
 
 	dialog.AddLegalSection("GStreamer Bindings (go-gst/go-gst)", "© 2020 https://github.com/go-gst/go-gst", gtk.LicenseLgpl30Value, "")
 	dialog.AddLegalSection("DBus Client (godbus/dbus)", "© 2020 Georg Reinke https://github.com/godbus/dbus", gtk.LicenseBsdValue, "")
