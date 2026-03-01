@@ -1,0 +1,40 @@
+{
+  "app-id": "dev.skillless.Scanline",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "49",
+  "sdk": "org.gnome.Sdk",
+  "sdk-extensions": ["org.freedesktop.Sdk.Extension.golang"],
+  "command": "scanline",
+  "finish-args": [
+    "--share=network",
+    "--share=ipc",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--socket=pulseaudio",
+    "--device=dri"
+  ],
+  "cleanup": ["/include", "/lib/pkgconfig"],
+  "modules": [
+    {
+      "name": "scanline",
+      "buildsystem": "simple",
+      "build-commands": [
+        "bash -c '. /usr/lib/sdk/golang/enable.sh && ([ -f vendor/modules.txt ] || go mod vendor)'",
+        "bash -c '. /usr/lib/sdk/golang/enable.sh && export GOBIN=\"/app/bin\" && go install -v -mod=vendor -trimpath -ldflags=\"-w -s\" .'",
+        "desktop-file-install --dir=/app/share/applications assets/meta/$FLATPAK_ID.desktop",
+        "install -D -m 0644 assets/meta/$FLATPAK_ID.metainfo.xml /app/share/metainfo/$FLATPAK_ID.metainfo.xml",
+        "install -D -m 0644 assets/icons/app.svg /app/share/icons/hicolor/scalable/apps/$FLATPAK_ID.svg",
+        "install -D -m 0644 assets/icons/app-symbolic.svg /app/share/icons/hicolor/symbolic/apps/$FLATPAK_ID-symbolic.svg",
+        "install -D -m 0644 assets/meta/$FLATPAK_ID.gschema.xml /app/share/glib-2.0/schemas/$FLATPAK_ID.gschema.xml",
+        "glib-compile-schemas /app/share/glib-2.0/schemas"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        },
+        "assets/meta/go.mod.yml"
+      ]
+    }
+  ]
+}

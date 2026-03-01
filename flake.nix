@@ -17,26 +17,24 @@
         pkgs = import nixpkgs { inherit system; };
         libraryPath = pkgs.symlinkJoin {
           name = "scanline-puregotk-lib-folder";
-          paths =
-            with pkgs;
-            [
-              cairo
-              gdk-pixbuf
-              glib.out
-              graphene
-              pango.out
-              gtk4
-              libadwaita
-              gobject-introspection
-              librsvg
-              libsecret
-            ];
+          paths = with pkgs; [
+            cairo
+            gdk-pixbuf
+            glib.out
+            graphene
+            pango.out
+            gtk4
+            libadwaita
+            gobject-introspection
+            librsvg
+            libsecret
+          ];
         };
       in
       {
         devShell = pkgs.mkShell {
           PUREGOTK_LIB_FOLDER = "${libraryPath}/lib";
-          GSETTINGS_SCHEMA_DIR = "./app/preference";
+          GSETTINGS_SCHEMA_DIR = "./assets/meta";
           SCANLINE_DEBUG = "1";
           GST_PLUGIN_PATH = pkgs.lib.makeSearchPath "lib/gstreamer-1.0" (
             with pkgs.gst_all_1;
@@ -81,7 +79,7 @@
 
         packages.scanline = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) (finalAttrs: {
           pname = "scanline";
-          version = "1.0.1";
+          version = "0.1.0";
           src = pkgs.lib.cleanSource ./.;
           vendorHash = "sha256-GksJcnLcmHZKwhyHauHbGweZAOmQ3K/FV4FeMszpMYI=";
 
@@ -116,12 +114,13 @@
               name = "dev.skillless.Scanline";
               exec = "scanline %u";
               icon = "dev.skillless.Scanline";
-              comment = "Scanline is a unoffficial native GTK4 / Adwaita client for Plex.";
+              comment = "An unofficial native GTK4 / Adwaita client for Plex";
               desktopName = "Scanline";
               mimeTypes = [
                 "x-scheme-handler/plex"
               ];
               categories = [
+                "AudioVideo"
                 "Video"
                 "GNOME"
                 "GTK"
@@ -134,15 +133,15 @@
               --prefix GST_PLUGIN_PATH : "$GST_PLUGIN_SYSTEM_PATH_1_0" \
               --set-default PUREGOTK_LIB_FOLDER ${libraryPath}/lib \
               ''${gappsWrapperArgs[@]}
-            install -Dm644 app/icons/hicolor/scalable/apps/dev.skillless.Scanline.svg -t $out/share/icons/hicolor/scalable/apps
-            install -Dm644 app/icons/hicolor/128x128/apps/dev.skillless.Scanline.png -t $out/share/icons/hicolor/128x128/apps
-            install -Dm644 app/icons/hicolor/symbolic/apps/dev.skillless.Scanline-symbolic.svg -t $out/share/icons/hicolor/symbolic/apps
-            install -Dm644 app/preference/dev.skillless.Scanline.gschema.xml -t $out/share/glib-2.0/schemas
+            install -Dm644 assets/icons/app.svg $out/share/icons/hicolor/scalable/apps/dev.skillless.Scanline.svg
+            install -Dm644 assets/icons/app.png $out/share/icons/hicolor/128x128/apps/dev.skillless.Scanline.png
+            install -Dm644 assets/icons/app-symbolic.svg $out/share/icons/hicolor/symbolic/apps/dev.skillless.Scanline-symbolic.svg
+            install -Dm644 assets/meta/dev.skillless.Scanline.gschema.xml $out/share/glib-2.0/schemas/dev.skillless.Scanline.gschema.xml
             glib-compile-schemas $out/share/glib-2.0/schemas
           '';
 
           meta = {
-            description = "Scanline is a unoffficial native GTK4 / Adwaita client for Plex.";
+            description = "Scanline is an unofficial native GTK4 / Adwaita client for Plex";
             homepage = "https://github.com/0skillallluck/scanline";
             license = pkgs.lib.licenses.gpl3Plus;
             maintainers = with pkgs.lib.maintainers; [

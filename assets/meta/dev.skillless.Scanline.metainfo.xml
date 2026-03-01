@@ -1,45 +1,92 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <component type="desktop-application">
   <id>dev.skillless.Scanline</id>
-  <metadata_license>MIT</metadata_license>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
   <name>Scanline</name>
-  <summary>Stream your favorite music</summary>
+  <summary>An unofficial native client for Plex</summary>
+
+  <developer id="0SkillAllLuck">
+    <name translate="no">0SkillAllLuck</name>
+  </developer>
+
   <description>
     <p>
-    With Scanline you are able to play tracks at their highest quality, explore new tracks using discovery mixes or the explore tab or just enjoy the songs you already know you love from your collection. Just like you would expect from the real app. Scanline also has some additional features such as
+      Scanline lets you browse your Plex media libraries, search across servers,
+      and play content natively in a GTK4 / Adwaita interface.
     </p>
     <ul>
-      <li>Background Playback</li>
-      <li>Gapless playback</li>
+      <li>Multi-server support</li>
+      <li>Full-text search</li>
+      <li>Library browsing</li>
+      <li>Video playback</li>
       <li>MPRIS integration</li>
       <li>Scrobbling to ListenBrainz</li>
     </ul>
     <p>
-    Don't have a TIDAL account? You can still try the app and enjoy song previews of up to 30 seconds to see if it's for you.
+      Requires a Plex account and access to a Plex server.
     </p>
   </description>
-  <icon type="stock">dev.skillless.Scanline</icon>
 
-  <categories>
-      <category>Video</category>
-  </categories>
+  <launchable type="desktop-id">dev.skillless.Scanline.desktop</launchable>
 
-  <keywords>
-    <keyword translate="no">Plex</keyword>
-    <keyword>movies</keyword>
-    <keyword>tv-shows</keyword>
-    <keyword>streaming</keyword>
-  </keywords>
+  <provides>
+    <binary>scanline</binary>
+  </provides>
 
   <branding>
     <color type="primary" scheme_preference="light">#3a2aef</color>
     <color type="primary" scheme_preference="dark">#690daf</color>
   </branding>
 
-  <url type="homepage">https://dergs.dev/projects/scanline</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Scanline displaying the public, unauthenticated home page</caption>
+      <image>
+      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/home.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Scanline showing the explore page</caption>
+      <image>
+      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/explore.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Scanline showing the search page, while displaying the lyrics of the current song</caption>
+      <image>
+      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/search_lyrics.png
+      </image>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://scanline.skillless.dev</url>
   <url type="bugtracker">https://github.com/0skillallluck/scanline/issues</url>
   <url type="vcs-browser">https://github.com/0skillallluck/scanline</url>
   <url type="contact">https://matrix.to/#/%23scanline:derg.social</url>
+
+  <keywords>
+    <keyword translate="no">Plex</keyword>
+    <keyword>movies</keyword>
+    <keyword>tv-shows</keyword>
+    <keyword>streaming</keyword>
+    <keyword>video</keyword>
+    <keyword>media</keyword>
+  </keywords>
+
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+
+  <recommends>
+    <display_length compare="ge">360</display_length>
+  </recommends>
+
+  <requires>
+    <internet>always</internet>
+  </requires>
 
   <releases>
     <release version="1.2.0" date="2026-02-05">
@@ -122,42 +169,6 @@
     </release>
   </releases>
 
-  <launchable type="desktop-id">dev.skillless.Scanline.desktop</launchable>
-
-  <recommends>
-    <control>keyboard</control>
-    <control>pointing</control>
-    <control>touch</control>
-  </recommends>
-
-  <project_license>GPL-3.0-or-later</project_license>
-
-  <developer id="dev.dergs">
-    <name translate="no">The Dergs and Contributors</name>
-  </developer>
-
-  <screenshots>
-    <screenshot type="default">
-      <caption>Scanline displaying the public, unauthenticated home page</caption>
-      <image>
-      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/home.png
-      </image>
-    </screenshot>
-    <screenshot>
-      <caption>Scanline showing the explore page</caption>
-      <image>
-      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/explore.png
-      </image>
-    </screenshot>
-    <screenshot>
-      <caption>Scanline showing the search page, while displaying the lyrics of the current song</caption>
-      <image>
-      https://github.com/0skillallluck/scanline/raw/commit/55e9b066a70bceba923991fff38af8724c97cbf4/.codeberg/images/search_lyrics.png
-      </image>
-    </screenshot>
-  </screenshots>
-
   <content_rating type="oars-1.1" />
-
 
 </component>

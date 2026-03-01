@@ -7,8 +7,6 @@ import (
 	"github.com/jwijenbergh/puregotk/v4/gio"
 )
 
-//go:generate glib-compile-schemas .
-
 var General = g.Lazy(func() *GeneralSettings {
 	return &GeneralSettings{
 		finalize(gio.NewSettings("dev.skillless.Scanline")),

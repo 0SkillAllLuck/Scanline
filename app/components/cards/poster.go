@@ -3,9 +3,9 @@ package cards
 import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"github.com/0skillallluck/scanline/internal/resources"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/jwijenbergh/puregotk/v4/gdk"
 	"github.com/jwijenbergh/puregotk/v4/gtk"
 	"github.com/jwijenbergh/puregotk/v4/pango"
 )
@@ -16,7 +16,7 @@ func poster[T any](title string, subTitle schwifty.Widgetable[T], coverUrl strin
 			VStack(
 				Picture().
 					SizeRequest(180, 270).
-					FromPaintable(resources.MissingAlbum()).
+					FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 					ConnectRealize(func(w gtk.Widget) {
 						if preference.Performance().AllowPreviewImages() {
 							imageutils.LoadIntoPictureScaled(coverUrl, 180, 270, gtk.PictureNewFromInternalPtr(w.Ptr))

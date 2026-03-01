@@ -8,17 +8,28 @@
 >
 
     <name>Scanline</name>
-    <shortdesc xml:lang="en">a unoffficial native GTK4 / Adwaita client for Plex</shortdesc>
+    <shortdesc xml:lang="en">An unofficial native GTK4 / Adwaita client for Plex</shortdesc>
+    <description xml:lang="en">Scanline lets you browse your Plex media libraries, search across servers, and play content natively in a GTK4 / Adwaita interface. Requires a Plex account and access to a Plex server.</description>
 
-    <homepage rdf:resource="https://github.com/0skillallluck/scanline" />
-    <download-page rdf:resource="https://github.com/0skillallluck/scanline" />
+    <homepage rdf:resource="https://scanline.skillless.dev/" />
+    <download-page rdf:resource="https://github.com/0skillallluck/scanline/releases" />
     <bug-database rdf:resource="https://github.com/0skillallluck/scanline/issues" />
 
-    <programming-language>Golang</programming-language>
+    <license rdf:resource="https://spdx.org/licenses/GPL-3.0-or-later" />
+
+    <programming-language>Go</programming-language>
+    <platform>GTK 4</platform>
+    <platform>Libadwaita</platform>
 
     <maintainer>
         <foaf:Person>
         <foaf:name>0SkillAllLuck</foaf:name>
+        <foaf:account>
+            <foaf:OnlineAccount>
+                <foaf:accountServiceHomepage rdf:resource="https://github.com" />
+                <foaf:accountName>0SkillAllLuck</foaf:accountName>
+            </foaf:OnlineAccount>
+        </foaf:account>
         </foaf:Person>
     </maintainer>
 

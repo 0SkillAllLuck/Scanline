@@ -3,11 +3,11 @@ package cards
 import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/0skillallluck/scanline/internal/resources"
-	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/jwijenbergh/puregotk/v4/gdk"
 	"github.com/jwijenbergh/puregotk/v4/glib"
 	"github.com/jwijenbergh/puregotk/v4/gtk"
 	"github.com/jwijenbergh/puregotk/v4/pango"
@@ -20,7 +20,7 @@ func NewSeasonEpisode(metadata *sources.Metadata, coverUrl, serverID string) sch
 				Picture().
 					SizeRequest(320, 180).
 					ContentFit(gtk.ContentFitCoverValue).
-					FromPaintable(resources.MissingAlbum()).
+					FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 					ConnectRealize(func(w gtk.Widget) {
 						if preference.Performance().AllowPreviewImages() {
 							imageutils.LoadIntoPictureScaled(coverUrl, 320, 180, gtk.PictureNewFromInternalPtr(w.Ptr))
