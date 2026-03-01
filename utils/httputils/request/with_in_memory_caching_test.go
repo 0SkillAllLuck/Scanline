@@ -9,13 +9,13 @@ import (
 )
 
 func TestWithInMemoryCaching_GetRequest(t *testing.T) {
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"call":` + string(rune('0'+callCount)) + `}`))
+		w.Write([]byte(`{"call":` + string(rune('0'+callCount)) + `}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -43,13 +43,13 @@ func TestWithInMemoryCaching_GetRequest(t *testing.T) {
 }
 
 func TestWithInMemoryCaching_PersistsForSessionLifetime(t *testing.T) {
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data":"persistent"}`))
+		w.Write([]byte(`{"data":"persistent"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -77,7 +77,7 @@ func TestWithInMemoryCaching_PersistsForSessionLifetime(t *testing.T) {
 }
 
 func TestWithInMemoryCaching_NonGetRequestIgnored(t *testing.T) {
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -95,13 +95,13 @@ func TestWithInMemoryCaching_NonGetRequestIgnored(t *testing.T) {
 }
 
 func TestWithInMemoryCaching_DifferentURLsDifferentCache(t *testing.T) {
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"path":"` + r.URL.Path + `"}`))
+		w.Write([]byte(`{"path":"` + r.URL.Path + `"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 

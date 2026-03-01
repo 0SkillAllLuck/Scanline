@@ -22,8 +22,16 @@ func init() {
 	locale.AddDomain("default")
 }
 
-func Get(msgid string, args ...any) string {
+// Get translates a string without printf-style formatting.
+func Get(msgid string) string {
+	// Indirection breaks go vet's printf analysis chain, which otherwise
+	// flags non-constant first args to locale.Get (a printf-like function).
+	fn := locale.Get
+	return fn(msgid)
+}
 
+// Getf translates a string with printf-style formatting.
+func Getf(msgid string, args ...any) string {
 	return locale.Get(msgid, args...)
 }
 

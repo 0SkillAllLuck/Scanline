@@ -595,7 +595,7 @@ func NewPlayer(params PlayerParams) {
 			dur := media.GetDuration()
 			ts := media.GetTimestamp()
 			if dur > 0 && ts > 0 && float64(ts)/float64(dur) > 0.9 {
-				go src.Scrobble(context.Background(), params.RatingKey)
+				go src.Scrobble(context.Background(), params.RatingKey) //nolint:errcheck // fire-and-forget
 			}
 			media.Pause()
 		}

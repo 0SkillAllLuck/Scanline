@@ -32,7 +32,7 @@ func fetch(url string) ([]byte, error) {
 	}
 
 	if preference.Performance().ShouldCacheImages() {
-		cacheutils.Store(url, data, cacheutils.Layered, 0)
+		cacheutils.Store(url, data, cacheutils.Layered, 0) //nolint:errcheck // best-effort cache
 	}
 
 	return data, nil

@@ -17,14 +17,6 @@ type RouteButton struct {
 	subscription *signals.Subscription
 }
 
-func (r *RouteButton) setActive(active bool) {
-	if active {
-		r.AddCssClass("active")
-	} else {
-		r.RemoveCssClass("active")
-	}
-}
-
 func (r *RouteButton) Title(title string) *RouteButton {
 	r.label.SetText(title)
 	r.label.SetVisible(title != "")

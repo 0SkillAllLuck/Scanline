@@ -47,7 +47,7 @@ var performancePreferences = PreferencesPage(
 			StartIconName("brush-symbolic").
 			ConnectConstruct(func(br *adw.ButtonRow) {
 				cb := func(adw.ButtonRow) {
-					cacheutils.Clear()
+					cacheutils.Clear() //nolint:errcheck
 				}
 				br.ConnectActivated(&cb)
 			}),

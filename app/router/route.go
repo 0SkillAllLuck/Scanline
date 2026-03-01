@@ -4,9 +4,8 @@ import "strings"
 
 // Route represents a registered route with its pattern and handler.
 type Route struct {
-	pattern  string
-	segments []string // static segments between params
-	nParams  int
+	pattern string
+	nParams int
 }
 
 // NewRoute creates a new route, validates the handler, and registers it.

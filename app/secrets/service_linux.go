@@ -32,14 +32,14 @@ func (s *serviceLinux) Available() *ServiceError {
 	if err != nil {
 		return &ServiceError{
 			Title: gettext.Get("Secret Service Error"),
-			Body:  gettext.Get("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
+			Body:  gettext.Getf("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
 			Fatal: false,
 		}
 	}
 
 	// Fake secret fetch to see if the service is available
 	attrs := golibsecret.NewAttributes()
-	attrs.Set("key", "dummy_key")
+	attrs.Set("key", "dummy_key") //nolint:errcheck
 	_, err = golibsecret.PasswordLookupSync(schema, attrs)
 	if err == nil {
 		return nil
@@ -63,7 +63,7 @@ func (s *serviceLinux) Available() *ServiceError {
 
 	return &ServiceError{
 		Title: gettext.Get("Secret Service Error"),
-		Body:  gettext.Get("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
+		Body:  gettext.Getf("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
 		Fatal: false,
 	}
 }
@@ -85,7 +85,7 @@ func (s *serviceLinux) Get(key string) (Item, error) {
 		return Item{}, err
 	}
 	attrs := golibsecret.NewAttributes()
-	attrs.Set("key", key)
+	attrs.Set("key", key) //nolint:errcheck
 	val, err := golibsecret.PasswordLookupSync(schema, attrs)
 	if val == "" && err == nil {
 		return Item{}, ErrKeyNotFound
@@ -111,7 +111,7 @@ func (s *serviceLinux) Set(key string, value Item) error {
 		return err
 	}
 	attrs := golibsecret.NewAttributes()
-	attrs.Set("key", key)
+	attrs.Set("key", key) //nolint:errcheck
 	return golibsecret.PasswordStoreSync(schema, attrs, golibsecret.CollectionDefault, value.Label, value.Password)
 }
 

@@ -26,7 +26,7 @@ func TestWithTimeout_RequestTimesOut(t *testing.T) {
 func TestWithTimeout_RequestSucceeds(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
+		w.Write([]byte(`{"status":"ok"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 

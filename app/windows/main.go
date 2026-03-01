@@ -186,14 +186,14 @@ func (w *Window) buildContentLayout() *gtk.Widget {
 	toolbarView.AddTopBar(w.buildContentHeader())
 
 	var navStartedSub, navCompletedSub *signals.Subscription
-	navStartedSub = router.NavigationStarted.On(func(path string) bool {
+	navStartedSub = router.NavigationStarted.On(func(path string) bool { //nolint:staticcheck // SA4006 - used in closure
 		schwifty.OnMainThreadOnce(func(u uintptr) {
 			toolbarView.SetContent(loadingView())
 		}, 0)
 		return signals.Continue
 	})
 
-	navCompletedSub = router.NavigationCompleted.On(func(entry router.HistoryEntry) bool {
+	navCompletedSub = router.NavigationCompleted.On(func(entry router.HistoryEntry) bool { //nolint:staticcheck // SA4006 - used in closure
 		schwifty.OnMainThreadOncePure(func() {
 			toolbarView.SetContent(entry.View)
 		})

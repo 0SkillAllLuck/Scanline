@@ -13,7 +13,7 @@ func TestGet_BasicRequest(t *testing.T) {
 			t.Errorf("Method = %s, want GET", r.Method)
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message":"success"}`))
+		w.Write([]byte(`{"message":"success"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -76,7 +76,7 @@ func TestDo_ReturnsResponse(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Custom-Header", "custom-value")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
+		w.Write([]byte(`{"status":"ok"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -107,7 +107,7 @@ func TestDoAndDecode_ParsesJSON(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message":"hello","count":5}`))
+		w.Write([]byte(`{"message":"hello","count":5}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -128,7 +128,7 @@ func TestDoAndDecode_ParsesJSON(t *testing.T) {
 func TestDoAndDecode_NonSuccessStatus(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"bad request"}`))
+		w.Write([]byte(`{"error":"bad request"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 

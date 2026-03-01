@@ -27,7 +27,7 @@ type Message struct {
 func main() {
 	if len(os.Args) > 1 && (os.Args[1] == "-h" || os.Args[1] == "--help") {
 		fmt.Println("Usage: go run main.go [output_file]")
-		fmt.Println("Scans Go files for gettext.Get and gettext.GetN calls and generates a POT file")
+		fmt.Println("Scans Go files for gettext.Get, gettext.Getf, and gettext.GetN calls and generates a POT file")
 		fmt.Println("Default output: messages.pot")
 		os.Exit(0)
 	}
@@ -177,7 +177,7 @@ func extractMessages(filePath, projectRoot string) ([]Message, error) {
 		line := pos.Line
 
 		switch sel.Sel.Name {
-		case "Get":
+		case "Get", "Getf":
 			if len(call.Args) < 1 {
 				return true
 			}

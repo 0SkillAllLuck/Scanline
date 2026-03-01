@@ -11,13 +11,13 @@ import (
 
 func TestWithCaching_GetRequest(t *testing.T) {
 	cacheutils.SetFileCacheDir(t.TempDir())
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"call":` + string(rune('0'+callCount)) + `}`))
+		w.Write([]byte(`{"call":` + string(rune('0'+callCount)) + `}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -49,13 +49,13 @@ func TestWithCaching_GetRequest(t *testing.T) {
 
 func TestWithCaching_IndefiniteTTL(t *testing.T) {
 	cacheutils.SetFileCacheDir(t.TempDir())
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data":"indefinite"}`))
+		w.Write([]byte(`{"data":"indefinite"}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -87,13 +87,13 @@ func TestWithCaching_IndefiniteTTL(t *testing.T) {
 
 func TestWithCaching_ExpiresAfterTTL(t *testing.T) {
 	cacheutils.SetFileCacheDir(t.TempDir())
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"call":` + string(rune('0'+callCount)) + `}`))
+		w.Write([]byte(`{"call":` + string(rune('0'+callCount)) + `}`)) //nolint:errcheck
 	}))
 	defer server.Close()
 
@@ -105,7 +105,7 @@ func TestWithCaching_ExpiresAfterTTL(t *testing.T) {
 	}
 
 	// Clear memory so expiry test relies on file TTL
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	time.Sleep(2 * time.Second)
 
@@ -126,7 +126,7 @@ func TestWithCaching_ExpiresAfterTTL(t *testing.T) {
 
 func TestWithCaching_NonGetRequestIgnored(t *testing.T) {
 	cacheutils.SetFileCacheDir(t.TempDir())
-	cacheutils.Clear()
+	cacheutils.Clear() //nolint:errcheck
 
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

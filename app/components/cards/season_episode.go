@@ -34,7 +34,7 @@ func NewSeasonEpisode(metadata *sources.Metadata, coverUrl, serverID string) sch
 					MaxWidthChars(30).
 					HAlign(gtk.AlignStartValue).
 					Ellipsis(pango.EllipsizeEndValue),
-				subTitle(gettext.Get("Episode %d", metadata.Index)).
+				subTitle(gettext.Getf("Episode %d", metadata.Index)).
 					MarginTop(2),
 			),
 		).
