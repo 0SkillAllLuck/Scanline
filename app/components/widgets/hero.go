@@ -159,7 +159,7 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 		}
 		content = content.Append(
 			HStack(
-				Label(gettext.Get(row.Label)+":").WithCSSClass("dimmed"), //nolint:govet // not a format string
+				Label(gettext.Get(row.Label)+":").WithCSSClass("dimmed"),
 				Label(row.Value),
 			).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(marginTop),
 		)

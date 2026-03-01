@@ -32,7 +32,7 @@ func (s *serviceLinux) Available() *ServiceError {
 	if err != nil {
 		return &ServiceError{
 			Title: gettext.Get("Secret Service Error"),
-			Body:  gettext.Get("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
+			Body:  gettext.Getf("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
 			Fatal: false,
 		}
 	}
@@ -63,7 +63,7 @@ func (s *serviceLinux) Available() *ServiceError {
 
 	return &ServiceError{
 		Title: gettext.Get("Secret Service Error"),
-		Body:  gettext.Get("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
+		Body:  gettext.Getf("An unknown error occurred when checking for a secret service provider.\n\nSigning in may or may not work. Please see the raw error message for more details:\n\n%s", err.Error()),
 		Fatal: false,
 	}
 }
