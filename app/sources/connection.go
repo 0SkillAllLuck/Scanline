@@ -28,7 +28,7 @@ func connectionPenalty(c auth.ResourceConnection) int {
 	return 3
 }
 
-const connectionTimeout = 10 * time.Second
+const connectionTimeout = 3 * time.Second
 
 func newConnectionClient() *http.Client {
 	return &http.Client{
