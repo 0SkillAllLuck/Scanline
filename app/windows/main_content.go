@@ -1,7 +1,6 @@
 package windows
 
 import (
-	"context"
 	"log/slog"
 	"strings"
 
@@ -109,7 +108,7 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 			var allSections []sectionInfo
 
 			for _, src := range enabledSources {
-				sections, err := src.LibrarySections(context.Background())
+				sections, err := src.LibrarySections(w.appCtx.Ctx)
 				if err != nil {
 					slog.Error("failed to fetch library sections", "source", src.Name(), "error", err)
 					continue

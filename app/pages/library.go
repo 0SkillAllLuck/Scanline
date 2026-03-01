@@ -1,8 +1,6 @@
 package pages
 
 import (
-	"context"
-
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"github.com/0skillallluck/scanline/app/appctx"
 	"github.com/0skillallluck/scanline/app/components/lists"
@@ -22,7 +20,7 @@ func Library(appCtx *appctx.AppContext, serverID, sectionID string) *router.Resp
 		return router.FromError(gettext.Get("Library"), errSourceNotFound(serverID))
 	}
 
-	ctx := context.Background()
+	ctx := appCtx.Ctx
 
 	section, err := src.LibrarySection(ctx, sectionID)
 	if err != nil {

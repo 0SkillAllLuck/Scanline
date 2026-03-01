@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"context"
 	"log/slog"
 	"time"
 
@@ -63,7 +62,7 @@ func onSearch(appCtx *appctx.AppContext, scrollChildState *state.State[any]) fun
 			hasResults := false
 
 			for _, src := range mgr.EnabledSources() {
-				hubs, err := src.Search(context.Background(), query, 50)
+				hubs, err := src.Search(appCtx.Ctx, query, 50)
 				if err != nil {
 					slog.Error("search failed", "source", src.Name(), "error", err)
 					continue

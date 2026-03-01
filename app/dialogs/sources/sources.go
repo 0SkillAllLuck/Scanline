@@ -12,8 +12,8 @@ import (
 	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
-func NewSourceSelection(window *gtk.Window, mgr *sources.Manager, onDone func()) *adw.Dialog {
-	ctx, cancel := context.WithCancel(context.Background()) //nolint:staticcheck // SA4006 - used in closure
+func NewSourceSelection(ctx context.Context, window *gtk.Window, mgr *sources.Manager, onDone func()) *adw.Dialog {
+	ctx, cancel := context.WithCancel(ctx) //nolint:staticcheck // SA4006 - used in closure
 
 	dialog := adw.NewDialog()
 	dialog.SetTitle(gettext.Get("Select Sources"))

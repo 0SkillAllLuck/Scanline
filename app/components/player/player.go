@@ -19,6 +19,7 @@ import (
 
 // PlayerParams configures a new player window.
 type PlayerParams struct {
+	Ctx       context.Context
 	Title     string
 	PartKey   string // raw media part key (e.g. "/library/parts/12345/file.mkv")
 	Window    *gtk.Window
@@ -31,7 +32,7 @@ type PlayerParams struct {
 func NewPlayer(params PlayerParams) {
 	src := params.Source
 	sessionID := uuid.NewString()
-	ctx, ctxCancel := context.WithCancel(context.Background())
+	ctx, ctxCancel := context.WithCancel(params.Ctx)
 
 	win := gtk.NewWindow()
 	win.SetTitle(params.Title)
@@ -85,7 +86,7 @@ func NewPlayer(params PlayerParams) {
 		durationMs := int(dur / 1000)
 		rk := params.RatingKey
 		go func() {
-			if err := src.UpdateProgress(context.Background(), rk, state, timeMs, durationMs); err != nil {
+			if err := src.UpdateProgress(ctx, rk, state, timeMs, durationMs); err != nil {
 				slog.Error("failed to update progress", "error", err)
 			}
 		}()
@@ -574,7 +575,7 @@ func NewPlayer(params PlayerParams) {
 				durationMs := int(dur / 1000)
 				rk := params.RatingKey
 				go func() {
-					if err := src.UpdateProgress(context.Background(), rk, sources.StatePlaying, timeMs, durationMs); err != nil {
+					if err := src.UpdateProgress(ctx, rk, sources.StatePlaying, timeMs, durationMs); err != nil {
 						slog.Error("failed to update progress", "error", err)
 					}
 				}()
@@ -603,7 +604,7 @@ func NewPlayer(params PlayerParams) {
 			dur := media.GetDuration()
 			ts := media.GetTimestamp()
 			if dur > 0 && ts > 0 && float64(ts)/float64(dur) > 0.9 {
-				go src.Scrobble(context.Background(), params.RatingKey) //nolint:errcheck // fire-and-forget
+				go src.Scrobble(ctx, params.RatingKey) //nolint:errcheck // fire-and-forget
 			}
 			media.Pause()
 		}

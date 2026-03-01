@@ -102,7 +102,7 @@ func (w *Window) showWelcomeContent() {
 				HAlign(gtk.AlignCenterValue).
 				ConnectClicked(func(_ gtk.Button) {
 					var dialog *adw.Dialog
-					dialog = sources.NewSourceSelection(&w.Window, mgr, func() {
+					dialog = sources.NewSourceSelection(w.appCtx.Ctx, &w.Window, mgr, func() {
 						dialog.ForceClose()
 						if mgr.HasAccounts() {
 							w.showMainContent()
