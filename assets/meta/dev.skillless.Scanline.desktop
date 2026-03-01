@@ -1,5 +1,5 @@
 [Desktop Entry]
-Categories=Video;Music;GNOME;GTK
+Categories=AudioVideo;Video;Music;GNOME;GTK
 Comment=Scanline is a unoffficial native GTK4 / Adwaita client for Plex.
 Exec=scanline %u
 Icon=dev.skillless.Scanline
