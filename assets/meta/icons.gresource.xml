@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<gresources>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/apps/">
+    <file alias="logo.svg">app.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/actions/">
+    <file alias="bell-outline-symbolic.svg">actions/bell-outline-symbolic.svg</file>
+    <file alias="go-home-symbolic.svg">actions/go-home-symbolic.svg</file>
+    <file alias="plus-square-filled-symbolic.svg">actions/plus-square-filled-symbolic.svg</file>
+    <file alias="loupe-symbolic.svg">actions/loupe-symbolic.svg</file>
+    <file alias="menu-symbolic.svg">actions/menu-symbolic.svg</file>
+    <file alias="chat-bubble-text-symbolic.svg">actions/chat-bubble-text-symbolic.svg</file>
+    <file alias="music-note-outline-symbolic.svg">actions/music-note-outline-symbolic.svg</file>
+    <file alias="music-queue-symbolic.svg">actions/music-queue-symbolic.svg</file>
+    <file alias="library-symbolic.svg">actions/library-symbolic.svg</file>
+    <file alias="compass2-symbolic.svg">actions/compass2-symbolic.svg</file>
+    <file alias="left-symbolic.svg">actions/left-symbolic.svg</file>
+    <file alias="plus-symbolic.svg">actions/plus-symbolic.svg</file>
+    <file alias="heart-outline-thick-symbolic.svg">actions/heart-outline-thick-symbolic.svg</file>
+    <file alias="playlist-repeat-song-symbolic.svg">actions/playlist-repeat-song-symbolic.svg</file>
+    <file alias="playlist-repeat-symbolic.svg">actions/playlist-repeat-symbolic.svg</file>
+    <file alias="settings-symbolic.svg">actions/settings-symbolic.svg</file>
+    <file alias="podcast-symbolic.svg">actions/podcast-symbolic.svg</file>
+    <file alias="sentiment-dissatisfied-symbolic.svg">actions/sentiment-dissatisfied-symbolic.svg</file>
+    <file alias="right-symbolic.svg">actions/right-symbolic.svg</file>
+    <file alias="arrow-circular-top-right-symbolic.svg">actions/arrow-circular-top-right-symbolic.svg</file>
+    <file alias="pause-symbolic.svg">actions/pause-symbolic.svg</file>
+    <file alias="play-symbolic.svg">actions/play-symbolic.svg</file>
+    <file alias="speakers-symbolic.svg">actions/speakers-symbolic.svg</file>
+    <file alias="share-alt-symbolic.svg">actions/share-alt-symbolic.svg</file>
+    <file alias="playlist-shuffle-symbolic.svg">actions/playlist-shuffle-symbolic.svg</file>
+    <file alias="user-trash-symbolic.svg">actions/user-trash-symbolic.svg</file>
+    <file alias="skip-backward-large-symbolic.svg">actions/skip-backward-large-symbolic.svg</file>
+    <file alias="skip-forward-large-symbolic.svg">actions/skip-forward-large-symbolic.svg</file>
+    <file alias="image-missing-symbolic.svg">actions/image-missing-symbolic.svg</file>
+    <file alias="speedometer5-symbolic.svg">actions/speedometer5-symbolic.svg</file>
+    <file alias="dock-left-symbolic.svg">actions/dock-left-symbolic.svg</file>
+    <file alias="cd-symbolic.svg">actions/cd-symbolic.svg</file>
+    <file alias="music-artist2-symbolic.svg">actions/music-artist2-symbolic.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/state/">
+    <file alias="missing-album.svg">state/missing-album.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/ratings/">
+    <file alias="imdb.svg">ratings/imdb.svg</file>
+    <file alias="rt-tomato.svg">ratings/rt-tomato.svg</file>
+    <file alias="rt-popcorn.svg">ratings/rt-popcorn.svg</file>
+    <file alias="tmdb.svg">ratings/tmdb.svg</file>
+  </gresource>
+  <gresource prefix="/dev/skillless/Scanline/icons/symbolic/apps/">
+    <file alias="logo-symbolic.svg">app-symbolic.svg</file>
+  </gresource>
+</gresources>

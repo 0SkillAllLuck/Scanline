@@ -161,10 +161,10 @@ jobs:
         run: go run github.com/dennwc/flatpak-go-mod@latest
       - name: Diff
         run: |
-          if ! diff -q go.mod.yml build/flatpak/go.mod.yml > /dev/null 2>&1 || \
-             ! diff -q modules.txt build/flatpak/modules.txt > /dev/null 2>&1; then
-            echo "::error::Flatpak module data is out of date. Run 'go run github.com/dennwc/flatpak-go-mod@latest' and copy the generated files to build/flatpak/."
-            diff go.mod.yml build/flatpak/go.mod.yml || true
-            diff modules.txt build/flatpak/modules.txt || true
+          if ! diff -q go.mod.yml assets/meta/go.mod.yml > /dev/null 2>&1 || \
+             ! diff -q modules.txt assets/meta/modules.txt > /dev/null 2>&1; then
+            echo "::error::Flatpak module data is out of date. Run 'go run github.com/dennwc/flatpak-go-mod@latest' and copy the generated files to assets/meta/."
+            diff go.mod.yml assets/meta/go.mod.yml || true
+            diff modules.txt assets/meta/modules.txt || true
             exit 1
           fi

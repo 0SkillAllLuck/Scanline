@@ -1,7 +1,7 @@
 <div align="center">
 
   <a href="https://github.com/0SkillAllLuck/Scanline">
-    <img src="app/icons/hicolor/128x128/apps/dev.skillless.Scanline.png" alt="Logo" width="80" height="80">
+    <img src="assets/icons/app.png" alt="Logo" width="80" height="80">
   </a>
   <h2 align="center">Scanline</h2>
 

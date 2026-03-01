@@ -5,11 +5,11 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/0skillallluck/scanline/internal/resources"
 	"github.com/0skillallluck/scanline/app/preference"
-	"github.com/0skillallluck/scanline/utils/imageutils"
 	"github.com/0skillallluck/scanline/app/sources"
+	"github.com/0skillallluck/scanline/internal/gettext"
+	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/jwijenbergh/puregotk/v4/gdk"
 	"github.com/jwijenbergh/puregotk/v4/gtk"
 	"github.com/jwijenbergh/puregotk/v4/pango"
 )
@@ -33,7 +33,7 @@ func HeroSection(poster HeroPosterParams, content schwifty.Box) schwifty.Box {
 		Picture().
 			SizeRequest(poster.Width, poster.Height).
 			ContentFit(gtk.ContentFitCoverValue).
-			FromPaintable(resources.MissingAlbum()).
+			FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 			ConnectRealize(func(w gtk.Widget) {
 				if preference.Performance().AllowPreviewImages() {
 					imageutils.LoadIntoPictureScaled(poster.ImageURL, poster.Width, poster.Height, gtk.PictureNewFromInternalPtr(w.Ptr))

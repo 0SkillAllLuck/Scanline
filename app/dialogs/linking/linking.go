@@ -6,10 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/0skillallluck/scanline/internal/resources"
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/jwijenbergh/puregotk/v4/adw"
 	"github.com/jwijenbergh/puregotk/v4/gdk"
 	"github.com/jwijenbergh/puregotk/v4/glib"
@@ -19,9 +18,7 @@ import (
 	"github.com/yeqown/go-qrcode/writer/standard/shapes"
 )
 
-var QRCode = Image().
-	PixelSize(186).
-	FromPaintable(resources.MissingAlbum())
+var QRCode = Image().PixelSize(186)
 
 var Helper = Label(gettext.Get("You can also open the linking page using the button below."))
 
