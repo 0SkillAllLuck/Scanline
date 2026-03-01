@@ -7,7 +7,7 @@ import (
 )
 
 func TestMemoryOnly_StoresAndRetrieves(t *testing.T) {
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte(`{"data":"test"}`)
 	key := "test-memory-key"
@@ -28,7 +28,7 @@ func TestMemoryOnly_StoresAndRetrieves(t *testing.T) {
 }
 
 func TestMemoryOnly_PersistsWithoutExpiration(t *testing.T) {
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte("persistent data")
 	key := "persistent-key"
@@ -52,7 +52,7 @@ func TestLayered_StoresAndRetrieves(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte(`{"data":"layered"}`)
 	key := "test-layered-key"
@@ -78,7 +78,7 @@ func TestLayered_FileHitPromotesToMemory(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte(`{"data":"promote-me"}`)
 	key := "promote-key"
@@ -121,7 +121,7 @@ func TestLayered_MemoryHitSkipsFile(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte(`{"data":"memory-hit"}`)
 	key := "memory-hit-key"
@@ -145,7 +145,7 @@ func TestLayered_ExpiresAfterTTL(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte("expiring data")
 	key := "expiring-key"
@@ -177,7 +177,7 @@ func TestLayered_IndefiniteTTL(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte("indefinite data")
 	key := "indefinite-key"
@@ -201,7 +201,7 @@ func TestClear_RemovesAll(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte("test")
 
@@ -230,7 +230,7 @@ func TestDelete_RemovesFromAllLayers(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	defer func() { fileCacheDir = oldCacheDir }()
 
-	Clear()
+	Clear() //nolint:errcheck
 
 	data := []byte("deletable")
 	key := "delete-me"

@@ -31,11 +31,7 @@ func IsStable() bool {
 
 		offset := parts[2]
 
-		if offset != "0" {
-			return false
-		}
-
-		return true
+		return offset == "0"
 	} else {
 		// If the commit is not a git describe scheme.
 		// This happens when the code is run locally, through a project-provided tool, and no tag is available.

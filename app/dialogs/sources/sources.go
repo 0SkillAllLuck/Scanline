@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"fmt"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
@@ -14,7 +13,7 @@ import (
 )
 
 func NewSourceSelection(window *gtk.Window, mgr *sources.Manager, onDone func()) *adw.Dialog {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background()) //nolint:staticcheck // SA4006 - used in closure
 
 	dialog := adw.NewDialog()
 	dialog.SetTitle(gettext.Get("Select Sources"))
@@ -119,7 +118,7 @@ func NewSourceSelection(window *gtk.Window, mgr *sources.Manager, onDone func())
 		toolbarView.SetContent(scrolled.ToGTK())
 	}
 
-	showLoading := func() {
+	showLoading := func() { //nolint:staticcheck // SA4006 - used in closure
 		loadingContent := VStack(
 			Spinner().SizeRequest(32, 32),
 			Label(gettext.Get("Discovering servers...")).WithCSSClass("dim-label"),
@@ -172,5 +171,5 @@ func serverStatusText(srv *sources.Server) string {
 	if srv.URL == "" {
 		return gettext.Get("Not connected")
 	}
-	return fmt.Sprintf("%s", srv.URL)
+	return srv.URL
 }

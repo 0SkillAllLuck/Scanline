@@ -32,7 +32,7 @@ func getFileCacheDir() string {
 	fileCacheDir = filepath.Join(cacheDir, "scanline")
 	if err := os.MkdirAll(fileCacheDir, 0755); err != nil {
 		fileCacheDir = filepath.Join(os.TempDir(), "scanline-cache")
-		os.MkdirAll(fileCacheDir, 0755)
+		os.MkdirAll(fileCacheDir, 0755) //nolint:errcheck // last-resort fallback
 	}
 
 	return fileCacheDir

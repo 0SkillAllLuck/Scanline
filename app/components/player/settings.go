@@ -154,7 +154,7 @@ func buildSettingsPopover(
 	popover := Popover(content)
 	rawPopover := popover()
 
-	fireChange := func() {
+	fireChange := func() { //nolint:staticcheck // SA4006 - used in closure
 		rawPopover.Popdown()
 
 		qi := int(qualityDD.GetSelected())

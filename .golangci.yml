@@ -1,0 +1,5 @@
+linters-settings:
+  staticcheck:
+    checks:
+      - "all"
+      - "-ST1001" # Dot imports

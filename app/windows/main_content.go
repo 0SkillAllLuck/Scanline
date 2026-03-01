@@ -194,7 +194,7 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 				Visible(hasSources).
 				ConnectConstruct(func(b *gtk.Button) {
 					var sub *signals.Subscription
-					sub = mgr.SourcesChanged.On(func(_ struct{}) bool {
+					sub = mgr.SourcesChanged.On(func(_ struct{}) bool { //nolint:staticcheck // SA4006 - used in closure
 						schwifty.OnMainThreadOncePure(func() {
 							b.SetVisible(len(mgr.EnabledSources()) > 0)
 						})
@@ -214,7 +214,7 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 				TooltipText(gettext.Get("Navigate Back")).
 				ConnectConstruct(func(b *gtk.Button) {
 					var sub *signals.Subscription
-					sub = router.HistoryUpdated.On(func(history *router.History) bool {
+					sub = router.HistoryUpdated.On(func(history *router.History) bool { //nolint:staticcheck // SA4006 - used in closure
 						schwifty.OnMainThreadOncePure(func() {
 							b.SetVisible(len(history.Entries) > 0)
 						})
@@ -247,14 +247,14 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 		})()
 
 	var navStartedSub, navCompletedSub *signals.Subscription
-	navStartedSub = router.NavigationStarted.On(func(path string) bool {
+	navStartedSub = router.NavigationStarted.On(func(path string) bool { //nolint:staticcheck // SA4006 - used in closure
 		schwifty.OnMainThreadOnce(func(u uintptr) {
 			headerbar.SetTitleWidget(&defaultToolbar.Widget)
 		}, 0)
 		return signals.Continue
 	})
 
-	navCompletedSub = router.NavigationCompleted.On(func(entry router.HistoryEntry) bool {
+	navCompletedSub = router.NavigationCompleted.On(func(entry router.HistoryEntry) bool { //nolint:staticcheck // SA4006 - used in closure
 		schwifty.OnMainThreadOncePure(func() {
 			if entry.Toolbar != nil {
 				headerbar.SetTitleWidget(entry.Toolbar)
