@@ -3,7 +3,7 @@ module github.com/0skillallluck/scanline
 go 1.26.0
 
 require (
-	codeberg.org/dergs/tonearm v1.3.2-0.20260227105814-77d86f731415
+	codeberg.org/dergs/tonearm v1.4.0
 	github.com/google/uuid v1.6.0
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade
 	github.com/jwijenbergh/puregotk v0.0.0-20260115100645-c78e1521129b
