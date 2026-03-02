@@ -1,5 +1,5 @@
-codeberg.org/dergs/tonearm v1.3.2-0.20260227105814-77d86f731415 h1:i7l25KAVjHzSUyjXeonXjXKqwiaiy/Ua3WhkxMcj6Yw=
-codeberg.org/dergs/tonearm v1.3.2-0.20260227105814-77d86f731415/go.mod h1:SNCwGgi0rUBx04oA3xWoJey9RsNRdC+kSjmt3iwWgfg=
+codeberg.org/dergs/tonearm v1.4.0 h1:YHKAn7EIRsCmLhjQD34RsbHFqPqzA/PPqNLrbQQtCjs=
+codeberg.org/dergs/tonearm v1.4.0/go.mod h1:SNCwGgi0rUBx04oA3xWoJey9RsNRdC+kSjmt3iwWgfg=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fogleman/gg v1.3.0 h1:/7zJX8F6AaYQc57WQCyN9cAIz+4bCJGO9B+dyW29am8=
