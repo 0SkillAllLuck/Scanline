@@ -11,15 +11,21 @@ import (
 
 func NewCastMember(name, role, thumbURL string) schwifty.Box {
 	children := []any{
-		Picture().
+		Bin().
+			Child(
+				Picture().
+					SizeRequest(140, 140).
+					ContentFit(gtk.ContentFitCoverValue).
+					ConnectRealize(func(w gtk.Widget) {
+						if preference.Performance().AllowPreviewImages() && thumbURL != "" {
+							imageutils.LoadIntoPictureCropped(thumbURL, 140, gtk.PictureNewFromInternalPtr(w.Ptr))
+						}
+					}),
+			).
 			SizeRequest(140, 140).
-			ContentFit(gtk.ContentFitCoverValue).
-			ConnectRealize(func(w gtk.Widget) {
-				if preference.Performance().AllowPreviewImages() && thumbURL != "" {
-					imageutils.LoadIntoPictureCropped(thumbURL, 140, gtk.PictureNewFromInternalPtr(w.Ptr))
-				}
-			}).
-			CSS("picture { min-width: 140px; min-height: 140px; border-radius: 50%; }").
+			HExpand(false).
+			VExpand(false).
+			CornerRadius(70).
 			Overflow(gtk.OverflowHiddenValue),
 		Label(name).
 			WithCSSClass("heading").
@@ -40,5 +46,7 @@ func NewCastMember(name, role, thumbURL string) schwifty.Box {
 
 	return VStack(children...).
 		HAlign(gtk.AlignCenterValue).
+		HExpand(false).
+		VExpand(false).
 		Padding(10)
 }
