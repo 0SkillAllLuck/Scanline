@@ -1,4 +1,4 @@
-# codeberg.org/dergs/tonearm v1.3.2-0.20260227105814-77d86f731415
+# codeberg.org/dergs/tonearm v1.4.0
 ## explicit; go 1.26.0
 codeberg.org/dergs/tonearm/internal/signals
 codeberg.org/dergs/tonearm/pkg/schwifty
