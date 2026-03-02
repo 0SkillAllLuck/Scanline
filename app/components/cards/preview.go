@@ -32,14 +32,9 @@ func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL st
 		HAlign(gtk.AlignStartValue).
 		CSS("box { background-color: @accent_bg_color; }")
 
-	// Create overlay with picture as base and progress bar on top
-	overlay := gtk.NewOverlay()
-	overlay.SetChild(picture.ToGTK())
-	overlay.AddOverlay(progressBar.ToGTK())
-
 	// Wrap overlay in a Bin for corner radius
 	imageContainer := Bin().
-		Child(ManagedWidget(&overlay.Widget)).
+		Child(Overlay(picture).AddOverlay(progressBar)).
 		SizeRequest(480, 270).
 		CornerRadius(10).
 		Overflow(gtk.OverflowHiddenValue)
