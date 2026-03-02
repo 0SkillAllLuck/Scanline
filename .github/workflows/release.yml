@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  flatpak-build:
+    name: Flatpak Build (${{ matrix.target.arch }})
+    runs-on: ${{ matrix.target.runner }}
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    strategy:
+      matrix:
+        target:
+          - id: flatpak-x86_64
+            arch: x86_64
+            runner: ubuntu-24.04
+          - id: flatpak-aarch64
+            arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Build
+        uses: flatpak/flatpak-github-actions/flatpak-builder@92ae9851ad316786193b1fd3f40c4b51eb5cb101 # v6.6
+        with:
+          bundle: dev.skillless.Scanline.${{ matrix.target.arch }}.flatpak
+          manifest-path: dev.skillless.Scanline.json
+          arch: ${{ matrix.target.arch }}
+          cache-key: flatpak-builder-${{ matrix.target.arch }}-${{ github.sha }}
+      - name: Upload Bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dev.skillless.Scanline.${{ matrix.target.arch }}.flatpak
+          path: dev.skillless.Scanline.${{ matrix.target.arch }}.flatpak
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: flatpak-build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download Bundles
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          merge-multiple: true
+      - name: Create Release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+        with:
+          generate_release_notes: true
+          files: '*.flatpak'
