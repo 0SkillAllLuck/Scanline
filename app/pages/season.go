@@ -38,10 +38,12 @@ func Season(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respo
 
 	// Hero section
 	heroContent := widgets.HeroContent(widgets.HeroContentParams{
-		Title:         meta.ParentTitle,
-		Subtitle:      meta.Title,
-		SubtitleClass: "title-2 dimmed",
-		Badges:        []string{fmt.Sprint(meta.Year)},
+		Title:            meta.ParentTitle,
+		TitleActionName:  "win.route.show",
+		TitleActionValue: serverID + "/" + meta.ParentRatingKey,
+		Subtitle:         meta.Title,
+		SubtitleClass:    "title-2 dimmed",
+		Badges:           []string{fmt.Sprint(meta.Year)},
 	})
 
 	hero := widgets.HeroSection(

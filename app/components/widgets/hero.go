@@ -6,6 +6,7 @@ import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/preference"
@@ -13,6 +14,48 @@ import (
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/utils/imageutils"
 )
+
+// linkButtonCSS strips button chrome so it looks like inline text.
+const linkButtonCSS = `button {
+	background: none;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+	min-height: 0;
+	min-width: 0;
+}`
+
+// linkButton creates a button styled as a text link with pointer cursor
+// and underline on hover.
+func linkButton(label schwifty.Label, actionName, actionValue string) schwifty.Button {
+	underlineAttrs := pango.NewAttrList()
+	underlineAttrs.Insert(pango.AttrUnderlineNew(pango.UnderlineSingleValue))
+
+	var labelPtr uintptr
+	label = label.ConnectConstruct(func(l *gtk.Label) {
+		labelPtr = l.GoPointer()
+	})
+
+	hover := gtk.NewEventControllerMotion()
+	hover.ConnectEnter(new(func(gtk.EventControllerMotion, float64, float64) {
+		gtk.LabelNewFromInternalPtr(labelPtr).SetAttributes(underlineAttrs)
+	}))
+	hover.ConnectLeave(new(func(gtk.EventControllerMotion) {
+		gtk.LabelNewFromInternalPtr(labelPtr).SetAttributes(nil)
+	}))
+
+	return Button().
+		Child(label).
+		WithCSSClass("flat").
+		CSS(linkButtonCSS).
+		HAlign(gtk.AlignStartValue).
+		ActionName(actionName).
+		ActionTargetValue(glib.NewVariantString(actionValue)).
+		AddController(&hover.EventController).
+		ConnectRealize(func(w gtk.Widget) {
+			w.SetCursorFromName("pointer")
+		})
+}
 
 // HeroPosterParams configures the poster image in a hero section.
 type HeroPosterParams struct {
@@ -53,10 +96,14 @@ type MetadataRow struct {
 
 // HeroContentParams configures the hero content section.
 type HeroContentParams struct {
-	Title          string              // Main title (required)
-	TitleClass     string              // CSS class (default: "title-1")
-	Subtitle       string              // Secondary text (optional)
-	SubtitleClass  string              // CSS class (default: "dimmed")
+	Title            string              // Main title (required)
+	TitleClass       string              // CSS class (default: "title-1")
+	TitleActionName  string              // GTK action name to trigger on click (optional, makes title clickable)
+	TitleActionValue string              // GTK action target value (optional)
+	Subtitle            string              // Secondary text (optional)
+	SubtitleClass       string              // CSS class (default: "dimmed")
+	SubtitleActionName  string              // GTK action name to trigger on click (optional, makes subtitle clickable)
+	SubtitleActionValue string              // GTK action target value (optional)
 	Badges         []string            // Meta badges: year, duration, etc.
 	Ratings        sources.Ratings     // Ratings from various sources
 	UserRating     float64             // User's personal rating
@@ -75,13 +122,21 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 	if titleClass == "" {
 		titleClass = "title-1"
 	}
-	content = content.Append(
-		Label(params.Title).
+	if params.TitleActionName != "" {
+		titleLabel := Label(params.Title).
 			WithCSSClass(titleClass).
-			HAlign(gtk.AlignStartValue).
 			Wrap(true).
-			WrapMode(pango.WrapWordCharValue),
-	)
+			WrapMode(pango.WrapWordCharValue)
+		content = content.Append(linkButton(titleLabel, params.TitleActionName, params.TitleActionValue))
+	} else {
+		content = content.Append(
+			Label(params.Title).
+				WithCSSClass(titleClass).
+				HAlign(gtk.AlignStartValue).
+				Wrap(true).
+				WrapMode(pango.WrapWordCharValue),
+		)
+	}
 
 	// Subtitle
 	if params.Subtitle != "" {
@@ -89,15 +144,24 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 		if subtitleClass == "" {
 			subtitleClass = "dimmed"
 		}
-		subtitle := Label(params.Subtitle).
-			HAlign(gtk.AlignStartValue).
-			Wrap(true).
-			WrapMode(pango.WrapWordCharValue)
-		// Apply all CSS classes (supports space-separated classes like "title-2 dimmed")
-		for _, class := range splitClasses(subtitleClass) {
-			subtitle = subtitle.WithCSSClass(class)
+		if params.SubtitleActionName != "" {
+			subtitleLabel := Label(params.Subtitle).
+				Wrap(true).
+				WrapMode(pango.WrapWordCharValue)
+			for _, class := range splitClasses(subtitleClass) {
+				subtitleLabel = subtitleLabel.WithCSSClass(class)
+			}
+			content = content.Append(linkButton(subtitleLabel, params.SubtitleActionName, params.SubtitleActionValue))
+		} else {
+			subtitle := Label(params.Subtitle).
+				HAlign(gtk.AlignStartValue).
+				Wrap(true).
+				WrapMode(pango.WrapWordCharValue)
+			for _, class := range splitClasses(subtitleClass) {
+				subtitle = subtitle.WithCSSClass(class)
+			}
+			content = content.Append(subtitle)
 		}
-		content = content.Append(subtitle)
 	}
 
 	// Badges row
