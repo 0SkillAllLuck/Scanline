@@ -93,14 +93,14 @@ func buildSettingsPopover(
 	// Build audio stream labels and IDs
 	var audioLabels []string
 	var audioStreamIDs []int
-	selectedAudio := uint(0)
-	audioIdx := 0
+	var selectedAudio uint32
+	var audioIdx uint32
 	for i, s := range streams {
 		if s.StreamType == 2 { // audio
 			audioLabels = append(audioLabels, streamLabel(s, i))
 			audioStreamIDs = append(audioStreamIDs, s.ID)
 			if s.Selected {
-				selectedAudio = uint(audioIdx)
+				selectedAudio = audioIdx
 			}
 			audioIdx++
 		}
@@ -109,15 +109,15 @@ func buildSettingsPopover(
 	// Build subtitle stream labels and IDs ("None" + subtitle streams)
 	subtitleLabels := []string{gettext.Get("None")}
 	subtitleStreamIDs := []int{0}
-	selectedSubtitle := uint(0)
-	subtitleIdx := 0
+	var selectedSubtitle uint32
+	var subtitleIdx uint32
 	for i, s := range streams {
 		if s.StreamType == 3 { // subtitle
 			subtitleLabels = append(subtitleLabels, streamLabel(s, i))
 			subtitleStreamIDs = append(subtitleStreamIDs, s.ID)
 			subtitleIdx++
 			if s.Selected {
-				selectedSubtitle = uint(subtitleIdx)
+				selectedSubtitle = subtitleIdx
 			}
 		}
 	}

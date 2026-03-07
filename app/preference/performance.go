@@ -48,5 +48,5 @@ func (p *PerformanceSettings) BindMaxRouterHistorySize(target *gobject.Object, p
 }
 
 func (p *PerformanceSettings) MaxRouterHistorySize() int {
-	return p.settings.GetInt("max-router-history-size")
+	return int(p.settings.GetInt("max-router-history-size"))
 }

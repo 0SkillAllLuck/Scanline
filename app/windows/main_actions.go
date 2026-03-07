@@ -128,7 +128,7 @@ func (w *Window) installMouseClickHandler() {
 	gestureController := gtk.NewGestureClick()
 	gestureController.SetButton(0)
 	gestureController.SetPropagationPhase(gtk.PhaseCaptureValue)
-	gestureController.ConnectPressed(new(func(controller gtk.GestureClick, nPress int, x float64, y float64) {
+	gestureController.ConnectPressed(new(func(controller gtk.GestureClick, nPress int32, x float64, y float64) {
 		switch controller.GetCurrentButton() {
 		case MouseButtonBack:
 			w.ActivateAction("navigate-back", nil)

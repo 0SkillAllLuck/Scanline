@@ -53,8 +53,8 @@ func main() {
 	defer application.Unref()
 	application.ConnectActivate(new(app.OnActivate(application)))
 
-	if code := application.Run(len(os.Args), os.Args); code > 0 {
+	if code := application.Run(int32(len(os.Args)), os.Args); code > 0 {
 		application.Quit()
-		os.Exit(code)
+		os.Exit(int(code))
 	}
 }

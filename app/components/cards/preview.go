@@ -12,7 +12,7 @@ import (
 
 func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL string, progress float64) schwifty.Button {
 	// Progress bar width based on progress
-	progressWidth := int(480 * progress)
+	progressWidth := int32(480 * progress)
 
 	// Create the picture widget
 	picture := Picture().
