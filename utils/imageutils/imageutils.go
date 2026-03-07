@@ -4,7 +4,7 @@ import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	"codeberg.org/dergs/tonearm/pkg/schwifty/tracking"
 	"codeberg.org/dergs/tonearm/pkg/schwifty/utils/weak"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 func LoadIntoImage(url string, image *gtk.Image) {
@@ -25,7 +25,7 @@ func LoadIntoImage(url string, image *gtk.Image) {
 	}()
 }
 
-func LoadIntoImageCropped(url string, size int, image *gtk.Image) {
+func LoadIntoImageCropped(url string, size int32, image *gtk.Image) {
 	ref := weak.NewWidgetRef(&image.Widget)
 	go func() {
 		texture, err := Load(url)
@@ -48,7 +48,7 @@ func LoadIntoImageCropped(url string, size int, image *gtk.Image) {
 	}()
 }
 
-func LoadIntoImageScaled(url string, width, height int, image *gtk.Image) {
+func LoadIntoImageScaled(url string, width, height int32, image *gtk.Image) {
 	ref := weak.NewWidgetRef(&image.Widget)
 	go func() {
 		texture, err := Load(url)
@@ -69,7 +69,7 @@ func LoadIntoImageScaled(url string, width, height int, image *gtk.Image) {
 	}()
 }
 
-func LoadIntoPictureCropped(url string, size int, picture *gtk.Picture) {
+func LoadIntoPictureCropped(url string, size int32, picture *gtk.Picture) {
 	ref := weak.NewWidgetRef(&picture.Widget)
 	go func() {
 		texture, err := Load(url)
@@ -92,7 +92,7 @@ func LoadIntoPictureCropped(url string, size int, picture *gtk.Picture) {
 	}()
 }
 
-func LoadIntoPictureScaled(url string, width, height int, picture *gtk.Picture) {
+func LoadIntoPictureScaled(url string, width, height int32, picture *gtk.Picture) {
 	ref := weak.NewWidgetRef(&picture.Widget)
 	go func() {
 		texture, err := Load(url)

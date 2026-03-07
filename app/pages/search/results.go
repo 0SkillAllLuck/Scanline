@@ -3,9 +3,9 @@ package search
 import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/components/lists"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 func Results(hubs []sources.Hub, coverURL func(string) string, serverID string) schwifty.Box {

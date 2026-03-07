@@ -9,12 +9,12 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/google/uuid"
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gio"
-	"github.com/jwijenbergh/puregotk/v4/glib"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 // PlayerParams configures a new player window.
@@ -23,7 +23,7 @@ type PlayerParams struct {
 	Title     string
 	PartKey   string // raw media part key (e.g. "/library/parts/12345/file.mkv")
 	Window    *gtk.Window
-	RatingKey string         // metadata ratingKey
+	RatingKey string          // metadata ratingKey
 	Media     []sources.Media // full Media array from Metadata
 	Source    sources.Source  // the source for this playback
 }
@@ -64,7 +64,7 @@ func NewPlayer(params PlayerParams) {
 	gtk.StyleContextAddProviderForDisplay(
 		display,
 		cssProvider,
-		uint(gtk.STYLE_PROVIDER_PRIORITY_APPLICATION),
+		uint32(gtk.STYLE_PROVIDER_PRIORITY_APPLICATION),
 	)
 	win.AddCssClass("scanline-player-window")
 	overlay.AddCssClass("scanline-player-overlay")
@@ -426,7 +426,7 @@ func NewPlayer(params PlayerParams) {
 		// Only start timer if not already running
 		if hideTimerID.Load() == 0 {
 			id := glib.TimeoutAdd(500, &hideTimerCallback, 0) // check every 500ms
-			hideTimerID.Store(uint32(id))
+			hideTimerID.Store(id)
 		}
 	}
 
@@ -453,7 +453,7 @@ func NewPlayer(params PlayerParams) {
 	if settingsPopover != nil {
 		mapCb := func(w gtk.Widget) {
 			if old := hideTimerID.Load(); old != 0 {
-				glib.SourceRemove(uint(old))
+				glib.SourceRemove(old)
 				hideTimerID.Store(0)
 			}
 			showControls()
@@ -468,12 +468,12 @@ func NewPlayer(params PlayerParams) {
 
 	// --- ESC key to close ---
 	keyCtrl := gtk.NewEventControllerKey()
-	keyPressedCb := func(ctrl gtk.EventControllerKey, keyval uint, keycode uint, state gdk.ModifierType) bool {
+	keyPressedCb := func(ctrl gtk.EventControllerKey, keyval uint32, keycode uint32, state gdk.ModifierType) bool {
 		switch keyval {
-		case uint(gdk.KEY_Escape):
+		case uint32(gdk.KEY_Escape):
 			win.Close()
 			return true
-		case uint(gdk.KEY_space):
+		case uint32(gdk.KEY_space):
 			if media == nil {
 				return true
 			}
@@ -493,7 +493,7 @@ func NewPlayer(params PlayerParams) {
 				sendProgress(sources.StatePlaying)
 			}
 			return true
-		case uint(gdk.KEY_Left):
+		case uint32(gdk.KEY_Left):
 			if media == nil {
 				return true
 			}
@@ -501,7 +501,7 @@ func NewPlayer(params PlayerParams) {
 			newTS := max(ts-30*1000000, 0)
 			doSeek(newTS)
 			return true
-		case uint(gdk.KEY_Right):
+		case uint32(gdk.KEY_Right):
 			if media == nil {
 				return true
 			}
@@ -513,7 +513,7 @@ func NewPlayer(params PlayerParams) {
 			}
 			doSeek(newTS)
 			return true
-		case uint(gdk.KEY_Up):
+		case uint32(gdk.KEY_Up):
 			if media == nil {
 				return true
 			}
@@ -523,7 +523,7 @@ func NewPlayer(params PlayerParams) {
 			}
 			media.SetVolume(vol)
 			return true
-		case uint(gdk.KEY_Down):
+		case uint32(gdk.KEY_Down):
 			if media == nil {
 				return true
 			}
@@ -589,7 +589,7 @@ func NewPlayer(params PlayerParams) {
 		return true // G_SOURCE_CONTINUE
 	})
 	tid := glib.TimeoutAdd(500, &tickerCb, 0)
-	tickerID.Store(uint32(tid))
+	tickerID.Store(tid)
 
 	// --- Set up window ---
 	win.SetChild(&overlay.Widget)
@@ -609,11 +609,11 @@ func NewPlayer(params PlayerParams) {
 			media.Pause()
 		}
 		if id := tickerID.Load(); id != 0 {
-			glib.SourceRemove(uint(id))
+			glib.SourceRemove(id)
 			tickerID.Store(0)
 		}
 		if id := hideTimerID.Load(); id != 0 {
-			glib.SourceRemove(uint(id))
+			glib.SourceRemove(id)
 			hideTimerID.Store(0)
 		}
 		// Remove CSS provider to avoid affecting other windows

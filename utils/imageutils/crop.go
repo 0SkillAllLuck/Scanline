@@ -3,15 +3,15 @@ package imageutils
 import (
 	"math"
 
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gdkpixbuf"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gdkpixbuf"
 )
 
 func Crop(texture *gdk.Texture) *gdk.Texture {
 	texture.Ref()
 	defer texture.Unref()
 
-	size := int(math.Min(float64(texture.GetIntrinsicWidth()), float64(texture.GetIntrinsicHeight())))
+	size := int32(math.Min(float64(texture.GetIntrinsicWidth()), float64(texture.GetIntrinsicHeight())))
 	srcX := (texture.GetIntrinsicWidth() - size) / 2
 	srcY := (texture.GetIntrinsicHeight() - size) / 2
 
@@ -24,7 +24,7 @@ func Crop(texture *gdk.Texture) *gdk.Texture {
 	return gdk.NewTextureForPixbuf(cropped)
 }
 
-func Scale(texture *gdk.Texture, targetW, targetH int) *gdk.Texture {
+func Scale(texture *gdk.Texture, targetW, targetH int32) *gdk.Texture {
 	texture.Ref()
 	defer texture.Unref()
 

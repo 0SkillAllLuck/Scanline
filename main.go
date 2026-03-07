@@ -9,10 +9,10 @@ import (
 	_ "github.com/0skillallluck/scanline/internal/features/macosfixes"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty/tracking"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 	"github.com/0skillallluck/scanline/app"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gio"
-	"github.com/jwijenbergh/puregotk/v4/glib"
 )
 
 //go:generate glib-compile-schemas ./assets/meta
@@ -53,8 +53,8 @@ func main() {
 	defer application.Unref()
 	application.ConnectActivate(new(app.OnActivate(application)))
 
-	if code := application.Run(len(os.Args), os.Args); code > 0 {
+	if code := application.Run(int32(len(os.Args)), os.Args); code > 0 {
 		application.Quit()
-		os.Exit(code)
+		os.Exit(int(code))
 	}
 }

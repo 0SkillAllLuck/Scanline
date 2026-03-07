@@ -3,19 +3,19 @@ package lists
 import (
 	"math"
 
-	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/0skillallluck/scanline/app/router"
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	"codeberg.org/dergs/tonearm/pkg/schwifty/state"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/app/router"
+	"github.com/0skillallluck/scanline/internal/gettext"
 )
 
 type HorizontalList struct {
 	schwifty.Box
 
 	container        *gtk.Box
-	marginState      *state.State[int]
+	marginState      *state.State[int32]
 	routeButtonState *state.State[any]
 }
 
@@ -24,7 +24,7 @@ func (h *HorizontalList) Append(child schwifty.BaseWidgetable) *HorizontalList {
 	return h
 }
 
-func (h *HorizontalList) SetPageMargin(margin int) *HorizontalList {
+func (h *HorizontalList) SetPageMargin(margin int32) *HorizontalList {
 	h.marginState.SetValue(margin)
 	return h
 }
@@ -43,7 +43,7 @@ func (h *HorizontalList) SetViewAllRoute(path string) *HorizontalList {
 }
 
 func NewHorizontalList(title string) *HorizontalList {
-	marginState := state.NewStateful[int](0)
+	marginState := state.NewStateful[int32](0)
 	routeButtonState := state.NewStateful[any](nil)
 	container := HStack().BindHMargin(marginState)()
 

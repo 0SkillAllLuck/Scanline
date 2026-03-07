@@ -2,7 +2,7 @@
 
 package macosfixes
 
-import "github.com/jwijenbergh/puregotk/pkg/core"
+import "codeberg.org/puregotk/puregotk/pkg/core"
 
 func init() {
 	// puregotk defaults to Linux SONAMEs; macOS requires dylib names.

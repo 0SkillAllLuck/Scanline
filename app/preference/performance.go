@@ -1,8 +1,8 @@
 package preference
 
 import (
-	"github.com/jwijenbergh/puregotk/v4/gio"
-	"github.com/jwijenbergh/puregotk/v4/gobject"
+	"codeberg.org/puregotk/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/gobject"
 )
 
 type PerformanceSettings struct {
@@ -48,5 +48,5 @@ func (p *PerformanceSettings) BindMaxRouterHistorySize(target *gobject.Object, p
 }
 
 func (p *PerformanceSettings) MaxRouterHistorySize() int {
-	return p.settings.GetInt("max-router-history-size")
+	return int(p.settings.GetInt("max-router-history-size"))
 }

@@ -6,15 +6,15 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/appctx"
 	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/components/lists"
 	"github.com/0skillallluck/scanline/app/components/player"
 	"github.com/0skillallluck/scanline/app/components/widgets"
-	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/router"
+	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/utils/notifications"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 var EpisodeRoute = router.NewRoute("episode/:server/:ratingKey", Episode)

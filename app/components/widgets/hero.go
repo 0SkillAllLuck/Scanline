@@ -5,20 +5,20 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/utils/imageutils"
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
-	"github.com/jwijenbergh/puregotk/v4/pango"
 )
 
 // HeroPosterParams configures the poster image in a hero section.
 type HeroPosterParams struct {
 	ImageURL string
-	Width    int
-	Height   int
+	Width    int32
+	Height   int32
 }
 
 // HeroSection creates a hero layout with a poster image and content area.
@@ -153,7 +153,7 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 		if row.Value == "" {
 			continue
 		}
-		marginTop := 4
+		var marginTop int32 = 4
 		if i == 0 {
 			marginTop = 8
 		}

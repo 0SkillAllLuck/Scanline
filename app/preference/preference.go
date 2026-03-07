@@ -3,8 +3,8 @@ package preference
 import (
 	"runtime"
 
+	"codeberg.org/puregotk/puregotk/v4/gio"
 	"github.com/0skillallluck/scanline/internal/g"
-	"github.com/jwijenbergh/puregotk/v4/gio"
 )
 
 var General = g.Lazy(func() *GeneralSettings {

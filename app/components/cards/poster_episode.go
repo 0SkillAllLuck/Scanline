@@ -5,8 +5,8 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/glib"
 )
 
 // NewEpisodePoster creates a new poster card for a tv-show episode.

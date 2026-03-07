@@ -6,14 +6,14 @@ import (
 	"sync"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/dialogs/linking"
+	"github.com/0skillallluck/scanline/app/secrets"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/0skillallluck/scanline/utils/notifications"
-	"github.com/0skillallluck/scanline/app/secrets"
 	"github.com/0skillallluck/scanline/provider/plex/auth"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/utils/notifications"
 )
 
 // PerformSignIn runs the full Plex sign-in flow in a goroutine:
