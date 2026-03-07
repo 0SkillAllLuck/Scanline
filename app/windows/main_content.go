@@ -229,7 +229,8 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 					var sub *signals.Subscription
 					sub = router.HistoryUpdated.On(func(history *router.History) bool { //nolint:staticcheck // SA4006 - used in closure
 						schwifty.OnMainThreadOncePure(func() {
-							b.SetVisible(len(history.Entries) > 0)
+							isOnSearch := history.Current != nil && history.Current.Path == "search"
+							b.SetVisible(len(history.Entries) > 0 && !isOnSearch)
 						})
 						return signals.Continue
 					})
