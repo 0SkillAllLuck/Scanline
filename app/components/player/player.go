@@ -101,26 +101,62 @@ func NewPlayer(params PlayerParams) {
 		}()
 	}
 
+	// CSS for player control buttons: transparent by default, circular background on hover.
+	controlBtnCSS := `button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; }
+		button:hover { background: rgba(255,255,255,0.15); }
+		button image { -gtk-icon-shadow: 0 1px 3px rgba(0,0,0,0.8); -gtk-icon-size: 24px; }`
+
 	// closePlayer tears down the player and restores the original window content.
 	// In fullscreen mode it closes the separate window (triggering close-request).
 	// In windowed mode it performs cleanup inline.
 	var closePlayer func()
 
-	// --- Close button (top-right) ---
-	closeBtnWidget := Button().
+	// --- Top bar (fullscreen toggle + close) ---
+	var fullscreenBtn *gtk.Button
+
+	closeBtnSchwifty := Button().
 		IconName("window-close-symbolic").
 		TooltipText("Close player").
 		WithCSSClass("circular").
-		WithCSSClass("osd").
-		HAlign(gtk.AlignEndValue).
-		VAlign(gtk.AlignStartValue).
-		MarginTop(12).MarginEnd(12).
+		CSS(controlBtnCSS).
 		ConnectClicked(func(b gtk.Button) {
 			if media != nil {
 				media.Pause()
 			}
 			closePlayer()
-		}).ToGTK()
+		})
+
+	var topBarWidget *gtk.Widget
+	if windowed {
+		fullscreenToggle := Button().
+			IconName("view-fullscreen-symbolic").
+			TooltipText("Toggle fullscreen").
+			WithCSSClass("circular").
+			CSS(controlBtnCSS).
+			ConnectConstruct(func(b *gtk.Button) {
+				fullscreenBtn = b
+			}).
+			ConnectClicked(func(b gtk.Button) {
+				if win.IsFullscreen() {
+					win.Unfullscreen()
+					b.SetIconName("view-fullscreen-symbolic")
+				} else {
+					win.Fullscreen()
+					b.SetIconName("view-restore-symbolic")
+				}
+			})
+		topBarWidget = HStack(fullscreenToggle, Spacer(), closeBtnSchwifty).
+			HMargin(12).MarginTop(12).
+			HAlign(gtk.AlignFillValue).
+			VAlign(gtk.AlignStartValue).
+			ToGTK()
+	} else {
+		topBarWidget = HStack(Spacer(), closeBtnSchwifty).
+			HMargin(12).MarginTop(12).
+			HAlign(gtk.AlignFillValue).
+			VAlign(gtk.AlignStartValue).
+			ToGTK()
+	}
 
 	// --- Center playback controls ---
 	var playing atomic.Bool
@@ -171,12 +207,15 @@ func NewPlayer(params PlayerParams) {
 		}()
 	}
 
+	centerBtnCSS := `button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; }
+		button:hover { background: rgba(255,255,255,0.15); }
+		button image { -gtk-icon-shadow: 0 1px 4px rgba(0,0,0,0.9); -gtk-icon-size: 32px; }`
+
 	skipBackBtn := Button().
-		IconName("media-skip-backward-symbolic").
+		IconName("media-seek-backward-symbolic").
 		TooltipText("Skip back 30 seconds").
 		WithCSSClass("circular").
-		WithCSSClass("osd").
-		CSS("button { min-width: 48px; min-height: 48px; }").
+		CSS(centerBtnCSS).
 		ConnectClicked(func(b gtk.Button) {
 			if media == nil {
 				return
@@ -192,8 +231,9 @@ func NewPlayer(params PlayerParams) {
 		IconName("media-playback-pause-symbolic").
 		TooltipText("Play/Pause").
 		WithCSSClass("circular").
-		WithCSSClass("osd").
-		CSS("button { min-width: 56px; min-height: 56px; }").
+		CSS(`button { background: transparent; border: none; box-shadow: none; min-width: 56px; min-height: 56px; border-radius: 9999px; }
+			button:hover { background: rgba(255,255,255,0.15); }
+			button image { -gtk-icon-shadow: 0 1px 4px rgba(0,0,0,0.9); -gtk-icon-size: 48px; }`).
 		ConnectConstruct(func(b *gtk.Button) {
 			playPauseBtn = b
 		}).
@@ -215,11 +255,10 @@ func NewPlayer(params PlayerParams) {
 		})
 
 	skipFwdBtn := Button().
-		IconName("media-skip-forward-symbolic").
+		IconName("media-seek-forward-symbolic").
 		TooltipText("Skip forward 30 seconds").
 		WithCSSClass("circular").
-		WithCSSClass("osd").
-		CSS("button { min-width: 48px; min-height: 48px; }").
+		CSS(centerBtnCSS).
 		ConnectClicked(func(b gtk.Button) {
 			if media == nil {
 				return
@@ -247,10 +286,9 @@ func NewPlayer(params PlayerParams) {
 	var seeking atomic.Bool
 
 	titleLabel := Label(params.Title).
-		WithCSSClass("heading").
 		HAlign(gtk.AlignStartValue).
 		HExpand(true).
-		CSS("label { color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }")
+		CSS("label { color: white; font-size: 16px; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }")
 
 	// Volume button with popover
 	volumeScale := Scale(gtk.OrientationVerticalValue).
@@ -275,11 +313,14 @@ func NewPlayer(params PlayerParams) {
 	volumePopover := Popover(volumeScale).
 		SizeRequest(40, 140)
 
+	menuBtnCSS := `menubutton button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; }
+		menubutton button:hover { background: rgba(255,255,255,0.15); }`
+
 	volumeBtn := MenuButton().
 		IconName("audio-volume-high-symbolic").
 		TooltipText("Adjust volume").
-		WithCSSClass("circular").
-		WithCSSClass("osd").
+		WithCSSClass("flat").
+		CSS(menuBtnCSS).
 		Popover(volumePopover)
 
 	// --- Settings popover (quality, audio, subtitles) ---
@@ -334,8 +375,8 @@ func NewPlayer(params PlayerParams) {
 	settingsBtn := MenuButton().
 		IconName("emblem-system-symbolic").
 		TooltipText("Playback settings").
-		WithCSSClass("circular").
-		WithCSSClass("osd")
+		WithCSSClass("flat").
+		CSS(menuBtnCSS)
 
 	if settingsPopover != nil {
 		settingsBtn = settingsBtn.Popover(settingsPopover)
@@ -373,7 +414,7 @@ func NewPlayer(params PlayerParams) {
 		})
 
 	var currentTimeLabel, remainingTimeLabel *gtk.Label
-	timeCSS := "label { color: white; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }"
+	timeCSS := "label { color: white; font-size: 13px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }"
 
 	currentTimeSchwifty := Label("0:00").
 		HAlign(gtk.AlignStartValue).
@@ -393,16 +434,15 @@ func NewPlayer(params PlayerParams) {
 		HMargin(16)
 
 	bottomBarWidget := VStack(topRow, progressSchwifty, timeRow).
-		Spacing(4).
+		Spacing(0).
 		VAlign(gtk.AlignEndValue).
 		HExpand(true).
 		MarginBottom(12).
-		WithCSSClass("osd").
-		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 12px 0; }").
+		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 4px 0 8px 0; }").
 		ToGTK()
 
 	// --- Controls visibility (auto-hide) ---
-	controlWidgets := []*gtk.Widget{closeBtnWidget, centerControlsWidget, bottomBarWidget}
+	controlWidgets := []*gtk.Widget{topBarWidget, centerControlsWidget, bottomBarWidget}
 	var hideTimerID atomic.Uint32
 	var lastActivityMs atomic.Int64 // timestamp of last activity in milliseconds
 
@@ -485,8 +525,14 @@ func NewPlayer(params PlayerParams) {
 			if windowed {
 				if win.IsFullscreen() {
 					win.Unfullscreen()
+					if fullscreenBtn != nil {
+						fullscreenBtn.SetIconName("view-fullscreen-symbolic")
+					}
 				} else {
 					win.Fullscreen()
+					if fullscreenBtn != nil {
+						fullscreenBtn.SetIconName("view-restore-symbolic")
+					}
 				}
 			}
 			return true
@@ -610,7 +656,7 @@ func NewPlayer(params PlayerParams) {
 
 	// --- Set up window ---
 	overlayWidget := Overlay(&picture.Widget).
-		AddOverlay(closeBtnWidget).
+		AddOverlay(topBarWidget).
 		AddOverlay(centerControlsWidget).
 		AddOverlay(bottomBarWidget).
 		Controller(&motionCtrl.EventController).
