@@ -42,7 +42,7 @@ func NewWindow(app *adw.Application, appCtx *appctx.AppContext) *Window {
 
 	window.SetTitle("Scanline")
 	window.SetIconName("logo-symbolic")
-	window.SetDefaultSize(int32(preference.General().GetWindowWidth()), int32(preference.General().GetWindowHeight()))
+	window.SetDefaultSize(preference.General().GetWindowWidth(), preference.General().GetWindowHeight())
 	// Debounce window size saves to avoid excessive GSettings writes during resize
 	var sizeTimer *time.Timer
 	var sizeMu sync.Mutex
@@ -58,10 +58,10 @@ func NewWindow(app *adw.Application, appCtx *appctx.AppContext) *Window {
 		}
 		sizeTimer = time.AfterFunc(500*time.Millisecond, func() {
 			if h > 0 {
-				preference.General().SetWindowHeight(int(h))
+				preference.General().SetWindowHeight(h)
 			}
 			if w > 0 {
-				preference.General().SetWindowWidth(int(w))
+				preference.General().SetWindowWidth(w)
 			}
 		})
 		sizeMu.Unlock()

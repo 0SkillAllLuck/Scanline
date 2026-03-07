@@ -12,7 +12,7 @@ import (
 
 func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL string, progress float64) schwifty.Button {
 	// Progress bar width based on progress
-	progressWidth := int(480 * progress)
+	progressWidth := int32(480 * progress)
 
 	// Create the picture widget
 	picture := Picture().
@@ -27,7 +27,7 @@ func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL st
 
 	// Create progress bar at the bottom
 	progressBar := Box(gtk.OrientationHorizontalValue).
-		SizeRequest(int32(progressWidth), 4).
+		SizeRequest(progressWidth, 4).
 		VAlign(gtk.AlignEndValue).
 		HAlign(gtk.AlignStartValue).
 		CSS("box { background-color: @accent_bg_color; }")

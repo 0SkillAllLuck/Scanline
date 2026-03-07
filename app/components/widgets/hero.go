@@ -153,7 +153,7 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 		if row.Value == "" {
 			continue
 		}
-		marginTop := 4
+		var marginTop int32 = 4
 		if i == 0 {
 			marginTop = 8
 		}
@@ -161,7 +161,7 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 			HStack(
 				Label(gettext.Get(row.Label)+":").WithCSSClass("dimmed"),
 				Label(row.Value),
-			).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(int32(marginTop)),
+			).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(marginTop),
 		)
 	}
 

@@ -16,18 +16,18 @@ func (g *GeneralSettings) SetHideSecretServiceWarning(hide bool) bool {
 	return g.settings.SetBoolean("hide-secret-service-warning", hide)
 }
 
-func (g *GeneralSettings) GetWindowHeight() int {
-	return int(g.settings.GetInt("window-height"))
+func (g *GeneralSettings) GetWindowHeight() int32 {
+	return g.settings.GetInt("window-height")
 }
 
-func (g *GeneralSettings) SetWindowHeight(height int) {
-	g.settings.SetInt("window-height", int32(height))
+func (g *GeneralSettings) SetWindowHeight(height int32) {
+	g.settings.SetInt("window-height", height)
 }
 
-func (g *GeneralSettings) GetWindowWidth() int {
-	return int(g.settings.GetInt("window-width"))
+func (g *GeneralSettings) GetWindowWidth() int32 {
+	return g.settings.GetInt("window-width")
 }
 
-func (g *GeneralSettings) SetWindowWidth(width int) {
-	g.settings.SetInt("window-width", int32(width))
+func (g *GeneralSettings) SetWindowWidth(width int32) {
+	g.settings.SetInt("window-width", width)
 }
