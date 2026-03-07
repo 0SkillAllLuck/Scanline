@@ -88,84 +88,52 @@
     <internet>always</internet>
   </requires>
 
-  <releases>
-    <release version="1.2.0" date="2026-02-05">
-        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.2.0</url>
+    <releases>
+    <release version="0.2.0" date="2026-03-07">
+        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v0.2.0</url>
         <description>
-            <p>Bug Fixes:</p>
-            <ul>
-                <li>Fixed an issue where we would not deallocate GObjects properly</li>
-                <li>Fixed an issue where the track list in the search UI was misaligned</li>
-                <li>Fixed an issue where repeating a track would not work</li>
-                <li>Fixed an issue where scrobbling could block playback</li>
-                <li>Fixed an issue where Scanline would fail to show window decorations when set to the left side</li>
-            </ul>
             <p>New Features:</p>
             <ul>
-                <li>You can now configure whether Scanline should autoplay track radios after your queue ends</li>
-                <li>Added pagination to collection pages</li>
-                <li>Added sub-pages to all search result types</li>
-                <li>You can now configure your preferred maximum audio quality</li>
-                <li>You can now view your feed in Scanline</li>
+                <li>Properly handle season on the Home page</li>
+                <li>Allow going back to TV Show from Episodes/Seasons</li>
+                <li>Allow going to season from the episode Page</li>
+                <li>Add windowed player support</li>
+                <li>Add season progress to Show page</li>
+                <li>Add episode progress to the season page</li>
+                <li>Add Play/Continue button to show page</li>
+                <li>Add Play/Continue button to season page</li>
             </ul>
-        </description>
-    </release>
-    <release version="1.1.0" date="2026-01-31">
-        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.1.0</url>
-        <description>
             <p>Bug Fixes:</p>
             <ul>
-                <li>Fixed gapless playback not always being gapless</li>
-                <li>Fixed a bug where starting a track list in shuffle-mode would not shuffle the tracks</li>
-                <li>Improved compliance with the MPRIS spec, fixing an issue with the KDE media player applet</li>
-                <li>Improved accessibility by adding tooltips to all icon buttons</li>
+                <li>bug: Allow search page/bar to be closed</li>
+                <li>Use /hubs/promoted for the Home page to mirror Plex App</li>
+                <li>Prevent player from cutting off content</li>
+                <li>Make player no longer half transparent</li>
             </ul>
+            <p>Other Changes:</p>
+            <ul>
+                <li>Fix "Continue" button</li>
+            </ul>        </description>
+    </release>
+    <release version="0.1.0" date="2026-03-07">
+        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v0.1.0</url>
+        <description>
             <p>New Features:</p>
             <ul>
-                <li>Added Secret Service self-test</li>
-                <li>Added French translations</li>
-                <li>Added Polish translations (LukaszH77)</li>
-                <li>Added support for custom ListenBrainz servers (thatonecalculator)</li>
-                <li>Added support for playing top tracks on the artist page</li>
-                <li>Added support for navigating backwards using the mouse button</li>
-                <li>Redesigned the sidebar player</li>
+                <li>Add Playback Progress tracking</li>
+                <li>Update to Schwifty 1.4.0 version</li>
+                <li>Add a release workflow.</li>
+                <li>feat: Add scripts for Flatpak and Nix updates</li>
             </ul>
-        </description>
-    </release>
-    <release version="1.0.1" date="2026-01-28">
-        <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.0.1</url>
-        <description>
             <p>Bug Fixes:</p>
             <ul>
-                <li>Fixed a bug where shuffling an empty queue would crash the app</li>
-                <li>Fixed a bug where Scanline would always request the english home and explore pages</li>
-                <li>Now using the correct icons for skipping instead of seeking</li>
-                <li>Fixed a bug where large track lists would start overlaying after ~200 tracks</li>
-                <li>Fixed a rare concurrent map access that would crash the app</li>
+                <li>Fix cast going oval on wide screens</li>
+                <li>Update artifact steps to latest available versions</li>
             </ul>
-            <p>New Features</p>
+            <p>Dependencies:</p>
             <ul>
-                <li>Scanline is now translated into German</li>
-                <li>Scanline now marks the currently playing track in the tracklists</li>
-            </ul>
-            <p>Scanline now also has a Matrix room for contributions and issues!</p>
-        </description>
-    </release>
-    <release version="1.0.0" date="2026-01-22">
-      <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v1.0.0</url>
-      <description>
-        <p
-                >Welcome to the first beta release of Scanline. In this version, we added, well, everything. Give it a look and let us know what we can improve!</p>
-          <ul>
-            <li>Home, Explore and Collection pages</li>
-            <li>View playlist, mixes, albums and artists</li>
-            <li>Search functionality</li>
-            <li>Play tracks, playlists, mixes and albums</li>
-            <li>Sing along with the lyrics tab</li>
-            <li>Control Scanline using MPRIS</li>
-            <li>Scrobble your listening activity with ListenBrainz</li>
-          </ul>
-      </description>
+                <li>dependencies: Update Schwifty to latest version</li>
+            </ul>        </description>
     </release>
   </releases>
 
