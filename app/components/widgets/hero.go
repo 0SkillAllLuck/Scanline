@@ -23,6 +23,7 @@ const linkButtonCSS = `button {
 	padding: 0;
 	min-height: 0;
 	min-width: 0;
+	font-weight: inherit;
 }`
 
 // linkButton creates a button styled as a text link with pointer cursor
@@ -55,6 +56,13 @@ func linkButton(label schwifty.Label, actionName, actionValue string) schwifty.B
 		ConnectRealize(func(w gtk.Widget) {
 			w.SetCursorFromName("pointer")
 		})
+}
+
+// BadgeLink is a clickable badge that triggers a GTK action.
+type BadgeLink struct {
+	Label       string
+	ActionName  string
+	ActionValue string
 }
 
 // HeroPosterParams configures the poster image in a hero section.
@@ -104,6 +112,7 @@ type HeroContentParams struct {
 	SubtitleClass       string              // CSS class (default: "dimmed")
 	SubtitleActionName  string              // GTK action name to trigger on click (optional, makes subtitle clickable)
 	SubtitleActionValue string              // GTK action target value (optional)
+	BadgeLinks     []BadgeLink          // Clickable badges with navigation (rendered before Badges)
 	Badges         []string            // Meta badges: year, duration, etc.
 	Ratings        sources.Ratings     // Ratings from various sources
 	UserRating     float64             // User's personal rating
@@ -165,8 +174,12 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 	}
 
 	// Badges row
-	if len(params.Badges) > 0 {
+	if len(params.BadgeLinks) > 0 || len(params.Badges) > 0 {
 		badges := HStack().Spacing(12)
+		for _, bl := range params.BadgeLinks {
+			badgeLabel := Label(bl.Label).WithCSSClass("dimmed")
+			badges = badges.Append(linkButton(badgeLabel, bl.ActionName, bl.ActionValue))
+		}
 		for _, badge := range params.Badges {
 			if badge != "" {
 				badges = badges.Append(
@@ -266,6 +279,16 @@ func FormatSeasonCount(count int) string {
 // FormatEpisodeLabel formats a season and episode number as "S2 - E5".
 func FormatEpisodeLabel(season, episode int) string {
 	return fmt.Sprintf("S%d - E%d", season, episode)
+}
+
+// FormatSeasonLabel formats a season number as "S2".
+func FormatSeasonLabel(season int) string {
+	return fmt.Sprintf("S%d", season)
+}
+
+// FormatEpisodeOnlyLabel formats an episode number as "E5".
+func FormatEpisodeOnlyLabel(episode int) string {
+	return fmt.Sprintf("E%d", episode)
 }
 
 // FormatTimestamp formats milliseconds as "H:MM:SS" or "M:SS".

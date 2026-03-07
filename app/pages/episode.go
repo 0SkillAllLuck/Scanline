@@ -53,7 +53,12 @@ func Episode(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Resp
 		Subtitle:            meta.GrandparentTitle,
 		SubtitleActionName:  "win.route.show",
 		SubtitleActionValue: serverID + "/" + meta.GrandparentRatingKey,
-		Badges:              []string{widgets.FormatEpisodeLabel(meta.ParentIndex, meta.Index), widgets.FormatDuration(meta.Duration), meta.ContentRating},
+		BadgeLinks: []widgets.BadgeLink{{
+			Label:       widgets.FormatSeasonLabel(meta.ParentIndex),
+			ActionName:  "win.route.season",
+			ActionValue: serverID + "/" + meta.ParentRatingKey,
+		}},
+		Badges: []string{widgets.FormatEpisodeOnlyLabel(meta.Index), widgets.FormatDuration(meta.Duration), meta.ContentRating},
 		Ratings:    meta.Ratings,
 		UserRating: meta.UserRating,
 		BuildButtonRow: func() schwifty.Box {
