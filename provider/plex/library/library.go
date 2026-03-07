@@ -180,6 +180,9 @@ type Metadata struct {
 	// ParentThumb is the URL path to the parent's thumbnail.
 	ParentThumb string `json:"parentThumb,omitempty"`
 
+	// GrandparentRatingKey is the rating key of the grandparent (show for episodes).
+	GrandparentRatingKey string `json:"grandparentRatingKey,omitempty"`
+
 	// GrandparentTitle is the title of the grandparent (show title for episodes).
 	GrandparentTitle string `json:"grandparentTitle,omitempty"`
 

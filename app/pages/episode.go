@@ -49,9 +49,11 @@ func Episode(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Resp
 	}
 
 	heroContent := widgets.HeroContent(widgets.HeroContentParams{
-		Title:      meta.Title,
-		Subtitle:   meta.GrandparentTitle,
-		Badges:     []string{widgets.FormatEpisodeLabel(meta.ParentIndex, meta.Index), widgets.FormatDuration(meta.Duration), meta.ContentRating},
+		Title:               meta.Title,
+		Subtitle:            meta.GrandparentTitle,
+		SubtitleActionName:  "win.route.show",
+		SubtitleActionValue: serverID + "/" + meta.GrandparentRatingKey,
+		Badges:              []string{widgets.FormatEpisodeLabel(meta.ParentIndex, meta.Index), widgets.FormatDuration(meta.Duration), meta.ContentRating},
 		Ratings:    meta.Ratings,
 		UserRating: meta.UserRating,
 		BuildButtonRow: func() schwifty.Box {
