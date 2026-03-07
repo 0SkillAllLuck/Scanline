@@ -16,6 +16,8 @@ func MetadataCard(meta *sources.Metadata, coverURL func(string) string, context,
 		return cards.NewMoviePoster(meta, coverURL(meta.Thumb), serverID), true
 	case "show":
 		return cards.NewShowPoster(meta, meta.ChildCount, coverURL(meta.Thumb), serverID), true
+	case "season":
+		return cards.NewSeasonPoster(meta, coverURL(meta.Thumb), serverID), true
 	case "episode":
 		return cards.NewEpisodePoster(meta, coverURL(meta.GrandparentThumb), serverID), true
 	default:
