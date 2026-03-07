@@ -2,7 +2,6 @@ package pages
 
 import (
 	"log/slog"
-	"strings"
 
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
@@ -41,11 +40,7 @@ func home(appCtx *appctx.AppContext) *router.Response {
 				continue
 			}
 
-			title := hub.Title
-			if strings.HasPrefix(title, "Recently Added ") {
-				title = "Recently Added in " + strings.TrimPrefix(title, "Recently Added ")
-			}
-			list := lists.NewHorizontalList(title)
+			list := lists.NewHorizontalList(hub.Title)
 			hasItems := false
 
 			// Continue Watching hub uses preview cards

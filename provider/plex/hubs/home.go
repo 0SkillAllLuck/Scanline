@@ -17,7 +17,7 @@ func (h *Hubs) Home(ctx context.Context, count int) ([]Hub, error) {
 		query["count"] = strconv.Itoa(count)
 	}
 
-	err := h.GetWithQuery(ctx, "/hubs", query).
+	err := h.GetWithQuery(ctx, "/hubs/promoted", query).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err
