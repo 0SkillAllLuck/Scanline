@@ -70,13 +70,14 @@ func Episode(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Resp
 						ConnectClicked(func(b gtk.Button) {
 							if len(meta.Media) > 0 && len(meta.Media[0].Part) > 0 {
 								player.NewPlayer(player.PlayerParams{
-									Ctx:       appCtx.Ctx,
-									Title:     meta.Title,
-									PartKey:   meta.Media[0].Part[0].Key,
-									Window:    appCtx.Window,
-									RatingKey: ratingKey,
-									Media:     meta.Media,
-									Source:    src,
+									Ctx:        appCtx.Ctx,
+									Title:      meta.Title,
+									PartKey:    meta.Media[0].Part[0].Key,
+									Window:     appCtx.Window,
+									RatingKey:  ratingKey,
+									Media:      meta.Media,
+									Source:     src,
+									ViewOffset: meta.ViewOffset,
 								})
 							}
 						}),

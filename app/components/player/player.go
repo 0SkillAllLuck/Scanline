@@ -19,13 +19,14 @@ import (
 
 // PlayerParams configures a new player window.
 type PlayerParams struct {
-	Ctx       context.Context
-	Title     string
-	PartKey   string // raw media part key (e.g. "/library/parts/12345/file.mkv")
-	Window    *gtk.Window
-	RatingKey string          // metadata ratingKey
-	Media     []sources.Media // full Media array from Metadata
-	Source    sources.Source  // the source for this playback
+	Ctx        context.Context
+	Title      string
+	PartKey    string // raw media part key (e.g. "/library/parts/12345/file.mkv")
+	Window     *gtk.Window
+	RatingKey  string          // metadata ratingKey
+	Media      []sources.Media // full Media array from Metadata
+	Source     sources.Source  // the source for this playback
+	ViewOffset int             // resume position in milliseconds
 }
 
 // NewPlayer creates a fullscreen video player window with overlay controls.
@@ -628,6 +629,23 @@ func NewPlayer(params PlayerParams) {
 				playPauseBtn.SetIconName("media-playback-pause-symbolic")
 			}
 			scheduleHide()
+
+			// Resume from saved position if ViewOffset is set
+			if params.ViewOffset > 0 {
+				targetUs := int64(params.ViewOffset) * 1000 // ms to µs
+				seekCb := glib.SourceFunc(func(uintptr) bool {
+					if err := media.GetError(); err != nil {
+						slog.Error("player: stream error during resume seek", "error", err.Error())
+						return false
+					}
+					if !media.IsPrepared() {
+						return true // keep polling
+					}
+					doSeek(targetUs)
+					return false
+				})
+				glib.TimeoutAdd(200, &seekCb, 0)
+			}
 		})
 	}()
 
