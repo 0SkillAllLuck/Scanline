@@ -14,20 +14,41 @@ import (
 )
 
 func NewSeasonEpisode(metadata *sources.Metadata, coverURL, serverID string) schwifty.Button {
+	var progress float64
+	if metadata.ViewCount > 0 && metadata.ViewOffset == 0 {
+		progress = 1.0
+	} else if metadata.Duration > 0 && metadata.ViewOffset > 0 {
+		progress = float64(metadata.ViewOffset) / float64(metadata.Duration)
+	}
+
+	progressWidth := int32(320 * progress)
+
+	picture := Picture().
+		SizeRequest(320, 180).
+		ContentFit(gtk.ContentFitCoverValue).
+		FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
+		ConnectRealize(func(w gtk.Widget) {
+			if preference.Performance().AllowPreviewImages() {
+				imageutils.LoadIntoPictureScaled(coverURL, 320, 180, gtk.PictureNewFromInternalPtr(w.Ptr))
+			}
+		})
+
+	progressBar := Box(gtk.OrientationHorizontalValue).
+		SizeRequest(progressWidth, 4).
+		VAlign(gtk.AlignEndValue).
+		HAlign(gtk.AlignStartValue).
+		CSS("box { background-color: @accent_bg_color; }")
+
+	imageContainer := Bin().
+		Child(Overlay(picture).AddOverlay(progressBar)).
+		SizeRequest(320, 180).
+		CornerRadius(10).
+		Overflow(gtk.OverflowHiddenValue)
+
 	return Button().
 		Child(
 			VStack(
-				Picture().
-					SizeRequest(320, 180).
-					ContentFit(gtk.ContentFitCoverValue).
-					FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
-					ConnectRealize(func(w gtk.Widget) {
-						if preference.Performance().AllowPreviewImages() {
-							imageutils.LoadIntoPictureScaled(coverURL, 320, 180, gtk.PictureNewFromInternalPtr(w.Ptr))
-						}
-					}).
-					CSS("picture { min-width: 320px; min-height: 180px; }").
-					CornerRadius(10).Overflow(gtk.OverflowHiddenValue),
+				imageContainer,
 				Label(metadata.Title).
 					WithCSSClass("heading").
 					MarginTop(10).
