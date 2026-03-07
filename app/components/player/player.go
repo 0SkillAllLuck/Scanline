@@ -41,7 +41,7 @@ func NewPlayer(params PlayerParams) {
 
 	// Create picture placeholder (media attached after decision resolves)
 	picture := gtk.NewPicture()
-	picture.SetContentFit(gtk.ContentFitCoverValue)
+	picture.SetContentFit(gtk.ContentFitContainValue)
 	picture.SetHexpand(true)
 	picture.SetVexpand(true)
 	picture.AddCssClass("scanline-player-picture")
