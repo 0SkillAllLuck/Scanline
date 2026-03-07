@@ -7,9 +7,9 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"github.com/0skillallluck/scanline/internal/gettext"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/internal/gettext"
 )
 
 type qualityPreset struct {

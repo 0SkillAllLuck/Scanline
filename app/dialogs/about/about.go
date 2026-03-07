@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"regexp"
 
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 var (
@@ -131,7 +131,7 @@ func NewAboutDialog() *adw.AboutDialog {
 	dialog.AddLegalSection("DBus Client (godbus/dbus)", "© 2020 Georg Reinke https://github.com/godbus/dbus", gtk.LicenseBsdValue, "")
 	dialog.AddLegalSection("UUID (google/uuid)", "© 2009, 2014 Google Inc. https://github.com/google/uuid", gtk.LicenseBsd3Value, "")
 	dialog.AddLegalSection("System Locale Detection (jeandeaual/go-locale)", "© 2020 Alexis Jeandeau https://github.com/jeandeaual/go-locale", gtk.LicenseMitX11Value, "")
-	dialog.AddLegalSection("GTK4 / Libadwaita Bindings (jwijenbergh/puregotk)", "© 2022 Kyle McGough https://github.com/jwijenbergh/puregotk", gtk.LicenseMitX11Value, "")
+	dialog.AddLegalSection("GTK4 / Libadwaita Bindings (jwijenbergh/puregotk)", "© 2022 Kyle McGough https://codeberg.org/puregotk/puregotk", gtk.LicenseMitX11Value, "")
 	dialog.AddLegalSection("Libsecret (lescuer97/go-libsecret)", "© 2025 Leonardo Escuer https://github.com/lescuer97/go-libsecret", gtk.LicenseMitX11Value, "")
 	dialog.AddLegalSection("JSON Merger (qjebbs/go-jsons)", "© 2022 Jebbs https://github.com/qjebbs/go-jsons", gtk.LicenseMitX11Value, "")
 	dialog.AddLegalSection("ISO8601 Duration Parser (osodev/duration)", "© 2023 Jeroen Wijenbergh https://github.com/sosodev/duration", gtk.LicenseMitX11Value, "")

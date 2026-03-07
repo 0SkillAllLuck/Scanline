@@ -2,9 +2,9 @@ package preferences
 
 import (
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"github.com/0skillallluck/scanline/internal/gettext"
+	"codeberg.org/puregotk/puregotk/v4/adw"
 	"github.com/0skillallluck/scanline/app/preference"
-	"github.com/jwijenbergh/puregotk/v4/adw"
+	"github.com/0skillallluck/scanline/internal/gettext"
 )
 
 var experimentalPreferences = PreferencesPage(

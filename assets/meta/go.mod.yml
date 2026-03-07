@@ -17,11 +17,11 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/github.com/jeandeaual/go-locale/@v/v0.0.0-20250612000132-0ef82f21eade.zip
-- dest: vendor/github.com/jwijenbergh/puregotk
+- dest: vendor/codeberg.org/puregotk/puregotk
   sha256: 56947051fb1de3cb0f0c60640d258f810fa92615c51f2eee5590086f8552baa2
   strip-components: 3
   type: archive
-  url: https://proxy.golang.org/github.com/jwijenbergh/puregotk/@v/v0.0.0-20260115100645-c78e1521129b.zip
+  url: https://proxy.golang.org/codeberg.org/puregotk/puregotk/@v/v0.0.0-20260115100645-c78e1521129b.zip
 - dest: vendor/github.com/keybase/go-keychain
   sha256: 9514a68da08d39d60a47640bef049e44c829aab5dbbddd03d272e9252039a5c7
   strip-components: 3

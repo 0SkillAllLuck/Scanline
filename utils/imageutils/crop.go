@@ -3,8 +3,8 @@ package imageutils
 import (
 	"math"
 
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gdkpixbuf"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gdkpixbuf"
 )
 
 func Crop(texture *gdk.Texture) *gdk.Texture {

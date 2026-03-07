@@ -94,7 +94,7 @@ then add this anywhere in your system configuration as you see fit
 ## Acknowledgements
 The following projects and resources served as inspiration or were helpful during the development of Scanline.
 - [Tonearm](https://codeberg.org/dergs/Tonearm) and its [schwifty](https://codeberg.org/dergs/Tonearm/src/branch/main/pkg/schwifty) UI framework for providing the foundation
-- [puregotk](https://github.com/jwijenbergh/puregotk) for making this project possible with only minimal CGO bindings
+- [puregotk](https://codeberg.org/puregotk/puregotk) for making this project possible with only minimal CGO bindings
 - [Plex](https://www.plex.tv/) for the media server platform
 - [Dråfølin](https://drafolin.ch/) for the beautiful icon
 

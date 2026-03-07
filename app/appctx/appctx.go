@@ -3,8 +3,8 @@ package appctx
 import (
 	"context"
 
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 type AppContext struct {

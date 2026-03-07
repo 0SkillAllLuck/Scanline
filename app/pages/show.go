@@ -5,13 +5,13 @@ import (
 	"log/slog"
 
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/appctx"
 	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/components/lists"
 	"github.com/0skillallluck/scanline/app/components/widgets"
-	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/router"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/internal/gettext"
 )
 
 var ShowRoute = router.NewRoute("show/:server/:ratingKey", Show)

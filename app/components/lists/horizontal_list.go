@@ -3,12 +3,12 @@ package lists
 import (
 	"math"
 
-	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/0skillallluck/scanline/app/router"
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	"codeberg.org/dergs/tonearm/pkg/schwifty/state"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/app/router"
+	"github.com/0skillallluck/scanline/internal/gettext"
 )
 
 type HorizontalList struct {

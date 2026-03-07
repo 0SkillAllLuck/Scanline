@@ -31,23 +31,23 @@ github.com/jwijenbergh/purego/internal/cgo
 github.com/jwijenbergh/purego/internal/fakecgo
 github.com/jwijenbergh/purego/internal/strings
 github.com/jwijenbergh/purego/internal/xreflect
-# github.com/jwijenbergh/puregotk v0.0.0-20260115100645-c78e1521129b
+# codeberg.org/puregotk/puregotk v0.0.0-20260115100645-c78e1521129b
 ## explicit; go 1.23.0
-github.com/jwijenbergh/puregotk/internal/core
-github.com/jwijenbergh/puregotk/pkg/core
-github.com/jwijenbergh/puregotk/v4/adw
-github.com/jwijenbergh/puregotk/v4/cairo
-github.com/jwijenbergh/puregotk/v4/gdk
-github.com/jwijenbergh/puregotk/v4/gdkpixbuf
-github.com/jwijenbergh/puregotk/v4/gio
-github.com/jwijenbergh/puregotk/v4/glib
-github.com/jwijenbergh/puregotk/v4/gmodule
-github.com/jwijenbergh/puregotk/v4/gobject
-github.com/jwijenbergh/puregotk/v4/gobject/types
-github.com/jwijenbergh/puregotk/v4/graphene
-github.com/jwijenbergh/puregotk/v4/gsk
-github.com/jwijenbergh/puregotk/v4/gtk
-github.com/jwijenbergh/puregotk/v4/pango
+codeberg.org/puregotk/puregotk/internal/core
+codeberg.org/puregotk/puregotk/pkg/core
+codeberg.org/puregotk/puregotk/v4/adw
+codeberg.org/puregotk/puregotk/v4/cairo
+codeberg.org/puregotk/puregotk/v4/gdk
+codeberg.org/puregotk/puregotk/v4/gdkpixbuf
+codeberg.org/puregotk/puregotk/v4/gio
+codeberg.org/puregotk/puregotk/v4/glib
+codeberg.org/puregotk/puregotk/v4/gmodule
+codeberg.org/puregotk/puregotk/v4/gobject
+codeberg.org/puregotk/puregotk/v4/gobject/types
+codeberg.org/puregotk/puregotk/v4/graphene
+codeberg.org/puregotk/puregotk/v4/gsk
+codeberg.org/puregotk/puregotk/v4/gtk
+codeberg.org/puregotk/puregotk/v4/pango
 # github.com/keybase/go-keychain v0.0.1
 ## explicit; go 1.21
 github.com/keybase/go-keychain

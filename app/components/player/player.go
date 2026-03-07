@@ -9,12 +9,12 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/google/uuid"
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gio"
-	"github.com/jwijenbergh/puregotk/v4/glib"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 // PlayerParams configures a new player window.
@@ -23,7 +23,7 @@ type PlayerParams struct {
 	Title     string
 	PartKey   string // raw media part key (e.g. "/library/parts/12345/file.mkv")
 	Window    *gtk.Window
-	RatingKey string         // metadata ratingKey
+	RatingKey string          // metadata ratingKey
 	Media     []sources.Media // full Media array from Metadata
 	Source    sources.Source  // the source for this playback
 }

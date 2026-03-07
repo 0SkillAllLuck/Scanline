@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/internal/signals"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 type HistoryEntry struct {

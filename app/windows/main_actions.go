@@ -4,15 +4,15 @@ import (
 	"unsafe"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/dialogs/about"
 	"github.com/0skillallluck/scanline/app/dialogs/preferences"
 	"github.com/0skillallluck/scanline/app/dialogs/shortcuts"
 	"github.com/0skillallluck/scanline/app/dialogs/sources"
 	"github.com/0skillallluck/scanline/app/router"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gio"
-	"github.com/jwijenbergh/puregotk/v4/glib"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
 )
 
 // installAppActions installs actions that live for the entire app lifecycle:

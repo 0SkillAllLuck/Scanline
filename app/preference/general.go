@@ -1,7 +1,7 @@
 package preference
 
 import (
-	"github.com/jwijenbergh/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/gio"
 )
 
 type GeneralSettings struct {
