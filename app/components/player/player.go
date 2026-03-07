@@ -52,10 +52,6 @@ func NewPlayer(params PlayerParams) {
 	picture.SetVexpand(true)
 	var media *gtk.MediaFile
 
-	// Build overlay UI
-	overlay := gtk.NewOverlay()
-	overlay.SetChild(&picture.Widget)
-
 	// --- Progress reporting ---
 	var lastProgressUpdate atomic.Int64 // monotonic ms of last progress report
 
@@ -94,7 +90,6 @@ func NewPlayer(params PlayerParams) {
 			}
 			win.Close()
 		}).ToGTK()
-	overlay.AddOverlay(closeBtnWidget)
 
 	// --- Center playback controls ---
 	var playing atomic.Bool
@@ -215,7 +210,6 @@ func NewPlayer(params PlayerParams) {
 		HAlign(gtk.AlignCenterValue).
 		VAlign(gtk.AlignCenterValue).
 		ToGTK()
-	overlay.AddOverlay(centerControlsWidget)
 
 	// --- Bottom bar ---
 	var progressScale *gtk.Scale
@@ -376,8 +370,6 @@ func NewPlayer(params PlayerParams) {
 		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 12px 0; }").
 		ToGTK()
 
-	overlay.AddOverlay(bottomBarWidget)
-
 	// --- Controls visibility (auto-hide) ---
 	controlWidgets := []*gtk.Widget{closeBtnWidget, centerControlsWidget, bottomBarWidget}
 	var hideTimerID atomic.Uint32
@@ -434,8 +426,6 @@ func NewPlayer(params PlayerParams) {
 		scheduleHide()
 	}
 	motionCtrl.ConnectLeave(&leaveCb)
-	overlay.AddController(&motionCtrl.EventController)
-
 	// --- Prevent auto-hide while settings popover is open ---
 	if settingsPopover != nil {
 		mapCb := func(w gtk.Widget) {
@@ -579,7 +569,13 @@ func NewPlayer(params PlayerParams) {
 	tickerID.Store(tid)
 
 	// --- Set up window ---
-	offload := gtk.NewGraphicsOffload(&overlay.Widget)
+	overlayWidget := Overlay(&picture.Widget).
+		AddOverlay(closeBtnWidget).
+		AddOverlay(centerControlsWidget).
+		AddOverlay(bottomBarWidget).
+		Controller(&motionCtrl.EventController).
+		ToGTK()
+	offload := gtk.NewGraphicsOffload(overlayWidget)
 	offload.SetBlackBackground(true)
 	win.SetChild(&offload.Widget)
 	win.AddController(&keyCtrl.EventController)
