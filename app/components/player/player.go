@@ -9,10 +9,12 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/adw"
 	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/gio"
 	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/google/uuid"
 )
@@ -29,19 +31,42 @@ type PlayerParams struct {
 	ViewOffset int             // resume position in milliseconds
 }
 
-// NewPlayer creates a fullscreen video player window with overlay controls.
+// NewPlayer creates a video player with overlay controls.
+// When the windowed player preference is enabled, the player reuses the main
+// window instead of opening a separate fullscreen window.
 func NewPlayer(params PlayerParams) {
 	src := params.Source
 	sessionID := uuid.NewString()
 	ctx, ctxCancel := context.WithCancel(params.Ctx)
 
-	win := gtk.NewWindow()
-	win.SetTitle(params.Title)
-	win.SetTransientFor(params.Window)
-	win.SetModal(true)
+	windowed := preference.Experimental().EnableWindowedPlayer()
 
-	// Hide parent window content so it can't show through the transparent fullscreen player
-	parentContent := params.Window.GetChild()
+	// In fullscreen mode we create a separate modal window.
+	// In windowed mode we reuse the existing main window.
+	var win *gtk.Window
+	// adwWin is used in windowed mode to call SetContent/GetContent,
+	// since AdwApplicationWindow does not support SetChild/GetChild.
+	var adwWin *adw.ApplicationWindow
+	if !windowed {
+		win = gtk.NewWindow()
+		win.SetTitle(params.Title)
+		win.SetTransientFor(params.Window)
+		win.SetModal(true)
+	} else {
+		win = params.Window
+		adwWin = &adw.ApplicationWindow{}
+		adwWin.SetGoPointer(win.GoPointer())
+	}
+
+	// Hide parent window content so it can't show through the player.
+	// For AdwApplicationWindow (windowed mode) use GetContent; for plain
+	// gtk.Window (fullscreen mode) use GetChild.
+	var parentContent *gtk.Widget
+	if adwWin != nil {
+		parentContent = adwWin.GetContent()
+	} else {
+		parentContent = params.Window.GetChild()
+	}
 	if parentContent != nil {
 		parentContent.SetVisible(false)
 	}
@@ -76,6 +101,11 @@ func NewPlayer(params PlayerParams) {
 		}()
 	}
 
+	// closePlayer tears down the player and restores the original window content.
+	// In fullscreen mode it closes the separate window (triggering close-request).
+	// In windowed mode it performs cleanup inline.
+	var closePlayer func()
+
 	// --- Close button (top-right) ---
 	closeBtnWidget := Button().
 		IconName("window-close-symbolic").
@@ -89,7 +119,7 @@ func NewPlayer(params PlayerParams) {
 			if media != nil {
 				media.Pause()
 			}
-			win.Close()
+			closePlayer()
 		}).ToGTK()
 
 	// --- Center playback controls ---
@@ -444,12 +474,21 @@ func NewPlayer(params PlayerParams) {
 		settingsPopover.ConnectUnmap(&unmapCb)
 	}
 
-	// --- ESC key to close ---
+	// --- ESC key to close, F/F11 to toggle fullscreen ---
 	keyCtrl := gtk.NewEventControllerKey()
 	keyPressedCb := func(ctrl gtk.EventControllerKey, keyval uint32, keycode uint32, state gdk.ModifierType) bool {
 		switch keyval {
 		case uint32(gdk.KEY_Escape):
-			win.Close()
+			closePlayer()
+			return true
+		case uint32(gdk.KEY_f), uint32(gdk.KEY_F), uint32(gdk.KEY_F11):
+			if windowed {
+				if win.IsFullscreen() {
+					win.Unfullscreen()
+				} else {
+					win.Fullscreen()
+				}
+			}
 			return true
 		case uint32(gdk.KEY_space):
 			if media == nil {
@@ -578,15 +617,18 @@ func NewPlayer(params PlayerParams) {
 		ToGTK()
 	offload := gtk.NewGraphicsOffload(overlayWidget)
 	offload.SetBlackBackground(true)
-	win.SetChild(&offload.Widget)
+	if adwWin != nil {
+		adwWin.SetContent(&offload.Widget)
+	} else {
+		win.SetChild(&offload.Widget)
+	}
 	win.AddController(&keyCtrl.EventController)
 
-	closeRequestCb := func(w gtk.Window) bool {
+	// cleanup performs common teardown for both modes.
+	cleanup := func() {
 		ctxCancel()
 		if media != nil {
-			// Report stopped state to server
 			sendProgress(sources.StateStopped)
-			// Scrobble if >90% watched
 			dur := media.GetDuration()
 			ts := media.GetTimestamp()
 			if dur > 0 && ts > 0 && float64(ts)/float64(dur) > 0.9 {
@@ -602,17 +644,48 @@ func NewPlayer(params PlayerParams) {
 			glib.SourceRemove(id)
 			hideTimerID.Store(0)
 		}
-		// Restore parent window content visibility
-		if parentContent != nil {
-			parentContent.SetVisible(true)
-		}
-		win.Destroy()
-		return true
 	}
-	win.ConnectCloseRequest(&closeRequestCb)
 
-	win.Fullscreen()
-	win.Present()
+	if windowed {
+		// Windowed mode: player lives inside the main window.
+		closePlayer = func() {
+			cleanup()
+			// Remove controllers we added
+			win.RemoveController(&keyCtrl.EventController)
+			win.RemoveController(&motionCtrl.EventController)
+			// Exit fullscreen if we toggled it
+			if win.IsFullscreen() {
+				win.Unfullscreen()
+			}
+			// Restore the original content
+			adwWin.SetContent(parentContent)
+			if parentContent != nil {
+				parentContent.SetVisible(true)
+			}
+		}
+		if preference.Experimental().StartInFullscreen() {
+			win.Fullscreen()
+		}
+		win.Present()
+	} else {
+		// Fullscreen mode: separate modal window.
+		closePlayer = func() {
+			win.Close()
+		}
+
+		closeRequestCb := func(w gtk.Window) bool {
+			cleanup()
+			if parentContent != nil {
+				parentContent.SetVisible(true)
+			}
+			win.Destroy()
+			return true
+		}
+		win.ConnectCloseRequest(&closeRequestCb)
+
+		win.Fullscreen()
+		win.Present()
+	}
 
 	// Resolve playback URL via decision endpoint, then start playback
 	go func() {

@@ -98,6 +98,18 @@
       		<description
             >Whether the Watchlist tab should be shown in the navigation bar</description>
        	</key>
+        <key name="enable-windowed-player" type="b">
+      		<default>false</default>
+      		<summary>Enable Windowed Player</summary>
+      		<description
+            >Whether the player should open in windowed mode instead of fullscreen</description>
+       	</key>
+        <key name="start-in-fullscreen" type="b">
+      		<default>true</default>
+      		<summary>Start in Fullscreen</summary>
+      		<description
+            >Whether the windowed player should start in fullscreen mode</description>
+       	</key>
     </schema>
 
 </schemalist>

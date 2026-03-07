@@ -16,8 +16,11 @@ var experimentalPreferences = PreferencesPage(
 				preference.Experimental().BindEnableWatchlist(&sr.Object, "active")
 			}),
 		SwitchRow().
-			Title(gettext.Get("Enable Non-Fullscreen support")).
-			Subtitle(gettext.Get("Enable support for non-fullscreen mode.")),
+			Title(gettext.Get("Enable Windowed Player")).
+			Subtitle(gettext.Get("Allow the player to open in a window instead of fullscreen.")).
+			ConnectConstruct(func(sr *adw.SwitchRow) {
+				preference.Experimental().BindEnableWindowedPlayer(&sr.Object, "active")
+			}),
 		SwitchRow().
 			Title(gettext.Get("Enable PiP support")).
 			Subtitle(gettext.Get("Enable support for picture-in-picture mode.")),
