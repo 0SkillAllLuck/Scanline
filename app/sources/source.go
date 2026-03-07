@@ -29,7 +29,8 @@ type Source interface {
 	GetChildren(ctx context.Context, key string) ([]Metadata, error)
 
 	// HomeHubs returns the hubs displayed on the home screen.
-	HomeHubs(ctx context.Context) ([]Hub, error)
+	// The count parameter specifies the maximum number of items per hub (0 for server default).
+	HomeHubs(ctx context.Context, count int) ([]Hub, error)
 
 	// RelatedHubs returns content related to a specific item.
 	RelatedHubs(ctx context.Context, key string) ([]Hub, error)

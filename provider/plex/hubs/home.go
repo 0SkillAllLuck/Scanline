@@ -1,13 +1,23 @@
 package hubs
 
-import "context"
+import (
+	"context"
+	"strconv"
+)
 
 // Home returns the hubs displayed on the home screen.
 //
 // This includes recently added items, continue watching, and other personalized content.
-func (h *Hubs) Home(ctx context.Context) ([]Hub, error) {
+// The count parameter specifies the maximum number of items to return per hub (0 for server default).
+func (h *Hubs) Home(ctx context.Context, count int) ([]Hub, error) {
 	var resp mediaContainerResponse[hubsContainer]
-	err := h.Get(ctx, "/hubs").
+
+	query := make(map[string]string)
+	if count > 0 {
+		query["count"] = strconv.Itoa(count)
+	}
+
+	err := h.GetWithQuery(ctx, "/hubs", query).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err
