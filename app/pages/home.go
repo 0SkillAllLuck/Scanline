@@ -21,7 +21,7 @@ func home(appCtx *appctx.AppContext) *router.Response {
 	body := VStack().Spacing(25).VMargin(20)
 
 	for _, src := range mgr.EnabledSources() {
-		hubList, err := src.HomeHubs(appCtx.Ctx)
+		hubList, err := src.HomeHubs(appCtx.Ctx, 24)
 		if err != nil {
 			slog.Error("failed to fetch home hubs", "source", src.Name(), "error", err)
 			continue
@@ -34,6 +34,12 @@ func home(appCtx *appctx.AppContext) *router.Response {
 
 		for i := range hubList {
 			hub := &hubList[i]
+
+			// Skip On Deck as it largely duplicates Continue Watching
+			if hub.HubIdentifier == "hub.ondeck" {
+				continue
+			}
+
 			list := lists.NewHorizontalList(hub.Title)
 			hasItems := false
 
