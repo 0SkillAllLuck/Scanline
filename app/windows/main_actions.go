@@ -80,7 +80,7 @@ func (w *Window) installWindowActions() {
 		}
 	}))
 	w.AddAction(searchAction)
-	w.GetApplication().SetAccelsForAction("win.search", []string{"<Ctrl>f", "Escape"})
+	w.GetApplication().SetAccelsForAction("win.search", []string{"<Ctrl>f"})
 
 	routeMovieAction := gio.NewSimpleAction("route.movie", glib.NewVariantType("s"))
 	routeMovieAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {

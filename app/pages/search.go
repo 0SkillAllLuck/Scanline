@@ -6,6 +6,7 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty/state"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/appctx"
 	"github.com/0skillallluck/scanline/app/pages/search"
@@ -40,12 +41,25 @@ var SearchRoute = router.NewRoute("search", func(appCtx *appctx.AppContext) *rou
 					return
 				}
 				searchHandler(se)
-			}),
+			}).
+			AddController(escKeyController()),
 		View: ScrolledWindow().
 			BindChild(scrollChildState).
 			Policy(gtk.PolicyNeverValue, gtk.PolicyAutomaticValue),
 	}
 })
+
+func escKeyController() *gtk.EventController {
+	keyCtrl := gtk.NewEventControllerKey()
+	keyCtrl.ConnectKeyPressed(new(func(ctrl gtk.EventControllerKey, keyval uint32, keycode uint32, state gdk.ModifierType) bool {
+		if keyval == uint32(gdk.KEY_Escape) {
+			router.Back()
+			return true
+		}
+		return false
+	}))
+	return &keyCtrl.EventController
+}
 
 func onSearch(appCtx *appctx.AppContext, scrollChildState *state.State[any]) func(gtk.SearchEntry) {
 	return func(searchBar gtk.SearchEntry) {
