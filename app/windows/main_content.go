@@ -192,17 +192,31 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 				TooltipText(gettext.Get("Search")).
 				Visible(hasSources).
 				ConnectConstruct(func(b *gtk.Button) {
-					var sub *signals.Subscription
-					sub = mgr.SourcesChanged.On(func(_ struct{}) bool { //nolint:staticcheck // SA4006 - used in closure
+					var sourcesSub, navSub *signals.Subscription
+					sourcesSub = mgr.SourcesChanged.On(func(_ struct{}) bool { //nolint:staticcheck // SA4006 - used in closure
 						schwifty.OnMainThreadOncePure(func() {
 							b.SetVisible(len(mgr.EnabledSources()) > 0)
 						})
 						return signals.Continue
 					})
+					navSub = router.NavigationCompleted.On(func(entry router.HistoryEntry) bool { //nolint:staticcheck // SA4006 - used in closure
+						schwifty.OnMainThreadOncePure(func() {
+							if entry.Path == "search" {
+								b.AddCssClass("suggested-action")
+							} else {
+								b.RemoveCssClass("suggested-action")
+							}
+						})
+						return signals.Continue
+					})
 					b.ConnectDestroy(new(func(w gtk.Widget) {
-						if sub != nil {
-							mgr.SourcesChanged.Unsubscribe(sub)
-							sub = nil
+						if sourcesSub != nil {
+							mgr.SourcesChanged.Unsubscribe(sourcesSub)
+							sourcesSub = nil
+						}
+						if navSub != nil {
+							router.NavigationCompleted.Unsubscribe(navSub)
+							navSub = nil
 						}
 					}))
 				}),
@@ -215,7 +229,8 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 					var sub *signals.Subscription
 					sub = router.HistoryUpdated.On(func(history *router.History) bool { //nolint:staticcheck // SA4006 - used in closure
 						schwifty.OnMainThreadOncePure(func() {
-							b.SetVisible(len(history.Entries) > 0)
+							isOnSearch := history.Current != nil && history.Current.Path == "search"
+							b.SetVisible(len(history.Entries) > 0 && !isOnSearch)
 						})
 						return signals.Continue
 					})

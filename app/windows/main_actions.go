@@ -73,7 +73,11 @@ func (w *Window) installWindowActions() {
 
 	searchAction := gio.NewSimpleAction("search", nil)
 	searchAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
-		router.Navigate("search")
+		if current := router.Current(); current != nil && current.Path == "search" {
+			router.Back()
+		} else {
+			router.Navigate("search")
+		}
 	}))
 	w.AddAction(searchAction)
 	w.GetApplication().SetAccelsForAction("win.search", []string{"<Ctrl>f"})

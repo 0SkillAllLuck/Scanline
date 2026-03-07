@@ -58,7 +58,7 @@ func (r *Router) Navigate(path string) {
 
 func (r *Router) NavigateClearing(path string) {
 	r.history.Clear(r.HistoryUpdated)
-	r.navigate(strings.TrimPrefix(path, "plex://"), true)
+	r.navigate(strings.TrimPrefix(path, "plex://"), false)
 }
 
 func (r *Router) navigate(path string, offRecord bool) {
