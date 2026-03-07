@@ -162,12 +162,14 @@ jobs:
           go-version: "1.26"
           cache: true
       - name: Generate
-        run: go run github.com/dennwc/flatpak-go-mod@latest
+        run: |
+          go run github.com/dennwc/flatpak-go-mod@latest
+          sed -i 's|path: modules.txt|path: assets/meta/modules.txt|' go.mod.yml
       - name: Diff
         run: |
           if ! diff -q go.mod.yml assets/meta/go.mod.yml > /dev/null 2>&1 || \
              ! diff -q modules.txt assets/meta/modules.txt > /dev/null 2>&1; then
-            echo "::error::Flatpak module data is out of date. Run 'go run github.com/dennwc/flatpak-go-mod@latest' and copy the generated files to assets/meta/."
+            echo "::error::Flatpak module data is out of date. Run './scripts/update-flatpak-modules.sh' to regenerate."
             diff go.mod.yml assets/meta/go.mod.yml || true
             diff modules.txt assets/meta/modules.txt || true
             exit 1
