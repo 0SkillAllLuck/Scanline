@@ -39,35 +39,18 @@ func NewPlayer(params PlayerParams) {
 	win.SetTransientFor(params.Window)
 	win.SetModal(true)
 
+	// Hide parent window content so it can't show through the transparent fullscreen player
+	parentContent := params.Window.GetChild()
+	if parentContent != nil {
+		parentContent.SetVisible(false)
+	}
+
 	// Create picture placeholder (media attached after decision resolves)
 	picture := gtk.NewPicture()
 	picture.SetContentFit(gtk.ContentFitContainValue)
 	picture.SetHexpand(true)
 	picture.SetVexpand(true)
-	picture.AddCssClass("scanline-player-picture")
-
 	var media *gtk.MediaFile
-
-	// Build overlay UI
-	overlay := gtk.NewOverlay()
-	overlay.SetChild(&picture.Widget)
-
-	// Add CSS provider for black background (covers letterbox areas)
-	// Use unique class names to avoid affecting other windows
-	cssProvider := gtk.NewCssProvider()
-	cssProvider.LoadFromString(`
-		.scanline-player-window { background-color: #000000; background: #000000; }
-		.scanline-player-overlay { background-color: #000000; background: #000000; }
-		.scanline-player-picture { background-color: #000000; background: #000000; }
-	`)
-	display := gdk.DisplayGetDefault()
-	gtk.StyleContextAddProviderForDisplay(
-		display,
-		cssProvider,
-		uint32(gtk.STYLE_PROVIDER_PRIORITY_APPLICATION),
-	)
-	win.AddCssClass("scanline-player-window")
-	overlay.AddCssClass("scanline-player-overlay")
 
 	// --- Progress reporting ---
 	var lastProgressUpdate atomic.Int64 // monotonic ms of last progress report
@@ -107,7 +90,6 @@ func NewPlayer(params PlayerParams) {
 			}
 			win.Close()
 		}).ToGTK()
-	overlay.AddOverlay(closeBtnWidget)
 
 	// --- Center playback controls ---
 	var playing atomic.Bool
@@ -228,7 +210,6 @@ func NewPlayer(params PlayerParams) {
 		HAlign(gtk.AlignCenterValue).
 		VAlign(gtk.AlignCenterValue).
 		ToGTK()
-	overlay.AddOverlay(centerControlsWidget)
 
 	// --- Bottom bar ---
 	var progressScale *gtk.Scale
@@ -389,8 +370,6 @@ func NewPlayer(params PlayerParams) {
 		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 12px 0; }").
 		ToGTK()
 
-	overlay.AddOverlay(bottomBarWidget)
-
 	// --- Controls visibility (auto-hide) ---
 	controlWidgets := []*gtk.Widget{closeBtnWidget, centerControlsWidget, bottomBarWidget}
 	var hideTimerID atomic.Uint32
@@ -447,8 +426,6 @@ func NewPlayer(params PlayerParams) {
 		scheduleHide()
 	}
 	motionCtrl.ConnectLeave(&leaveCb)
-	overlay.AddController(&motionCtrl.EventController)
-
 	// --- Prevent auto-hide while settings popover is open ---
 	if settingsPopover != nil {
 		mapCb := func(w gtk.Widget) {
@@ -592,7 +569,15 @@ func NewPlayer(params PlayerParams) {
 	tickerID.Store(tid)
 
 	// --- Set up window ---
-	win.SetChild(&overlay.Widget)
+	overlayWidget := Overlay(&picture.Widget).
+		AddOverlay(closeBtnWidget).
+		AddOverlay(centerControlsWidget).
+		AddOverlay(bottomBarWidget).
+		Controller(&motionCtrl.EventController).
+		ToGTK()
+	offload := gtk.NewGraphicsOffload(overlayWidget)
+	offload.SetBlackBackground(true)
+	win.SetChild(&offload.Widget)
 	win.AddController(&keyCtrl.EventController)
 
 	closeRequestCb := func(w gtk.Window) bool {
@@ -616,8 +601,10 @@ func NewPlayer(params PlayerParams) {
 			glib.SourceRemove(id)
 			hideTimerID.Store(0)
 		}
-		// Remove CSS provider to avoid affecting other windows
-		gtk.StyleContextRemoveProviderForDisplay(display, cssProvider)
+		// Restore parent window content visibility
+		if parentContent != nil {
+			parentContent.SetVisible(true)
+		}
 		win.Destroy()
 		return true
 	}
