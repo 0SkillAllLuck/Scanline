@@ -44,8 +44,7 @@ func Show(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respons
 	}
 
 	// Find the next episode to play
-	var nextEpisode *sources.Metadata
-	nextEpisode = findNextEpisode(ctx, src, seasons)
+	nextEpisode := findNextEpisode(ctx, src, seasons)
 
 	body := VStack().Spacing(25).VMargin(20).HMargin(40)
 
