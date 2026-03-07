@@ -159,6 +159,9 @@ type Metadata struct {
 	// LeafCount is the total number of leaf items (episodes for shows).
 	LeafCount int `json:"leafCount,omitempty"`
 
+	// ViewedLeafCount is the number of watched leaf items (episodes for shows/seasons).
+	ViewedLeafCount int `json:"viewedLeafCount,omitempty"`
+
 	// AddedAt is the Unix timestamp when the item was added.
 	AddedAt int64 `json:"addedAt,omitempty"`
 
