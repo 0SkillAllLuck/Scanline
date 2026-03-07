@@ -10,8 +10,8 @@ import (
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/app/windows"
 	"github.com/0skillallluck/scanline/app/secrets"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gio"
 )
 
 func OnActivate(application *adw.Application) func(gio.Application) {

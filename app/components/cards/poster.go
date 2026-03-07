@@ -5,9 +5,9 @@ import (
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/imageutils"
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
-	"github.com/jwijenbergh/puregotk/v4/pango"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/pango"
 )
 
 func poster[T any](title string, subTitle schwifty.Widgetable[T], coverURL string) schwifty.Button {

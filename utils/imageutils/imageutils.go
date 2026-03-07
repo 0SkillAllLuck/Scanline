@@ -4,7 +4,7 @@ import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	"codeberg.org/dergs/tonearm/pkg/schwifty/tracking"
 	"codeberg.org/dergs/tonearm/pkg/schwifty/utils/weak"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 func LoadIntoImage(url string, image *gtk.Image) {

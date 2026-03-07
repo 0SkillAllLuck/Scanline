@@ -7,7 +7,7 @@ import (
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/internal/signals"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 type RouteButton struct {

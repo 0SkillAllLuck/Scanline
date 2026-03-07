@@ -8,8 +8,8 @@ import (
 	appauth "github.com/0skillallluck/scanline/app/auth"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 func NewSourceSelection(ctx context.Context, window *gtk.Window, mgr *sources.Manager, onDone func()) *adw.Dialog {

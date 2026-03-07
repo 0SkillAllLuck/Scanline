@@ -6,7 +6,7 @@ import (
 
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/internal/signals"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 type HistoryEntry struct {

@@ -4,7 +4,7 @@ import (
 	"runtime"
 
 	"github.com/0skillallluck/scanline/internal/g"
-	"github.com/jwijenbergh/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/gio"
 )
 
 var General = g.Lazy(func() *GeneralSettings {

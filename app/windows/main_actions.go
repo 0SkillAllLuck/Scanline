@@ -9,10 +9,10 @@ import (
 	"github.com/0skillallluck/scanline/app/dialogs/shortcuts"
 	"github.com/0skillallluck/scanline/app/dialogs/sources"
 	"github.com/0skillallluck/scanline/app/router"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gio"
-	"github.com/jwijenbergh/puregotk/v4/glib"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 // installAppActions installs actions that live for the entire app lifecycle:
@@ -128,7 +128,7 @@ func (w *Window) installMouseClickHandler() {
 	gestureController := gtk.NewGestureClick()
 	gestureController.SetButton(0)
 	gestureController.SetPropagationPhase(gtk.PhaseCaptureValue)
-	gestureController.ConnectPressed(new(func(controller gtk.GestureClick, nPress int, x float64, y float64) {
+	gestureController.ConnectPressed(new(func(controller gtk.GestureClick, nPress int32, x float64, y float64) {
 		switch controller.GetCurrentButton() {
 		case MouseButtonBack:
 			w.ActivateAction("navigate-back", nil)

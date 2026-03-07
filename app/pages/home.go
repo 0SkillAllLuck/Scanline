@@ -10,7 +10,7 @@ import (
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 var HomeRoute = router.NewRoute("home", home)

@@ -6,7 +6,7 @@ import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 )
 
 // NewEpisodePreviewCard creates a new 16:9 preview card for a tv-show episode.

@@ -5,8 +5,8 @@ import (
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/secrets"
 	"github.com/0skillallluck/scanline/app/preference"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 // PresentSecretServiceErrorDialog creates and presents a dialog to display secret service errors.

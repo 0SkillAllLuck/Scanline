@@ -1,7 +1,7 @@
 package preference
 
 import (
-	"github.com/jwijenbergh/puregotk/v4/gio"
+	"codeberg.org/puregotk/puregotk/v4/gio"
 )
 
 type GeneralSettings struct {
@@ -17,17 +17,17 @@ func (g *GeneralSettings) SetHideSecretServiceWarning(hide bool) bool {
 }
 
 func (g *GeneralSettings) GetWindowHeight() int {
-	return g.settings.GetInt("window-height")
+	return int(g.settings.GetInt("window-height"))
 }
 
 func (g *GeneralSettings) SetWindowHeight(height int) {
-	g.settings.SetInt("window-height", height)
+	g.settings.SetInt("window-height", int32(height))
 }
 
 func (g *GeneralSettings) GetWindowWidth() int {
-	return g.settings.GetInt("window-width")
+	return int(g.settings.GetInt("window-width"))
 }
 
 func (g *GeneralSettings) SetWindowWidth(width int) {
-	g.settings.SetInt("window-width", width)
+	g.settings.SetInt("window-width", int32(width))
 }

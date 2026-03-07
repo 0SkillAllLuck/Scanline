@@ -9,9 +9,9 @@ import (
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/utils/imageutils"
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
-	"github.com/jwijenbergh/puregotk/v4/pango"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/pango"
 )
 
 // HeroPosterParams configures the poster image in a hero section.
@@ -31,7 +31,7 @@ func HeroSection(poster HeroPosterParams, content schwifty.Box) schwifty.Box {
 
 	return HStack(
 		Picture().
-			SizeRequest(poster.Width, poster.Height).
+			SizeRequest(int32(poster.Width), int32(poster.Height)).
 			ContentFit(gtk.ContentFitCoverValue).
 			FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 			ConnectRealize(func(w gtk.Widget) {
@@ -161,7 +161,7 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 			HStack(
 				Label(gettext.Get(row.Label)+":").WithCSSClass("dimmed"),
 				Label(row.Value),
-			).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(marginTop),
+			).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(int32(marginTop)),
 		)
 	}
 

@@ -15,9 +15,9 @@ import (
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/internal/signals"
-	"github.com/jwijenbergh/puregotk/v4/adw"
-	"github.com/jwijenbergh/puregotk/v4/gobject"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/adw"
+	"codeberg.org/puregotk/puregotk/v4/gobject"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 
 	_ "github.com/0skillallluck/scanline/app/pages"
 	_ "github.com/0skillallluck/scanline/app/pages/search"
@@ -42,7 +42,7 @@ func NewWindow(app *adw.Application, appCtx *appctx.AppContext) *Window {
 
 	window.SetTitle("Scanline")
 	window.SetIconName("logo-symbolic")
-	window.SetDefaultSize(preference.General().GetWindowWidth(), preference.General().GetWindowHeight())
+	window.SetDefaultSize(int32(preference.General().GetWindowWidth()), int32(preference.General().GetWindowHeight()))
 	// Debounce window size saves to avoid excessive GSettings writes during resize
 	var sizeTimer *time.Timer
 	var sizeMu sync.Mutex
@@ -58,10 +58,10 @@ func NewWindow(app *adw.Application, appCtx *appctx.AppContext) *Window {
 		}
 		sizeTimer = time.AfterFunc(500*time.Millisecond, func() {
 			if h > 0 {
-				preference.General().SetWindowHeight(h)
+				preference.General().SetWindowHeight(int(h))
 			}
 			if w > 0 {
-				preference.General().SetWindowWidth(w)
+				preference.General().SetWindowWidth(int(w))
 			}
 		})
 		sizeMu.Unlock()

@@ -9,7 +9,7 @@ import (
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 type qualityPreset struct {
@@ -93,14 +93,14 @@ func buildSettingsPopover(
 	// Build audio stream labels and IDs
 	var audioLabels []string
 	var audioStreamIDs []int
-	selectedAudio := uint(0)
+	selectedAudio := uint32(0)
 	audioIdx := 0
 	for i, s := range streams {
 		if s.StreamType == 2 { // audio
 			audioLabels = append(audioLabels, streamLabel(s, i))
 			audioStreamIDs = append(audioStreamIDs, s.ID)
 			if s.Selected {
-				selectedAudio = uint(audioIdx)
+				selectedAudio = uint32(audioIdx)
 			}
 			audioIdx++
 		}
@@ -109,7 +109,7 @@ func buildSettingsPopover(
 	// Build subtitle stream labels and IDs ("None" + subtitle streams)
 	subtitleLabels := []string{gettext.Get("None")}
 	subtitleStreamIDs := []int{0}
-	selectedSubtitle := uint(0)
+	selectedSubtitle := uint32(0)
 	subtitleIdx := 0
 	for i, s := range streams {
 		if s.StreamType == 3 { // subtitle
@@ -117,7 +117,7 @@ func buildSettingsPopover(
 			subtitleStreamIDs = append(subtitleStreamIDs, s.ID)
 			subtitleIdx++
 			if s.Selected {
-				selectedSubtitle = uint(subtitleIdx)
+				selectedSubtitle = uint32(subtitleIdx)
 			}
 		}
 	}

@@ -5,9 +5,9 @@ import (
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/imageutils"
-	"github.com/jwijenbergh/puregotk/v4/gdk"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
-	"github.com/jwijenbergh/puregotk/v4/pango"
+	"codeberg.org/puregotk/puregotk/v4/gdk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/pango"
 )
 
 func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL string, progress float64) schwifty.Button {
@@ -27,7 +27,7 @@ func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL st
 
 	// Create progress bar at the bottom
 	progressBar := Box(gtk.OrientationHorizontalValue).
-		SizeRequest(progressWidth, 4).
+		SizeRequest(int32(progressWidth), 4).
 		VAlign(gtk.AlignEndValue).
 		HAlign(gtk.AlignStartValue).
 		CSS("box { background-color: @accent_bg_color; }")

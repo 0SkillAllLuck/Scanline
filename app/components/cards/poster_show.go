@@ -4,7 +4,7 @@ import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
-	"github.com/jwijenbergh/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 )
 
 // NewShowPoster creates a new poster card for a tv-show.

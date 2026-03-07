@@ -14,7 +14,7 @@ import (
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/utils/notifications"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 var EpisodeRoute = router.NewRoute("episode/:server/:ratingKey", Episode)

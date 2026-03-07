@@ -5,7 +5,7 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	"github.com/0skillallluck/scanline/app/sources"
-	"github.com/jwijenbergh/puregotk/v4/glib"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 )
 
 // NewMoviePreviewCard creates a new 16:9 preview card for a movie.

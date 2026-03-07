@@ -11,7 +11,7 @@ import (
 	"github.com/0skillallluck/scanline/app/components/widgets"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/app/router"
-	"github.com/jwijenbergh/puregotk/v4/gtk"
+	"codeberg.org/puregotk/puregotk/v4/gtk"
 )
 
 var ShowRoute = router.NewRoute("show/:server/:ratingKey", Show)
