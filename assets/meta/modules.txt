@@ -11,19 +11,6 @@ codeberg.org/dergs/tonearm/pkg/schwifty/syntax
 codeberg.org/dergs/tonearm/pkg/schwifty/tracking
 codeberg.org/dergs/tonearm/pkg/schwifty/utils/weak
 codeberg.org/dergs/tonearm/pkg/utils/cutil
-# github.com/fogleman/gg v1.3.0
-## explicit
-github.com/fogleman/gg
-# github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
-## explicit
-github.com/golang/freetype/raster
-github.com/golang/freetype/truetype
-# github.com/google/uuid v1.6.0
-## explicit
-github.com/google/uuid
-# github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade
-## explicit; go 1.18
-github.com/jeandeaual/go-locale
 # codeberg.org/puregotk/purego v0.0.0-20260224095105-2513c838cb80
 ## explicit; go 1.18
 codeberg.org/puregotk/purego
@@ -48,6 +35,19 @@ codeberg.org/puregotk/puregotk/v4/graphene
 codeberg.org/puregotk/puregotk/v4/gsk
 codeberg.org/puregotk/puregotk/v4/gtk
 codeberg.org/puregotk/puregotk/v4/pango
+# github.com/fogleman/gg v1.3.0
+## explicit
+github.com/fogleman/gg
+# github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+## explicit
+github.com/golang/freetype/raster
+github.com/golang/freetype/truetype
+# github.com/google/uuid v1.6.0
+## explicit
+github.com/google/uuid
+# github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade
+## explicit; go 1.18
+github.com/jeandeaual/go-locale
 # github.com/keybase/go-keychain v0.0.1
 ## explicit; go 1.21
 github.com/keybase/go-keychain

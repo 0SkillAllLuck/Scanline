@@ -7,6 +7,11 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/codeberg.org/dergs/tonearm/@v/v1.4.1-0.20260304095737-2bc41c208498.zip
+- dest: vendor/codeberg.org/puregotk/puregotk
+  sha256: 52c4394f5fe8d2ec9ccb8a0063617a11273772e06474c265cef0104cb626d99a
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/codeberg.org/puregotk/puregotk/@v/v0.0.0-20260226083027-5647eb6a2bba.zip
 - dest: vendor/github.com/google/uuid
   sha256: d0f02f377217f42702e259684e06441edbf5140dddcc34ba9bea56038b38a6ed
   strip-components: 3
@@ -17,11 +22,6 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/github.com/jeandeaual/go-locale/@v/v0.0.0-20250612000132-0ef82f21eade.zip
-- dest: vendor/codeberg.org/puregotk/puregotk
-  sha256: 52c4394f5fe8d2ec9ccb8a0063617a11273772e06474c265cef0104cb626d99a
-  strip-components: 3
-  type: archive
-  url: https://proxy.golang.org/codeberg.org/puregotk/puregotk/@v/v0.0.0-20260226083027-5647eb6a2bba.zip
 - dest: vendor/github.com/keybase/go-keychain
   sha256: 9514a68da08d39d60a47640bef049e44c829aab5dbbddd03d272e9252039a5c7
   strip-components: 3
@@ -47,6 +47,11 @@
   strip-components: 5
   type: archive
   url: https://proxy.golang.org/github.com/yeqown/go-qrcode/writer/standard/@v/v1.3.0.zip
+- dest: vendor/codeberg.org/puregotk/purego
+  sha256: 0d5fb9e11934b151ac357a9c0660e4dcd287d2f93db0829356415f6e6a8ef84b
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/codeberg.org/puregotk/purego/@v/v0.0.0-20260224095105-2513c838cb80.zip
 - dest: vendor/github.com/fogleman/gg
   sha256: 792f7a3ea9eea31b7947dabaf9d5a307389245069078e4bf435d76cb0505439c
   strip-components: 3
@@ -57,11 +62,6 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/github.com/golang/freetype/@v/v0.0.0-20170609003504-e2365dfdc4a0.zip
-- dest: vendor/codeberg.org/puregotk/purego
-  sha256: 0d5fb9e11934b151ac357a9c0660e4dcd287d2f93db0829356415f6e6a8ef84b
-  strip-components: 3
-  type: archive
-  url: https://proxy.golang.org/codeberg.org/puregotk/purego/@v/v0.0.0-20260224095105-2513c838cb80.zip
 - dest: vendor/github.com/pkg/errors
   sha256: d4c36b8bcd0616290a3913215e0f53b931bd6e00670596f2960df1b44af2bd07
   strip-components: 3
