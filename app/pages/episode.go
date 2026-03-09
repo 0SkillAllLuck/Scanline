@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
@@ -164,7 +165,7 @@ func Episode(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Resp
 	if len(meta.Role) > 0 {
 		castList := lists.NewHorizontalList(gettext.Get("Cast"))
 		for _, role := range meta.Role {
-			castList.Append(cards.NewCastMember(role.Tag, role.Role, src.PhotoTranscodeURL(role.Thumb, 140, 140)))
+			castList.Append(cards.NewCastMember(role.Tag, role.Role, src.PhotoTranscodeURL(role.Thumb, 140, 140), serverID, strconv.Itoa(role.ID)))
 		}
 		body = body.Append(castList.SetPageMargin(0))
 	}

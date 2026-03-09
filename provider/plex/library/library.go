@@ -30,6 +30,9 @@ type ContentOptions struct {
 
 	// Type filters by content type (e.g., "1" for movies, "2" for shows).
 	Type string
+
+	// Actor filters by actor tag ID.
+	Actor string
 }
 
 // LibrarySection represents a library section (e.g., Movies, TV Shows).
