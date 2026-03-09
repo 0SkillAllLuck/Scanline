@@ -438,8 +438,7 @@ func NewPlayer(params PlayerParams) {
 		Spacing(0).
 		VAlign(gtk.AlignEndValue).
 		HExpand(true).
-		MarginBottom(12).
-		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 4px 0 8px 0; }").
+		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 4px 0 20px 0; }").
 		ToGTK()
 
 	// --- Controls visibility (auto-hide) ---
