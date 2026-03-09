@@ -15,6 +15,7 @@ import (
 	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/preference"
+	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/google/uuid"
 )
@@ -712,6 +713,7 @@ func NewPlayer(params PlayerParams) {
 			if parentContent != nil {
 				parentContent.SetVisible(true)
 			}
+			router.Refresh()
 		}
 		if preference.Experimental().StartInFullscreen() {
 			win.Fullscreen()
@@ -729,6 +731,7 @@ func NewPlayer(params PlayerParams) {
 				parentContent.SetVisible(true)
 			}
 			win.Destroy()
+			router.Refresh()
 			return true
 		}
 		win.ConnectCloseRequest(&closeRequestCb)
