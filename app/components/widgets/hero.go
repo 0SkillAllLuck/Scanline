@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"fmt"
+	"strconv"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
@@ -97,9 +98,12 @@ func HeroSection(poster HeroPosterParams, content schwifty.Box) schwifty.Box {
 }
 
 // MetadataRow represents a labeled metadata item (e.g., "Genres: Action, Drama").
+// When Tags and ServerID are set, each tag is rendered as a clickable link to the cast page.
 type MetadataRow struct {
-	Label string
-	Value string
+	Label    string
+	Value    string
+	Tags     []sources.Tag
+	ServerID string
 }
 
 // HeroContentParams configures the hero content section.
@@ -227,19 +231,30 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 
 	// Metadata rows
 	for i, row := range params.MetadataRows {
-		if row.Value == "" {
+		if row.Value == "" && len(row.Tags) == 0 {
 			continue
 		}
 		var marginTop int32 = 4
 		if i == 0 {
 			marginTop = 8
 		}
-		content = content.Append(
-			HStack(
-				Label(gettext.Get(row.Label)+":").WithCSSClass("dimmed"),
-				Label(row.Value),
-			).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(marginTop),
-		)
+		rowBox := HStack(
+			Label(gettext.Get(row.Label) + ":").WithCSSClass("dimmed"),
+		).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(marginTop)
+
+		if len(row.Tags) > 0 && row.ServerID != "" {
+			for j, tag := range row.Tags {
+				name := tag.Tag
+				if j < len(row.Tags)-1 {
+					name += ","
+				}
+				tagLabel := Label(name)
+				rowBox = rowBox.Append(linkButton(tagLabel, "win.route.cast", row.ServerID+"/"+strconv.Itoa(tag.ID)))
+			}
+		} else {
+			rowBox = rowBox.Append(Label(row.Value))
+		}
+		content = content.Append(rowBox)
 	}
 
 	return content

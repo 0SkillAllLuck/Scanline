@@ -26,6 +26,12 @@ func (l *Library) Content(ctx context.Context, sectionID string, opts *ContentOp
 		if opts.Actor != "" {
 			query["actor"] = opts.Actor
 		}
+		if opts.Director != "" {
+			query["director"] = opts.Director
+		}
+		if opts.Writer != "" {
+			query["writer"] = opts.Writer
+		}
 	}
 
 	var resp mediaContainerResponse[metadataContainer]

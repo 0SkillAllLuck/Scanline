@@ -38,47 +38,67 @@ func Cast(appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
 	}
 
 	var allContent []sources.Metadata
-	var actorName, actorThumb string
+	var personName, personThumb string
+	seen := make(map[string]bool)
+
+	// Search across actor, director, and writer credits.
+	filters := []sources.ContentOptions{
+		{Actor: tagID},
+		{Director: tagID},
+		{Writer: tagID},
+	}
 
 	for _, section := range sections {
 		if section.Type != "movie" && section.Type != "show" {
 			continue
 		}
 
-		content, _, err := src.LibraryContent(ctx, section.Key, &sources.ContentOptions{Actor: tagID})
-		if err != nil {
-			slog.Debug("failed to fetch content for section", "section", section.Key, "error", err)
-			continue
+		for i := range filters {
+			content, _, err := src.LibraryContent(ctx, section.Key, &filters[i])
+			if err != nil {
+				slog.Debug("failed to fetch content for section", "section", section.Key, "error", err)
+				continue
+			}
+			for _, item := range content {
+				if !seen[item.RatingKey] {
+					seen[item.RatingKey] = true
+					allContent = append(allContent, item)
+				}
+			}
 		}
-
-		allContent = append(allContent, content...)
 	}
 
-	// The listing endpoint doesn't include Role data, so fetch full metadata
-	// for the first result to extract the actor name and thumbnail.
+	// The listing endpoint doesn't include tag data, so fetch full metadata
+	// for the first result to extract the person's name and thumbnail.
 	if len(allContent) > 0 {
 		tagIDInt, _ := strconv.Atoi(tagID)
 		meta, err := src.GetMetadata(ctx, allContent[0].RatingKey)
 		if err == nil {
-			for _, role := range meta.Role {
-				if role.ID == tagIDInt {
-					actorName = role.Tag
-					actorThumb = role.Thumb
+			// Search across all credit types for the matching tag ID.
+			for _, tags := range [][]sources.Tag{meta.Role, meta.Director, meta.Writer} {
+				for _, tag := range tags {
+					if tag.ID == tagIDInt {
+						personName = tag.Tag
+						personThumb = tag.Thumb
+						break
+					}
+				}
+				if personName != "" {
 					break
 				}
 			}
 		}
 	}
 
-	if actorName == "" {
-		actorName = gettext.Get("Unknown Actor")
+	if personName == "" {
+		personName = gettext.Get("Unknown Actor")
 	}
 
 	body := VStack().Spacing(20).VMargin(20).HMargin(20)
 
 	// Actor header: circular photo + name
 	header := VStack().HAlign(gtk.AlignCenterValue).Spacing(12).MarginBottom(10)
-	if actorThumb != "" {
+	if personThumb != "" {
 		header = header.Append(
 			Bin().
 				Child(
@@ -87,7 +107,7 @@ func Cast(appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
 						ContentFit(gtk.ContentFitCoverValue).
 						ConnectRealize(func(w gtk.Widget) {
 							if preference.Performance().AllowPreviewImages() {
-								imageutils.LoadIntoPictureCropped(src.PhotoTranscodeURL(actorThumb, 200, 200), 200, gtk.PictureNewFromInternalPtr(w.Ptr))
+								imageutils.LoadIntoPictureCropped(src.PhotoTranscodeURL(personThumb, 200, 200), 200, gtk.PictureNewFromInternalPtr(w.Ptr))
 							}
 						}),
 				).
@@ -97,7 +117,7 @@ func Cast(appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
 		)
 	}
 	header = header.Append(
-		Label(actorName).
+		Label(personName).
 			WithCSSClass("title-1").
 			HAlign(gtk.AlignCenterValue).
 			Ellipsis(pango.EllipsizeEndValue),
@@ -115,7 +135,7 @@ func Cast(appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
 
 	for i := range allContent {
 		meta := &allContent[i]
-		if card, ok := lists.MetadataCard(meta, coverURL, actorName, serverID); ok {
+		if card, ok := lists.MetadataCard(meta, coverURL, personName, serverID); ok {
 			grid = grid.Append(card)
 		}
 	}
@@ -123,7 +143,7 @@ func Cast(appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
 	body = body.Append(grid)
 
 	return &router.Response{
-		PageTitle: actorName,
+		PageTitle: personName,
 		View: ScrolledWindow().
 			Child(Clamp().MaximumSize(1200).Child(body)).
 			Policy(gtk.PolicyNeverValue, gtk.PolicyAutomaticValue),
