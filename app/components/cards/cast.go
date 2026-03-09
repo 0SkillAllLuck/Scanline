@@ -3,13 +3,14 @@ package cards
 import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
+	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/imageutils"
 )
 
-func NewCastMember(name, role, thumbURL string) schwifty.Box {
+func NewCastMember(name, role, thumbURL, serverID, tagID string) schwifty.Button {
 	children := []any{
 		Bin().
 			Child(
@@ -44,9 +45,15 @@ func NewCastMember(name, role, thumbURL string) schwifty.Box {
 			Ellipsis(pango.EllipsizeEndValue))
 	}
 
-	return VStack(children...).
-		HAlign(gtk.AlignCenterValue).
-		HExpand(false).
-		VExpand(false).
-		Padding(10)
+	return Button().
+		WithCSSClass("flat").
+		Child(
+			VStack(children...).
+				HAlign(gtk.AlignCenterValue).
+				HExpand(false).
+				VExpand(false).
+				Padding(10),
+		).
+		ActionName("win.route.cast").
+		ActionTargetValue(glib.NewVariantString(serverID + "/" + tagID))
 }
