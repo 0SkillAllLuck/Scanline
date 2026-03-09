@@ -103,7 +103,7 @@ func NewPlayer(params PlayerParams) {
 	}
 
 	// CSS for player control buttons: transparent by default, circular background on hover.
-	controlBtnCSS := `button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; }
+	controlBtnCSS := `button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; color: white; }
 		button:hover { background: rgba(255,255,255,0.15); }
 		button image { -gtk-icon-shadow: 0 1px 3px rgba(0,0,0,0.8); -gtk-icon-size: 24px; }`
 
@@ -208,7 +208,7 @@ func NewPlayer(params PlayerParams) {
 		}()
 	}
 
-	centerBtnCSS := `button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; }
+	centerBtnCSS := `button { background: transparent; border: none; box-shadow: none; min-width: 48px; min-height: 48px; border-radius: 9999px; color: white; }
 		button:hover { background: rgba(255,255,255,0.15); }
 		button image { -gtk-icon-shadow: 0 1px 4px rgba(0,0,0,0.9); -gtk-icon-size: 32px; }`
 
@@ -232,7 +232,7 @@ func NewPlayer(params PlayerParams) {
 		IconName("media-playback-pause-symbolic").
 		TooltipText("Play/Pause").
 		WithCSSClass("circular").
-		CSS(`button { background: transparent; border: none; box-shadow: none; min-width: 56px; min-height: 56px; border-radius: 9999px; }
+		CSS(`button { background: transparent; border: none; box-shadow: none; min-width: 56px; min-height: 56px; border-radius: 9999px; color: white; }
 			button:hover { background: rgba(255,255,255,0.15); }
 			button image { -gtk-icon-shadow: 0 1px 4px rgba(0,0,0,0.9); -gtk-icon-size: 48px; }`).
 		ConnectConstruct(func(b *gtk.Button) {
@@ -321,6 +321,7 @@ func NewPlayer(params PlayerParams) {
 		IconName("audio-volume-high-symbolic").
 		TooltipText("Adjust volume").
 		WithCSSClass("flat").
+		WithCSSClass("osd").
 		CSS(menuBtnCSS).
 		Popover(volumePopover)
 
@@ -377,6 +378,7 @@ func NewPlayer(params PlayerParams) {
 		IconName("emblem-system-symbolic").
 		TooltipText("Playback settings").
 		WithCSSClass("flat").
+		WithCSSClass("osd").
 		CSS(menuBtnCSS)
 
 	if settingsPopover != nil {
