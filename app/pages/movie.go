@@ -44,9 +44,13 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 	body := VStack().Spacing(25).MarginTop(40).MarginBottom(20).HMargin(40)
 
 	// Hero section
-	var directorSubtitle string
+	var directorSubtitle, directorActionName, directorActionValue string
 	if len(meta.Director) > 0 {
 		directorSubtitle = gettext.Get("Directed by") + " " + tagNames(meta.Director)
+		if len(meta.Director) == 1 {
+			directorActionName = "win.route.cast"
+			directorActionValue = serverID + "/" + strconv.Itoa(meta.Director[0].ID)
+		}
 	}
 
 	playLabel := gettext.Get("Play")
@@ -62,9 +66,11 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 	}
 
 	heroContent := widgets.HeroContent(widgets.HeroContentParams{
-		Title:      meta.Title,
-		Subtitle:   directorSubtitle,
-		Badges:     []string{fmt.Sprint(meta.Year), widgets.FormatDuration(meta.Duration), meta.ContentRating},
+		Title:               meta.Title,
+		Subtitle:            directorSubtitle,
+		SubtitleActionName:  directorActionName,
+		SubtitleActionValue: directorActionValue,
+		Badges:              []string{fmt.Sprint(meta.Year), widgets.FormatDuration(meta.Duration), meta.ContentRating},
 		Ratings:    meta.Ratings,
 		UserRating: meta.UserRating,
 		BuildButtonRow: func() schwifty.Box {
@@ -151,7 +157,8 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 		Summary: meta.Summary,
 		MetadataRows: []widgets.MetadataRow{
 			{Label: "Genres", Value: tagNames(meta.Genre)},
-			{Label: "Writers", Value: tagNames(meta.Writer)},
+			{Label: "Directors", Tags: meta.Director, ServerID: serverID},
+			{Label: "Writers", Tags: meta.Writer, ServerID: serverID},
 			{Label: "Studio", Value: meta.Studio},
 		},
 	})

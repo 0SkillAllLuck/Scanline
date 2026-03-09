@@ -33,6 +33,12 @@ type ContentOptions struct {
 
 	// Actor filters by actor tag ID.
 	Actor string
+
+	// Director filters by director tag ID.
+	Director string
+
+	// Writer filters by writer tag ID.
+	Writer string
 }
 
 // LibrarySection represents a library section (e.g., Movies, TV Shows).
