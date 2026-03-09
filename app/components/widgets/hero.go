@@ -100,10 +100,11 @@ func HeroSection(poster HeroPosterParams, content schwifty.Box) schwifty.Box {
 // MetadataRow represents a labeled metadata item (e.g., "Genres: Action, Drama").
 // When Tags and ServerID are set, each tag is rendered as a clickable link to the cast page.
 type MetadataRow struct {
-	Label    string
-	Value    string
-	Tags     []sources.Tag
-	ServerID string
+	Label      string
+	Value      string
+	Tags       []sources.Tag
+	ServerID   string
+	ActionName string
 }
 
 // HeroContentParams configures the hero content section.
@@ -243,13 +244,17 @@ func HeroContent(params HeroContentParams) schwifty.Box {
 		).Spacing(6).HAlign(gtk.AlignStartValue).MarginTop(marginTop)
 
 		if len(row.Tags) > 0 && row.ServerID != "" {
+			actionName := row.ActionName
+			if actionName == "" {
+				actionName = "win.route.cast"
+			}
 			for j, tag := range row.Tags {
 				name := tag.Tag
 				if j < len(row.Tags)-1 {
 					name += ","
 				}
 				tagLabel := Label(name)
-				rowBox = rowBox.Append(linkButton(tagLabel, "win.route.cast", row.ServerID+"/"+strconv.Itoa(tag.ID)))
+				rowBox = rowBox.Append(linkButton(tagLabel, actionName, row.ServerID+"/"+strconv.Itoa(tag.ID)))
 			}
 		} else {
 			rowBox = rowBox.Append(Label(row.Value))

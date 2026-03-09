@@ -143,6 +143,11 @@ func Episode(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Resp
 				)
 		},
 		Summary: meta.Summary,
+		MetadataRows: []widgets.MetadataRow{
+			{Label: "Genres", Tags: meta.Genre, ServerID: serverID, ActionName: "win.route.genre"},
+			{Label: "Directors", Tags: meta.Director, ServerID: serverID},
+			{Label: "Writers", Tags: meta.Writer, ServerID: serverID},
+		},
 	})
 
 	hero := widgets.HeroSection(
