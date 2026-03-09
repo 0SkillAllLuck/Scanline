@@ -664,7 +664,11 @@ func NewPlayer(params PlayerParams) {
 	offload := gtk.NewGraphicsOffload(overlayWidget)
 	offload.SetBlackBackground(true)
 	if adwWin != nil {
-		adwWin.SetContent(&offload.Widget)
+		// Wrap in a WindowHandle so the window remains draggable even
+		// though the header bar has been replaced by the player overlay.
+		handle := gtk.NewWindowHandle()
+		handle.SetChild(&offload.Widget)
+		adwWin.SetContent(&handle.Widget)
 	} else {
 		win.SetChild(&offload.Widget)
 	}
