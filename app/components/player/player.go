@@ -696,9 +696,9 @@ func NewPlayer(params PlayerParams) {
 		// Windowed mode: player lives inside the main window.
 		closePlayer = func() {
 			cleanup()
-			// Remove controllers we added
+			// Remove controllers we added from the widgets they were attached to.
 			win.RemoveController(&keyCtrl.EventController)
-			win.RemoveController(&motionCtrl.EventController)
+			overlayWidget.RemoveController(&motionCtrl.EventController)
 			// Exit fullscreen if we toggled it
 			if win.IsFullscreen() {
 				win.Unfullscreen()
