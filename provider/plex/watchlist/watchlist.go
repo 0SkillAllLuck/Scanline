@@ -19,7 +19,7 @@ type Item struct {
 	Thumb     string `json:"thumb,omitempty"`
 	Art       string `json:"art,omitempty"`
 	Summary   string `json:"summary,omitempty"`
-	Guid      string `json:"guid,omitempty"` // e.g. "plex://movie/..."
+	GUID string `json:"guid,omitempty"` // e.g. "plex://movie/..."
 }
 
 // Client fetches watchlist data from the Plex Discover API.

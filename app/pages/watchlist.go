@@ -62,7 +62,7 @@ func watchlist(ctx context.Context, appCtx *appctx.AppContext) *router.Response 
 		}
 
 		var match *sources.WatchlistMatch
-		if m, ok := matches[item.Guid]; ok {
+		if m, ok := matches[item.GUID]; ok {
 			match = &m
 		}
 

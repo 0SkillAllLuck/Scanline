@@ -467,25 +467,25 @@ func (m *Manager) ResolveWatchlist(ctx context.Context, items []watchlist.Item) 
 		}
 
 		for _, item := range items {
-			if item.Guid == "" {
+			if item.GUID == "" {
 				continue
 			}
 			// Skip if already resolved
-			if _, ok := result[item.Guid]; ok {
+			if _, ok := result[item.GUID]; ok {
 				continue
 			}
 
 			sectionKeys := sectionsByType[item.Type]
 			for _, sectionKey := range sectionKeys {
 				content, _, err := src.LibraryContent(ctx, sectionKey, &ContentOptions{
-					Guid: item.Guid,
+					GUID: item.GUID,
 					Size: 1,
 				})
 				if err != nil {
 					continue
 				}
 				if len(content) > 0 {
-					result[item.Guid] = WatchlistMatch{
+					result[item.GUID] = WatchlistMatch{
 						ServerID:  src.ID(),
 						RatingKey: content[0].RatingKey,
 						Type:      content[0].Type,
