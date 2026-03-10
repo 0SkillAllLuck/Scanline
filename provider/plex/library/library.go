@@ -42,6 +42,9 @@ type ContentOptions struct {
 
 	// Genre filters by genre tag ID.
 	Genre string
+
+	// GUID filters by Plex GUID (e.g., "plex://movie/5d776...").
+	GUID string
 }
 
 // LibrarySection represents a library section (e.g., Movies, TV Shows).
