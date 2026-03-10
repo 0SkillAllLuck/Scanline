@@ -37,9 +37,10 @@ func (s *StatefulSignal[T]) Notify(callback func(oldValue T) T) {
 
 func (s *StatefulSignal[T]) On(handler func(T) bool) *Subscription {
 	s.lock.RLock()
-	defer s.lock.RUnlock()
+	val := s.currentValue
+	s.lock.RUnlock()
 
-	handler(s.currentValue)
+	handler(val)
 	return s.Signal.On(handler)
 }
 

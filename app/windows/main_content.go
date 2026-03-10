@@ -87,12 +87,18 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 	defaultToolbar.Ref()
 
 	var libraryButtons []*components.RouteButton
+	var refreshGen uint64
 
 	refreshLibraryButtons := func() {
+		refreshGen++
+		thisGen := refreshGen
 		go func() {
 			enabledSources := mgr.EnabledSources()
 			if len(enabledSources) == 0 {
 				schwifty.OnMainThreadOncePure(func() {
+					if thisGen != refreshGen {
+						return
+					}
 					for _, btn := range libraryButtons {
 						defaultToolbar.Remove(&btn.Widget)
 					}
@@ -125,6 +131,9 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 			}
 
 			schwifty.OnMainThreadOncePure(func() {
+				if thisGen != refreshGen {
+					return
+				}
 				for _, btn := range libraryButtons {
 					defaultToolbar.Remove(&btn.Widget)
 				}
