@@ -111,11 +111,14 @@ func CheckPin(pinID int, pinCode, clientIdentifier string) (*Pin, error) {
 // Returns the authentication token when authorization is complete.
 func PollPin(ctx context.Context, pinID int, pinCode, clientIdentifier string, interval time.Duration) (string, error) {
 	slog.Debug("plex: polling PIN for authorization", "pin_id", pinID)
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return "", errors.New("PIN linking canceled")
-		default:
+		case <-ticker.C:
 			pin, err := CheckPin(pinID, pinCode, clientIdentifier)
 			if err != nil {
 				return "", err
@@ -124,7 +127,6 @@ func PollPin(ctx context.Context, pinID int, pinCode, clientIdentifier string, i
 				slog.Debug("plex: PIN authorized", "pin_id", pinID)
 				return pin.AuthToken, nil
 			}
-			time.Sleep(interval)
 		}
 	}
 }
