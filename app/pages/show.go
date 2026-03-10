@@ -21,14 +21,12 @@ import (
 
 var ShowRoute = router.NewRoute("show/:server/:ratingKey", Show)
 
-func Show(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Response {
+func Show(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey string) *router.Response {
 	mgr := appCtx.Manager
 	src := mgr.SourceForServer(serverID)
 	if src == nil {
 		return router.FromError(gettext.Get("TV Show"), errSourceNotFound(serverID))
 	}
-
-	ctx := appCtx.Ctx
 
 	meta, err := src.GetMetadata(ctx, ratingKey)
 	if err != nil {
@@ -76,7 +74,7 @@ func Show(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respons
 						WithCSSClass("pill").
 						ConnectClicked(func(b gtk.Button) {
 							player.NewPlayer(player.PlayerParams{
-								Ctx:        appCtx.Ctx,
+								Ctx:        ctx,
 								Title:      ep.Title,
 								PartKey:    ep.Media[0].Part[0].Key,
 								Window:     appCtx.Window,

@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"reflect"
 	"regexp"
 )
@@ -11,10 +12,11 @@ var (
 	argReplaceRegex = regexp.MustCompile(`(:[^\/]+)`)
 )
 
-func findHandler(path string, appCtx any) func() *Response {
+func findHandler(path string, ctx context.Context, appCtx any) func() *Response {
 	for regex, handler := range newRouteMap {
 		if regex.MatchString(path) {
 			argMap := make([]reflect.Value, 0)
+			argMap = append(argMap, reflect.ValueOf(ctx))
 			if appCtx != nil {
 				argMap = append(argMap, reflect.ValueOf(appCtx))
 			}
@@ -40,12 +42,14 @@ func Register(path string, handler any) {
 	// Count expected path params
 	pathParamCount := len(argReplaceRegex.FindAllString(path, -1))
 
-	// Handler may have an appCtx first param (non-string) followed by string params
+	// Skip leading non-string params (context.Context, *appctx.AppContext, etc.)
 	numIn := handlerType.NumIn()
 	stringParamStart := 0
-	if numIn > 0 && handlerType.In(0).Kind() != reflect.String {
-		// First param is the context type, skip it for path param counting
-		stringParamStart = 1
+	for i := 0; i < numIn; i++ {
+		if handlerType.In(i).Kind() == reflect.String {
+			break
+		}
+		stringParamStart++
 	}
 
 	stringParamCount := numIn - stringParamStart

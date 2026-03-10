@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"context"
+
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"codeberg.org/puregotk/puregotk/v4/adw"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
@@ -13,14 +15,12 @@ import (
 
 var LibraryRoute = router.NewRoute("library/:server/:id", Library)
 
-func Library(appCtx *appctx.AppContext, serverID, sectionID string) *router.Response {
+func Library(ctx context.Context, appCtx *appctx.AppContext, serverID, sectionID string) *router.Response {
 	mgr := appCtx.Manager
 	src := mgr.SourceForServer(serverID)
 	if src == nil {
 		return router.FromError(gettext.Get("Library"), errSourceNotFound(serverID))
 	}
-
-	ctx := appCtx.Ctx
 
 	section, err := src.LibrarySection(ctx, sectionID)
 	if err != nil {

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"log/slog"
 
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
@@ -15,13 +16,13 @@ import (
 
 var HomeRoute = router.NewRoute("home", home)
 
-func home(appCtx *appctx.AppContext) *router.Response {
+func home(ctx context.Context, appCtx *appctx.AppContext) *router.Response {
 	mgr := appCtx.Manager
 
 	body := VStack().Spacing(25).VMargin(20)
 
 	for _, src := range mgr.EnabledSources() {
-		hubList, err := src.HomeHubs(appCtx.Ctx, 24)
+		hubList, err := src.HomeHubs(ctx, 24)
 		if err != nil {
 			slog.Error("failed to fetch home hubs", "source", src.Name(), "error", err)
 			continue
