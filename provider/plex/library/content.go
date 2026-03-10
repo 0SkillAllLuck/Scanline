@@ -32,6 +32,9 @@ func (l *Library) Content(ctx context.Context, sectionID string, opts *ContentOp
 		if opts.Writer != "" {
 			query["writer"] = opts.Writer
 		}
+		if opts.Genre != "" {
+			query["genre"] = opts.Genre
+		}
 	}
 
 	var resp mediaContainerResponse[metadataContainer]

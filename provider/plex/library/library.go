@@ -39,6 +39,9 @@ type ContentOptions struct {
 
 	// Writer filters by writer tag ID.
 	Writer string
+
+	// Genre filters by genre tag ID.
+	Genre string
 }
 
 // LibrarySection represents a library section (e.g., Movies, TV Shows).

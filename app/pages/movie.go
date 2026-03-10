@@ -156,7 +156,7 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 		Tagline: meta.Tagline,
 		Summary: meta.Summary,
 		MetadataRows: []widgets.MetadataRow{
-			{Label: "Genres", Value: tagNames(meta.Genre)},
+			{Label: "Genres", Tags: meta.Genre, ServerID: serverID, ActionName: "win.route.genre"},
 			{Label: "Directors", Tags: meta.Director, ServerID: serverID},
 			{Label: "Writers", Tags: meta.Writer, ServerID: serverID},
 			{Label: "Studio", Value: meta.Studio},

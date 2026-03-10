@@ -116,6 +116,13 @@ func (w *Window) installWindowActions() {
 		router.Navigate("cast/" + variant.GetString(nil))
 	}))
 	w.AddAction(routeCastAction)
+
+	routeGenreAction := gio.NewSimpleAction("route.genre", glib.NewVariantType("s"))
+	routeGenreAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
+		variant := (*glib.Variant)(unsafe.Pointer(parameter))
+		router.Navigate("genre/" + variant.GetString(nil))
+	}))
+	w.AddAction(routeGenreAction)
 }
 
 func (w *Window) presentSourceSelection() {
