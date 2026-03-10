@@ -10,6 +10,7 @@ import (
 	"github.com/0skillallluck/scanline/internal/signals"
 	"github.com/0skillallluck/scanline/provider/plex"
 	"github.com/0skillallluck/scanline/provider/plex/auth"
+	"github.com/0skillallluck/scanline/provider/plex/watchlist"
 	"github.com/google/uuid"
 )
 
@@ -391,6 +392,111 @@ func (m *Manager) RefreshServers(ctx context.Context) {
 	m.mu.Unlock()
 
 	m.SourcesChanged.Notify(struct{}{})
+}
+
+// Watchlist fetches watchlist items across all Plex accounts.
+func (m *Manager) Watchlist(ctx context.Context) ([]watchlist.Item, error) {
+	m.mu.RLock()
+	type acctInfo struct {
+		id       string
+		clientID string
+	}
+	var infos []acctInfo
+	for _, acct := range m.accounts {
+		if acct.Type == ProviderPlex {
+			infos = append(infos, acctInfo{id: acct.ID, clientID: acct.ClientID})
+		}
+	}
+	m.mu.RUnlock()
+
+	var allItems []watchlist.Item
+	seen := make(map[string]bool)
+
+	for _, info := range infos {
+		token := secrets.GetToken("plex_token_" + info.id)
+		if token == "" {
+			continue
+		}
+
+		client := watchlist.NewClient(token, info.clientID)
+		items, err := client.List(ctx, "all")
+		if err != nil {
+			slog.Warn("failed to fetch watchlist", "account", info.id, "error", err)
+			continue
+		}
+
+		for _, item := range items {
+			if !seen[item.RatingKey] {
+				seen[item.RatingKey] = true
+				allItems = append(allItems, item)
+			}
+		}
+	}
+
+	return allItems, nil
+}
+
+// WatchlistMatch represents a watchlist item that was found in a local library.
+type WatchlistMatch struct {
+	ServerID  string
+	RatingKey string
+	Type      string // "movie" or "show"
+}
+
+// ResolveWatchlist checks which watchlist items are available on local servers.
+// Returns a map from watchlist GUID to the first matching local item.
+func (m *Manager) ResolveWatchlist(ctx context.Context, items []watchlist.Item) map[string]WatchlistMatch {
+	sources := m.EnabledSources()
+	if len(sources) == 0 {
+		return nil
+	}
+
+	result := make(map[string]WatchlistMatch)
+
+	for _, src := range sources {
+		sections, err := src.LibrarySections(ctx)
+		if err != nil {
+			slog.Warn("failed to fetch library sections for watchlist resolve", "source", src.Name(), "error", err)
+			continue
+		}
+
+		// Build a map of section type → section keys for efficient lookup
+		sectionsByType := make(map[string][]string)
+		for _, sec := range sections {
+			sectionsByType[sec.Type] = append(sectionsByType[sec.Type], sec.Key)
+		}
+
+		for _, item := range items {
+			if item.Guid == "" {
+				continue
+			}
+			// Skip if already resolved
+			if _, ok := result[item.Guid]; ok {
+				continue
+			}
+
+			sectionKeys := sectionsByType[item.Type]
+			for _, sectionKey := range sectionKeys {
+				content, _, err := src.LibraryContent(ctx, sectionKey, &ContentOptions{
+					Guid: item.Guid,
+					Size: 1,
+				})
+				if err != nil {
+					continue
+				}
+				if len(content) > 0 {
+					result[item.Guid] = WatchlistMatch{
+						ServerID:  src.ID(),
+						RatingKey: content[0].RatingKey,
+						Type:      content[0].Type,
+					}
+					break
+				}
+			}
+		}
+	}
+
+	return result
 }
 
 // WindowTitle returns a suitable window title based on enabled sources.
