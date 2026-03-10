@@ -4,15 +4,21 @@ import (
 	"context"
 	"reflect"
 	"regexp"
+	"sync"
 )
 
-var newRouteMap = map[*regexp.Regexp]any{}
+var (
+	routeMapMu  sync.RWMutex
+	newRouteMap = map[*regexp.Regexp]any{}
+)
 
 var (
 	argReplaceRegex = regexp.MustCompile(`(:[^\/]+)`)
 )
 
 func findHandler(path string, ctx context.Context, appCtx any) func() *Response {
+	routeMapMu.RLock()
+	defer routeMapMu.RUnlock()
 	for regex, handler := range newRouteMap {
 		if regex.MatchString(path) {
 			argMap := make([]reflect.Value, 0)
@@ -71,5 +77,7 @@ func Register(path string, handler any) {
 	}
 
 	pathRegex := argReplaceRegex.ReplaceAllString(path, "([^\\/]+)")
+	routeMapMu.Lock()
 	newRouteMap[regexp.MustCompile("^"+pathRegex+"$")] = handler
+	routeMapMu.Unlock()
 }
