@@ -79,6 +79,9 @@ func NewPlayer(params PlayerParams) {
 	picture.SetVexpand(true)
 	var media *gtk.MediaFile
 
+	// --- Lifecycle guard ---
+	var closed atomic.Bool // set during cleanup; prevents late async mutations
+
 	// --- Progress reporting ---
 	var lastProgressUpdate atomic.Int64 // monotonic ms of last progress report
 
@@ -680,6 +683,7 @@ func NewPlayer(params PlayerParams) {
 	// Final progress and scrobble reports run synchronously before
 	// context cancellation so they are not silently dropped.
 	cleanup := func() {
+		closed.Store(true)
 		if media != nil {
 			media.Pause()
 			dur := media.GetDuration()
@@ -755,6 +759,9 @@ func NewPlayer(params PlayerParams) {
 	go func() {
 		streamURL := src.ResolvePlaybackURL(ctx, params.PartKey, params.RatingKey, sessionID)
 		schwifty.OnMainThreadOncePure(func() {
+			if closed.Load() {
+				return
+			}
 			gioFile := gio.FileNewForUri(streamURL)
 			media = gtk.NewMediaFileForFile(gioFile)
 			media.SetMuted(false)
@@ -771,6 +778,9 @@ func NewPlayer(params PlayerParams) {
 			if params.ViewOffset > 0 {
 				targetUs := int64(params.ViewOffset) * 1000 // ms to µs
 				seekCb := glib.SourceFunc(func(uintptr) bool {
+					if closed.Load() {
+						return false
+					}
 					if err := media.GetError(); err != nil {
 						slog.Error("player: stream error during resume seek", "error", err.Error())
 						return false
