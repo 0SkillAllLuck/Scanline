@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"log/slog"
 	"strconv"
 
@@ -17,14 +18,12 @@ import (
 
 var GenreRoute = router.NewRoute("genre/:server/:genreId", Genre)
 
-func Genre(appCtx *appctx.AppContext, serverID, genreID string) *router.Response {
+func Genre(ctx context.Context, appCtx *appctx.AppContext, serverID, genreID string) *router.Response {
 	mgr := appCtx.Manager
 	src := mgr.SourceForServer(serverID)
 	if src == nil {
 		return router.FromError(gettext.Get("Genre"), errSourceNotFound(serverID))
 	}
-
-	ctx := appCtx.Ctx
 
 	sections, err := src.LibrarySections(ctx)
 	if err != nil {
