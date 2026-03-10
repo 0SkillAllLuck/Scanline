@@ -55,8 +55,33 @@ jobs:
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           merge-multiple: true
+      - name: Determine previous tag
+        id: prev_tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CURRENT="${GITHUB_REF#refs/tags/}"
+          PREV=$(gh api repos/${{ github.repository }}/releases --jq "[.[] | select(.tag_name != \"$CURRENT\")][0].tag_name // \"\"")
+          echo "tag=$PREV" >> "$GITHUB_OUTPUT"
+      - name: Generate release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PREV="${{ steps.prev_tag.outputs.tag }}"
+          ARGS=(-f tag_name="$TAG")
+          if [ -n "$PREV" ]; then
+            ARGS+=(-f previous_tag_name="$PREV")
+          fi
+          BODY=$(gh api repos/${{ github.repository }}/releases/generate-notes "${ARGS[@]}" --jq .body)
+          {
+            echo "body<<RELEASE_NOTES_EOF"
+            echo "$BODY"
+            echo "RELEASE_NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
       - name: Create Release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
-          generate_release_notes: true
+          body: ${{ steps.notes.outputs.body }}
           files: '*.flatpak'

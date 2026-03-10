@@ -79,7 +79,7 @@
 
         packages.scanline = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) (finalAttrs: {
           pname = "scanline";
-          version = "0.2.0";
+          version = "0.3.0";
           src = pkgs.lib.cleanSource ./.;
           vendorHash = "sha256-8XdtaVj/LDHtjuD8hY2cMQDA7IsBFlEQ/SDWdo8yNBo=";
 
