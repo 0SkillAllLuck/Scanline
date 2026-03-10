@@ -677,17 +677,27 @@ func NewPlayer(params PlayerParams) {
 	win.AddController(&keyCtrl.EventController)
 
 	// cleanup performs common teardown for both modes.
+	// Final progress and scrobble reports run synchronously before
+	// context cancellation so they are not silently dropped.
 	cleanup := func() {
-		ctxCancel()
 		if media != nil {
-			sendProgress(sources.StateStopped)
+			media.Pause()
 			dur := media.GetDuration()
 			ts := media.GetTimestamp()
-			if dur > 0 && ts > 0 && float64(ts)/float64(dur) > 0.9 {
-				go src.Scrobble(ctx, params.RatingKey) //nolint:errcheck // fire-and-forget
+			if dur > 0 {
+				timeMs := int(ts / 1000)
+				durationMs := int(dur / 1000)
+				if err := src.UpdateProgress(ctx, params.RatingKey, sources.StateStopped, timeMs, durationMs); err != nil {
+					slog.Error("failed to send final progress", "error", err)
+				}
 			}
-			media.Pause()
+			if dur > 0 && ts > 0 && float64(ts)/float64(dur) > 0.9 {
+				if err := src.Scrobble(ctx, params.RatingKey); err != nil {
+					slog.Error("failed to scrobble", "error", err)
+				}
+			}
 		}
+		ctxCancel()
 		if id := tickerID.Load(); id != 0 {
 			glib.SourceRemove(id)
 			tickerID.Store(0)
