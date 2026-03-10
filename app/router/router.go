@@ -17,6 +17,7 @@ type Router struct {
 	history   *History
 	appCtx    any
 	ctx       context.Context
+	navMu     sync.Mutex
 	navCancel context.CancelFunc
 	wg        sync.WaitGroup
 
@@ -69,11 +70,13 @@ func (r *Router) navigate(path string, offRecord bool) {
 	}
 
 	// Cancel any in-flight navigation so stale results don't race into the UI.
+	r.navMu.Lock()
 	if r.navCancel != nil {
 		r.navCancel()
 	}
 	navCtx, navCancel := context.WithCancel(r.ctx)
 	r.navCancel = navCancel
+	r.navMu.Unlock()
 
 	logger.Debug("navigation started")
 	r.NavigationStarted.Notify(path)
