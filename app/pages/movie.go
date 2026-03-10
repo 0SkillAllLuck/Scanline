@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -22,14 +23,12 @@ import (
 
 var MovieRoute = router.NewRoute("movie/:server/:ratingKey", Movie)
 
-func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Response {
+func Movie(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey string) *router.Response {
 	mgr := appCtx.Manager
 	src := mgr.SourceForServer(serverID)
 	if src == nil {
 		return router.FromError(gettext.Get("Movie"), errSourceNotFound(serverID))
 	}
-
-	ctx := appCtx.Ctx
 
 	meta, err := src.GetMetadata(ctx, ratingKey)
 	if err != nil {
@@ -89,7 +88,7 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 						ConnectClicked(func(b gtk.Button) {
 							if len(meta.Media) > 0 && len(meta.Media[0].Part) > 0 {
 								player.NewPlayer(player.PlayerParams{
-									Ctx:        appCtx.Ctx,
+									Ctx:        ctx,
 									Title:      meta.Title,
 									PartKey:    meta.Media[0].Part[0].Key,
 									Window:     appCtx.Window,
@@ -117,9 +116,9 @@ func Movie(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respon
 							go func() {
 								var err error
 								if watched {
-									err = src.Unscrobble(appCtx.Ctx, ratingKey)
+									err = src.Unscrobble(ctx, ratingKey)
 								} else {
-									err = src.Scrobble(appCtx.Ctx, ratingKey)
+									err = src.Scrobble(ctx, ratingKey)
 								}
 								if err != nil {
 									slog.Error("failed to update watch status", "ratingKey", ratingKey, "error", err)

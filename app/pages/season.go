@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -18,14 +19,12 @@ import (
 
 var SeasonRoute = router.NewRoute("season/:server/:ratingKey", Season)
 
-func Season(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Response {
+func Season(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey string) *router.Response {
 	mgr := appCtx.Manager
 	src := mgr.SourceForServer(serverID)
 	if src == nil {
 		return router.FromError(gettext.Get("Season"), errSourceNotFound(serverID))
 	}
-
-	ctx := appCtx.Ctx
 
 	meta, err := src.GetMetadata(ctx, ratingKey)
 	if err != nil {
@@ -69,7 +68,7 @@ func Season(appCtx *appctx.AppContext, serverID, ratingKey string) *router.Respo
 						WithCSSClass("pill").
 						ConnectClicked(func(b gtk.Button) {
 							player.NewPlayer(player.PlayerParams{
-								Ctx:        appCtx.Ctx,
+								Ctx:        ctx,
 								Title:      ep.Title,
 								PartKey:    ep.Media[0].Part[0].Key,
 								Window:     appCtx.Window,

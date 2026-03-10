@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
@@ -29,7 +30,7 @@ type cachedSource struct {
 	serverID string
 }
 
-var SearchRoute = router.NewRoute("search", func(appCtx *appctx.AppContext) *router.Response {
+var SearchRoute = router.NewRoute("search", func(ctx context.Context, appCtx *appctx.AppContext) *router.Response {
 	scrollChildState := state.NewStateful[any](search.PromptView())
 	searchState := state.NewStateful(false)
 	var cached []cachedSource
@@ -68,7 +69,7 @@ var SearchRoute = router.NewRoute("search", func(appCtx *appctx.AppContext) *rou
 			var newCached []cachedSource
 
 			for _, src := range mgr.EnabledSources() {
-				hubs, err := src.Search(appCtx.Ctx, query, 50)
+				hubs, err := src.Search(ctx, query, 50)
 				if err != nil {
 					slog.Error("search failed", "source", src.Name(), "error", err)
 					continue

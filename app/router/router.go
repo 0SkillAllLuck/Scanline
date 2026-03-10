@@ -14,10 +14,11 @@ var logger = slog.With("module", "router")
 
 // Router encapsulates navigation state, history, and signals.
 type Router struct {
-	history *History
-	appCtx  any
-	ctx     context.Context
-	wg      sync.WaitGroup
+	history   *History
+	appCtx    any
+	ctx       context.Context
+	navCancel context.CancelFunc
+	wg        sync.WaitGroup
 
 	NavigationStarted   *signals.StatelessSignal[string]
 	NavigationCompleted *signals.StatelessSignal[HistoryEntry]
@@ -67,17 +68,23 @@ func (r *Router) navigate(path string, offRecord bool) {
 		return
 	}
 
+	// Cancel any in-flight navigation so stale results don't race into the UI.
+	if r.navCancel != nil {
+		r.navCancel()
+	}
+	navCtx, navCancel := context.WithCancel(r.ctx)
+	r.navCancel = navCancel
+
 	logger.Debug("navigation started")
 	r.NavigationStarted.Notify(path)
 
-	handler := findHandler(path, r.appCtx)
+	handler := findHandler(path, navCtx, r.appCtx)
 	if handler == nil {
 		logger.Info("no handler found", "path", path)
 		handler = notFoundHandler
 	}
 
 	startTime := time.Now()
-	ctx := r.ctx
 	logger.Debug("executing route handler", "path", path, "started_at", startTime)
 	r.wg.Add(1)
 	go func(ctx context.Context, path string, handler Handler) {
@@ -102,7 +109,7 @@ func (r *Router) navigate(path string, offRecord bool) {
 			r.history.Push(entry, r.HistoryUpdated)
 		}
 		r.NavigationCompleted.Notify(*entry)
-	}(ctx, path, handler)
+	}(navCtx, path, handler)
 }
 
 func (r *Router) Back() {

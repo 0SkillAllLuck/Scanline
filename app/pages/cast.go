@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"log/slog"
 	"strconv"
 
@@ -19,14 +20,12 @@ import (
 
 var CastRoute = router.NewRoute("cast/:server/:tagId", Cast)
 
-func Cast(appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
+func Cast(ctx context.Context, appCtx *appctx.AppContext, serverID, tagID string) *router.Response {
 	mgr := appCtx.Manager
 	src := mgr.SourceForServer(serverID)
 	if src == nil {
 		return router.FromError(gettext.Get("Cast"), errSourceNotFound(serverID))
 	}
-
-	ctx := appCtx.Ctx
 
 	sections, err := src.LibrarySections(ctx)
 	if err != nil {
