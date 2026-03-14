@@ -29,6 +29,7 @@ type Server struct {
 	Enabled     bool   `json:"enabled"`
 	URL         string `json:"url"`
 	AccessToken string `json:"-"`
+	Reachable   bool   `json:"-"` // in-memory only; not persisted
 }
 
 type sourcesConfig struct {

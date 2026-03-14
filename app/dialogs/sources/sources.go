@@ -168,6 +168,9 @@ func NewSourceSelection(ctx context.Context, window *gtk.Window, mgr *sources.Ma
 }
 
 func serverStatusText(srv *sources.Server) string {
+	if !srv.Reachable {
+		return gettext.Get("Unreachable")
+	}
 	if srv.URL == "" {
 		return gettext.Get("Not connected")
 	}

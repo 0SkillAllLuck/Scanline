@@ -52,6 +52,8 @@ func NewManager() *Manager {
 			if srvToken := secrets.GetToken(serverTokenKey(acct.ID, srv.ID)); srvToken != "" {
 				srv.AccessToken = srvToken
 			}
+			// Assume reachable until a connection probe says otherwise
+			srv.Reachable = srv.URL != ""
 			if srv.Enabled && srv.URL != "" {
 				client := plex.NewClient(srv.URL, tokenForServer(token, srv), acct.ClientID)
 				m.sources[srv.ID] = NewPlexSource(srv.ID, srv.Name, client)
@@ -136,6 +138,7 @@ func (m *Manager) AddPlexAccount(ctx context.Context, token, username, clientID 
 			ID:          r.ClientIdentifier,
 			Name:        r.Name,
 			Enabled:     r.Owned,
+			Reachable:   true,
 			AccessToken: r.AccessToken,
 		}
 
@@ -148,7 +151,7 @@ func (m *Manager) AddPlexAccount(ctx context.Context, token, username, clientID 
 			url, err := findBestConnection(ctx, connClient, r.Connections, token, clientID)
 			if err != nil {
 				slog.Warn("failed to resolve server connection", "server", r.Name, "error", err)
-				srv.Enabled = false
+				srv.Reachable = false
 			} else {
 				slog.Debug("plex: server connection resolved", "server", r.Name, "url", url)
 				srv.URL = url
@@ -170,7 +173,7 @@ func (m *Manager) AddPlexAccount(ctx context.Context, token, username, clientID 
 	m.mu.Lock()
 	m.accounts = append(m.accounts, acct)
 	for _, srv := range servers {
-		if srv.Enabled && srv.URL != "" {
+		if srv.Enabled && srv.Reachable && srv.URL != "" {
 			client := plex.NewClient(srv.URL, tokenForServer(token, srv), clientID)
 			m.sources[srv.ID] = NewPlexSource(srv.ID, srv.Name, client)
 		}
@@ -336,6 +339,7 @@ func (m *Manager) RefreshServers(ctx context.Context) {
 					ID:          r.ClientIdentifier,
 					Name:        r.Name,
 					Enabled:     enabled,
+					Reachable:   true,
 					AccessToken: r.AccessToken,
 				}
 
@@ -348,7 +352,7 @@ func (m *Manager) RefreshServers(ctx context.Context) {
 					url, err := findBestConnection(ctx, connClient, r.Connections, token, info.clientID)
 					if err != nil {
 						slog.Warn("failed to resolve server connection", "server", r.Name, "error", err)
-						srv.Enabled = false
+						srv.Reachable = false
 					} else {
 						srv.URL = url
 						client := plex.NewClient(url, tokenForServer(token, srv), info.clientID)
