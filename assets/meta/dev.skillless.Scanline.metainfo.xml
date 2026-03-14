@@ -89,6 +89,24 @@
   </requires>
 
   <releases>
+    <release version="0.4.0" date="2026-03-14">
+      <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v0.4.0</url>
+      <description>
+        <p>New Features:</p>
+        <ul>
+          <li>Add initial watchlist implementation</li>
+        </ul>
+        <p>Bug Fixes:</p>
+        <ul>
+          <li>Fix navigation race condition</li>
+          <li>Improve the last calls for progress sync.</li>
+          <li>Fix race condition during player opening</li>
+          <li>Improve responsiveness of the PIN flow when closing the dialog</li>
+          <li>Fix concurrency issues</li>
+          <li>Mark server as unreachable instead of disabling</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.0" date="2026-03-10">
       <url type="details">https://github.com/0skillallluck/scanline/releases/tag/v0.3.0</url>
       <description>
@@ -104,7 +122,7 @@
           <li>Fix windowed player controller cleanup (#52)</li>
           <li>Add WindowHandle to make windowed player draggable</li>
           <li>Refresh page after player close</li>
-          <li>Fix background gradient to go all the way down</li>
+          <li>Fix background gradient to go all the way down.</li>
           <li>Make controls visible on light mode</li>
         </ul>
       </description>
@@ -116,7 +134,7 @@
         <ul>
           <li>Add Playback Progress tracking</li>
           <li>Update to Schwifty 1.4.0 version</li>
-          <li>Add a release workflow</li>
+          <li>Add a release workflow.</li>
           <li>Add scripts for Flatpak and Nix updates</li>
           <li>Properly handle season on the Home page</li>
           <li>Allow going back to TV Show from Episodes/Seasons</li>
@@ -153,7 +171,7 @@
         <ul>
           <li>Add Playback Progress tracking</li>
           <li>Update to Schwifty 1.4.0 version</li>
-          <li>Add a release workflow</li>
+          <li>Add a release workflow.</li>
           <li>Add scripts for Flatpak and Nix updates</li>
         </ul>
         <p>Bug Fixes:</p>
