@@ -1,4 +1,7 @@
 changelog:
+  exclude:
+    labels:
+      - release
   categories:
     - title: New Features
       labels:

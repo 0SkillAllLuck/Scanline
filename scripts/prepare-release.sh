@@ -44,10 +44,10 @@ parse_body() {
         if [[ "$line" =~ ^###[[:space:]]+(.*) ]]; then
             section="${BASH_REMATCH[1]}"
             if [ -n "$current_section" ]; then
-                description+=$'            </ul>\n'
+                description+=$'        </ul>\n'
             fi
-            description+="            <p>${section}:</p>"$'\n'
-            description+=$'            <ul>\n'
+            description+="        <p>${section}:</p>"$'\n'
+            description+=$'        <ul>\n'
             current_section="$section"
             continue
         fi
@@ -55,17 +55,23 @@ parse_body() {
         # Detect list items (* item by @author in https://...)
         if [[ "$line" =~ ^\*[[:space:]]+(.*) ]]; then
             item="${BASH_REMATCH[1]}"
+            # Skip "first contribution" lines
+            if [[ "$item" =~ "made their first contribution" ]]; then
+                continue
+            fi
             # Strip " by @user in https://..." suffix
             item=$(echo "$item" | sed -E 's/ by @[^ ]+ in https:\/\/[^ ]+$//')
+            # Strip category prefixes (e.g. "feat: ", "bug: ", "dependencies: ")
+            item=$(echo "$item" | sed -E 's/^(feat|bug|fix|dependencies|deps|chore|docs|refactor|test|ci|build|style|perf): //i')
             # Escape XML special characters
             item=$(echo "$item" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
-            description+="                <li>${item}</li>"$'\n'
+            description+="          <li>${item}</li>"$'\n'
         fi
     done <<< "$body"
 
     # Close last list
     if [ -n "$current_section" ]; then
-        description+=$'            </ul>\n'
+        description+=$'        </ul>\n'
     fi
 
     echo -n "$description"
@@ -94,10 +100,10 @@ description=$(parse_body "$unreleased_body")
 
 if [ -n "$description" ]; then
     releases_xml+="    <release version=\"${NEW_VERSION}\" date=\"${TODAY}\">"$'\n'
-    releases_xml+="        <url type=\"details\">${REPO_URL}/releases/tag/${NEW_TAG}</url>"$'\n'
-    releases_xml+=$'        <description>\n'
-    releases_xml+="${description}"
-    releases_xml+=$'        </description>\n'
+    releases_xml+="      <url type=\"details\">${REPO_URL}/releases/tag/${NEW_TAG}</url>"$'\n'
+    releases_xml+=$'      <description>\n'
+    releases_xml+="${description}"$'\n'
+    releases_xml+=$'      </description>\n'
     releases_xml+=$'    </release>\n'
 else
     echo "  Warning: no parseable notes for upcoming release" >&2
@@ -123,15 +129,15 @@ for i in "${!tags[@]}"; do
     fi
 
     releases_xml+="    <release version=\"${version}\" date=\"${date}\">"$'\n'
-    releases_xml+="        <url type=\"details\">${REPO_URL}/releases/tag/${tag}</url>"$'\n'
-    releases_xml+=$'        <description>\n'
-    releases_xml+="${description}"
-    releases_xml+=$'        </description>\n'
+    releases_xml+="      <url type=\"details\">${REPO_URL}/releases/tag/${tag}</url>"$'\n'
+    releases_xml+=$'      <description>\n'
+    releases_xml+="${description}"$'\n'
+    releases_xml+=$'      </description>\n'
     releases_xml+=$'    </release>\n'
 done
 
 # Build the full releases block
-releases_block="  <releases>"$'\n'"${releases_xml}  </releases>"
+releases_block="<releases>"$'\n'"${releases_xml}  </releases>"
 
 # Replace the <releases>...</releases> section in the metainfo file
 content=$(cat "$METAINFO")
