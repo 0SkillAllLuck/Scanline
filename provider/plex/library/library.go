@@ -248,6 +248,27 @@ type Metadata struct {
 
 	// Role contains the cast/actor credits.
 	Role []Tag `json:"Role,omitempty"`
+
+	// Marker contains chapter markers (credits, intros, etc.).
+	Marker []Marker `json:"Marker,omitempty"`
+}
+
+// Marker represents a chapter marker (credits, intro, etc.) for a media item.
+type Marker struct {
+	// ID is the unique identifier for this marker.
+	ID int `json:"id"`
+
+	// Type is the marker type ("credits", "intro").
+	Type string `json:"type"`
+
+	// Final indicates whether this is the last marker of its type.
+	Final bool `json:"final"`
+
+	// StartTimeOffset is the start time in milliseconds.
+	StartTimeOffset int `json:"startTimeOffset"`
+
+	// EndTimeOffset is the end time in milliseconds.
+	EndTimeOffset int `json:"endTimeOffset"`
 }
 
 // Media represents a media version with specific encoding/quality.
@@ -418,6 +439,10 @@ type librarySectionsContainer struct {
 type metadataContainer struct {
 	mediaContainer
 	Metadata []Metadata `json:"Metadata"`
+}
+
+type markerContainer struct {
+	Marker []Marker `json:"Marker"`
 }
 
 type mediaContainerResponse[T any] struct {

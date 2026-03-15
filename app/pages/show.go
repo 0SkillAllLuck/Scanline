@@ -73,15 +73,17 @@ func Show(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey st
 						WithCSSClass("suggested-action").
 						WithCSSClass("pill").
 						ConnectClicked(func(b gtk.Button) {
+							nextEp := player.ResolveNextEpisode(ctx, src, ep)
 							player.NewPlayer(player.PlayerParams{
-								Ctx:        ctx,
-								Title:      ep.Title,
-								PartKey:    ep.Media[0].Part[0].Key,
-								Window:     appCtx.Window,
-								RatingKey:  ep.RatingKey,
-								Media:      ep.Media,
-								Source:     src,
-								ViewOffset: ep.ViewOffset,
+								Ctx:         ctx,
+								Title:       ep.Title,
+								PartKey:     ep.Media[0].Part[0].Key,
+								Window:      appCtx.Window,
+								RatingKey:   ep.RatingKey,
+								Media:       ep.Media,
+								Source:      src,
+								ViewOffset:  ep.ViewOffset,
+								NextEpisode: nextEp,
 							})
 						}),
 				)
