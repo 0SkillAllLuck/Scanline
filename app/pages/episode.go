@@ -76,15 +76,17 @@ func Episode(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey
 						WithCSSClass("pill").
 						ConnectClicked(func(b gtk.Button) {
 							if len(meta.Media) > 0 && len(meta.Media[0].Part) > 0 {
+								nextEp := player.ResolveNextEpisode(ctx, src, meta)
 								player.NewPlayer(player.PlayerParams{
-									Ctx:        ctx,
-									Title:      meta.Title,
-									PartKey:    meta.Media[0].Part[0].Key,
-									Window:     appCtx.Window,
-									RatingKey:  ratingKey,
-									Media:      meta.Media,
-									Source:     src,
-									ViewOffset: meta.ViewOffset,
+									Ctx:         ctx,
+									Title:       meta.Title,
+									PartKey:     meta.Media[0].Part[0].Key,
+									Window:      appCtx.Window,
+									RatingKey:   ratingKey,
+									Media:       meta.Media,
+									Source:      src,
+									ViewOffset:  meta.ViewOffset,
+									NextEpisode: nextEp,
 								})
 							}
 						}),

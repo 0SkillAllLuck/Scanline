@@ -28,6 +28,9 @@ type Source interface {
 	// GetChildren returns direct child items (show→seasons, season→episodes).
 	GetChildren(ctx context.Context, key string) ([]Metadata, error)
 
+	// GetMarkers returns chapter markers (credits, intros) for a media item.
+	GetMarkers(ctx context.Context, key string) ([]Marker, error)
+
 	// HomeHubs returns the hubs displayed on the home screen.
 	// The count parameter specifies the maximum number of items per hub (0 for server default).
 	HomeHubs(ctx context.Context, count int) ([]Hub, error)

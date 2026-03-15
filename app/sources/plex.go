@@ -52,6 +52,10 @@ func (s *PlexSource) GetChildren(ctx context.Context, key string) ([]Metadata, e
 	return s.client.Library.Children(ctx, key)
 }
 
+func (s *PlexSource) GetMarkers(ctx context.Context, key string) ([]Marker, error) {
+	return s.client.Library.Markers(ctx, key)
+}
+
 func (s *PlexSource) HomeHubs(ctx context.Context, count int) ([]Hub, error) {
 	return s.client.Hubs.Home(ctx, count)
 }

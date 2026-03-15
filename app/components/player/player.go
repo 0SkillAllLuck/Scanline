@@ -20,6 +20,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// NextEpisodeInfo contains pre-resolved information about the next episode.
+type NextEpisodeInfo struct {
+	Title      string
+	PartKey    string
+	RatingKey  string
+	Media      []sources.Media
+	ViewOffset int
+	// Metadata is the full metadata of this next episode, used to resolve
+	// the episode after it for chaining.
+	Metadata *sources.Metadata
+}
+
 // PlayerParams configures a new player window.
 type PlayerParams struct {
 	Ctx        context.Context
@@ -30,6 +42,9 @@ type PlayerParams struct {
 	Media      []sources.Media // full Media array from Metadata
 	Source     sources.Source  // the source for this playback
 	ViewOffset int             // resume position in milliseconds
+
+	// NextEpisode is the pre-resolved next episode (nil for movies or last episode).
+	NextEpisode *NextEpisodeInfo
 }
 
 // NewPlayer creates a video player with overlay controls.
@@ -446,6 +461,62 @@ func NewPlayer(params PlayerParams) {
 		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 4px 0 20px 0; }").
 		ToGTK()
 
+	// --- "Next Episode" button ---
+	var nextEpisodeWidget *gtk.Widget
+	// creditsStartMs stores the credits marker start offset in milliseconds.
+	// -1 means no marker found (use 90% fallback), 0 means not yet resolved.
+	var creditsStartMs atomic.Int64
+
+	// playNextEpisode resolves the next-next episode, closes this player, and
+	// starts the next one. Shared by the button click and auto-play on end.
+	var playNextEpisode func()
+
+	if params.NextEpisode != nil {
+		nextInfo := params.NextEpisode
+		nextBtnLabel := fmt.Sprintf("Next: %s", nextInfo.Title)
+
+		playNextEpisode = func() {
+			// Resolve the next-next episode before closing (context still alive).
+			var nextNext *NextEpisodeInfo
+			if nextInfo.Metadata != nil {
+				nextNext = ResolveNextEpisode(ctx, src, nextInfo.Metadata)
+			}
+			closePlayer()
+			NewPlayer(PlayerParams{
+				Ctx:         params.Ctx,
+				Title:       nextInfo.Title,
+				PartKey:     nextInfo.PartKey,
+				Window:      params.Window,
+				RatingKey:   nextInfo.RatingKey,
+				Media:       nextInfo.Media,
+				Source:      src,
+				ViewOffset:  nextInfo.ViewOffset,
+				NextEpisode: nextNext,
+			})
+		}
+
+		nextEpisodeWidget = Button().
+			Child(
+				HStack(
+					Image().FromIconName("media-skip-forward-symbolic"),
+					Label(nextBtnLabel),
+				).Spacing(8),
+			).
+			WithCSSClass("pill").
+			CSS(`button { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-weight: 500; }
+				button:hover { background: rgba(255,255,255,0.2); }`).
+			ConnectClicked(func(b gtk.Button) {
+				playNextEpisode()
+			}).
+			ToGTK()
+
+		nextEpisodeWidget.SetHalign(gtk.AlignEndValue)
+		nextEpisodeWidget.SetValign(gtk.AlignEndValue)
+		nextEpisodeWidget.SetMarginEnd(16)
+		nextEpisodeWidget.SetMarginBottom(115)
+		nextEpisodeWidget.SetVisible(false)
+	}
+
 	// --- Controls visibility (auto-hide) ---
 	controlWidgets := []*gtk.Widget{topBarWidget, centerControlsWidget, bottomBarWidget}
 	var hideTimerID atomic.Uint32
@@ -649,10 +720,32 @@ func NewPlayer(params PlayerParams) {
 				}()
 			}
 		}
-		// Update play/pause icon if stream ended
-		if media.GetEnded() && playPauseBtn != nil {
-			playing.Store(false)
-			playPauseBtn.SetIconName("media-playback-start-symbolic")
+		// Show "Next Episode" button when credits start or at 90%
+		if nextEpisodeWidget != nil && dur > 0 && ts > 0 {
+			creditsMs := creditsStartMs.Load()
+			if creditsMs > 0 {
+				// Credits marker found — show when position reaches it
+				// creditsMs is in milliseconds, ts is in microseconds
+				if ts >= int64(creditsMs)*1000 {
+					nextEpisodeWidget.SetVisible(true)
+				}
+			} else if creditsMs < 0 {
+				// No marker — fall back to 90% threshold
+				if float64(ts)/float64(dur) >= 0.9 {
+					nextEpisodeWidget.SetVisible(true)
+				}
+			}
+			// creditsMs == 0 means still resolving, don't show yet
+		}
+
+		// Auto-play next episode when stream ends, or close the player
+		if media.GetEnded() {
+			if playNextEpisode != nil {
+				playNextEpisode()
+				return false // stop ticker, player is being replaced
+			}
+			closePlayer()
+			return false
 		}
 		return true // G_SOURCE_CONTINUE
 	})
@@ -660,10 +753,14 @@ func NewPlayer(params PlayerParams) {
 	tickerID.Store(tid)
 
 	// --- Set up window ---
-	overlayWidget := Overlay(&picture.Widget).
+	overlay := Overlay(&picture.Widget).
 		AddOverlay(topBarWidget).
 		AddOverlay(centerControlsWidget).
-		AddOverlay(bottomBarWidget).
+		AddOverlay(bottomBarWidget)
+	if nextEpisodeWidget != nil {
+		overlay = overlay.AddOverlay(nextEpisodeWidget)
+	}
+	overlayWidget := overlay.
 		Controller(&motionCtrl.EventController).
 		ToGTK()
 	offload := gtk.NewGraphicsOffload(overlayWidget)
@@ -753,6 +850,25 @@ func NewPlayer(params PlayerParams) {
 
 		win.Fullscreen()
 		win.Present()
+	}
+
+	// Resolve credits markers in the background for next-episode button timing
+	if params.NextEpisode != nil {
+		go func() {
+			markers, err := src.GetMarkers(ctx, params.RatingKey)
+			if err != nil {
+				slog.Debug("player: failed to fetch markers", "error", err)
+				creditsStartMs.Store(-1) // fallback to 90%
+				return
+			}
+			for _, m := range markers {
+				if m.Type == "credits" {
+					creditsStartMs.Store(int64(m.StartTimeOffset))
+					return
+				}
+			}
+			creditsStartMs.Store(-1) // no credits marker found
+		}()
 	}
 
 	// Resolve playback URL via decision endpoint, then start playback
