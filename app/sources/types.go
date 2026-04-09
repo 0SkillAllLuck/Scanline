@@ -30,6 +30,13 @@ type Hub = hubs.Hub
 type TranscodeParams = plex.TranscodeParams
 type PlaybackState = timeline.PlaybackState
 
+// StreamSelection describes an explicit audio/subtitle selection for a media part.
+// Nil fields mean "leave that stream type unchanged".
+type StreamSelection struct {
+	AudioStreamID    *int
+	SubtitleStreamID *int
+}
+
 const (
 	StatePlaying = timeline.StatePlaying
 	StatePaused  = timeline.StatePaused
