@@ -117,8 +117,12 @@ type TranscodeParams struct {
 	// AudioStreamID is the ID of the audio stream to use.
 	AudioStreamID int
 
-	// SubtitleStreamID is the ID of the subtitle stream to burn in.
+	// SubtitleStreamID is the ID of the subtitle stream to render.
 	SubtitleStreamID int
+
+	// SubtitleSelectionExplicit indicates that subtitle handling should be
+	// explicitly communicated to Plex, including the "None" case.
+	SubtitleSelectionExplicit bool
 
 	// Offset is the playback start position in seconds (for seeking).
 	Offset int
@@ -181,6 +185,10 @@ func (c *Client) BuildTranscodeQuery(params TranscodeParams) url.Values {
 	if params.AudioStreamID > 0 {
 		q.Set("audioStreamID", fmt.Sprint(params.AudioStreamID))
 	}
+	if params.SubtitleSelectionExplicit && params.SubtitleStreamID == 0 {
+		q.Set("subtitleStreamID", "0")
+		q.Set("subtitles", "none")
+	}
 	if params.SubtitleStreamID > 0 {
 		q.Set("subtitleStreamID", fmt.Sprint(params.SubtitleStreamID))
 		q.Set("subtitles", "burn")
@@ -201,6 +209,31 @@ func (c *Client) TranscodeStartURL(q url.Values) string {
 	return c.base.BaseURL + "/video/:/transcode/universal/start.mkv?" + q.Encode() +
 		"&X-Plex-Token=" + url.QueryEscape(c.base.Token) +
 		"&X-Plex-Client-Identifier=" + url.QueryEscape(c.base.ClientID)
+}
+
+// SelectStreams persists the active audio/subtitle streams for a media part.
+// Passing subtitleStreamID=0 explicitly disables subtitles for the part.
+func (c *Client) SelectStreams(ctx context.Context, partID int, audioStreamID, subtitleStreamID *int) error {
+	query := map[string]string{}
+	if audioStreamID != nil {
+		query["audioStreamID"] = fmt.Sprint(*audioStreamID)
+	}
+	if subtitleStreamID != nil {
+		query["subtitleStreamID"] = fmt.Sprint(*subtitleStreamID)
+	}
+	if len(query) == 0 {
+		return nil
+	}
+
+	resp, err := c.base.PutWithQuery(ctx, fmt.Sprintf("/library/parts/%d", partID), query).Do()
+	if err != nil {
+		return fmt.Errorf("selecting streams: %w", err)
+	}
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("select streams returned %d: %s", resp.StatusCode, string(resp.Body))
+	}
+
+	return nil
 }
 
 // MakeTranscodeDecision calls the Plex transcode decision endpoint.

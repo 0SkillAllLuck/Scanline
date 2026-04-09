@@ -92,6 +92,10 @@ func (s *PlexSource) TranscodeStartURL(q url.Values) string {
 	return s.client.TranscodeStartURL(q)
 }
 
+func (s *PlexSource) SelectStreams(ctx context.Context, partID int, selection StreamSelection) error {
+	return s.client.SelectStreams(ctx, partID, selection.AudioStreamID, selection.SubtitleStreamID)
+}
+
 func (s *PlexSource) Scrobble(ctx context.Context, ratingKey string) error {
 	return s.client.Timeline.Scrobble(ctx, ratingKey)
 }

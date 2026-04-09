@@ -33,6 +33,7 @@ type settingsState struct {
 	params            PlayerParams
 	source            sources.Source
 	sessionID         string
+	partID            int
 	audioStreamIDs    []int // dropdown index → Stream.ID
 	subtitleStreamIDs []int // index 0 = "None" (ID 0), rest from metadata
 }
@@ -50,19 +51,22 @@ func (s *settingsState) transcodeParams(qualityIdx, audioIdx, subtitleIdx int) *
 		subtitleID = s.subtitleStreamIDs[subtitleIdx]
 	}
 
-	// Direct play if original quality, first audio track, and no subtitles
-	if preset.DirectPlay && audioIdx == 0 && subtitleID == 0 {
+	// Raw direct play cannot reliably control soft subtitle tracks in GTK/GStreamer.
+	// Once subtitle options exist, keep playback on the Plex-managed path so "None"
+	// actually disables subtitles instead of falling back to the container default.
+	if preset.DirectPlay && audioIdx == 0 && subtitleID == 0 && len(s.subtitleStreamIDs) == 1 {
 		return nil
 	}
 
 	return &sources.TranscodeParams{
-		RatingKey:         s.params.RatingKey,
-		SessionID:         s.sessionID,
-		DirectStreamAudio: preset.DirectPlay,
-		MaxBitrate:        preset.MaxBitrate,
-		MaxResolution:     preset.MaxResolution,
-		AudioStreamID:     audioID,
-		SubtitleStreamID:  subtitleID,
+		RatingKey:                 s.params.RatingKey,
+		SessionID:                 s.sessionID,
+		DirectStreamAudio:         preset.DirectPlay,
+		MaxBitrate:                preset.MaxBitrate,
+		MaxResolution:             preset.MaxResolution,
+		AudioStreamID:             audioID,
+		SubtitleStreamID:          subtitleID,
+		SubtitleSelectionExplicit: len(s.subtitleStreamIDs) > 1,
 	}
 }
 
@@ -76,10 +80,18 @@ func streamLabel(stream sources.Stream, index int) string {
 	return fmt.Sprintf("Track %d", index+1)
 }
 
+func resumeOffsetSeconds(timestampMicroseconds int64) int {
+	if timestampMicroseconds <= 0 {
+		return 0
+	}
+	return int(timestampMicroseconds / 1000000)
+}
+
 func buildSettingsPopover(
 	params PlayerParams,
 	src sources.Source,
 	sessionID string,
+	currentPosition func() int64,
 	onChanged func(newURL string, transcodeParams *sources.TranscodeParams),
 ) *gtk.Popover {
 	streams := params.Media[0].Part[0].Stream
@@ -126,6 +138,7 @@ func buildSettingsPopover(
 		params:            params,
 		source:            src,
 		sessionID:         sessionID,
+		partID:            params.Media[0].Part[0].ID,
 		audioStreamIDs:    audioStreamIDs,
 		subtitleStreamIDs: subtitleStreamIDs,
 	}
@@ -167,16 +180,42 @@ func buildSettingsPopover(
 		)
 
 		params := state.transcodeParams(qi, ai, si)
-		if params == nil {
-			// Direct play
-			onChanged(state.source.StreamURL(state.params.PartKey), nil)
-			return
+		if params != nil {
+			params.Offset = resumeOffsetSeconds(currentPosition())
 		}
-
-		// Transcode: call decision endpoint first (in background), then switch stream
-		q := state.source.BuildTranscodeQuery(*params)
-		startURL := state.source.TranscodeStartURL(q)
 		go func() {
+			audioID := 0
+			if ai >= 0 && ai < len(state.audioStreamIDs) {
+				audioID = state.audioStreamIDs[ai]
+			}
+			subtitleID := 0
+			if si >= 0 && si < len(state.subtitleStreamIDs) {
+				subtitleID = state.subtitleStreamIDs[si]
+			}
+
+			selection := sources.StreamSelection{}
+			if audioID > 0 {
+				selection.AudioStreamID = &audioID
+			}
+			if len(state.subtitleStreamIDs) > 1 {
+				selection.SubtitleStreamID = &subtitleID
+			}
+
+			if state.partID > 0 {
+				if err := state.source.SelectStreams(context.Background(), state.partID, selection); err != nil {
+					slog.Warn("player: saving stream selection failed", "error", err)
+				}
+			}
+
+			if params == nil {
+				schwifty.OnMainThreadOncePure(func() {
+					onChanged(state.source.StreamURL(state.params.PartKey), nil)
+				})
+				return
+			}
+
+			q := state.source.BuildTranscodeQuery(*params)
+			startURL := state.source.TranscodeStartURL(q)
 			if err := state.source.MakeTranscodeDecision(context.Background(), q); err != nil {
 				slog.Error("player: decision call failed", "error", err)
 				return

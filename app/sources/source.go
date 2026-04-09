@@ -59,6 +59,9 @@ type Source interface {
 	// TranscodeStartURL returns the URL for starting a transcode stream.
 	TranscodeStartURL(q url.Values) string
 
+	// SelectStreams persists audio/subtitle selections for a specific media part.
+	SelectStreams(ctx context.Context, partID int, selection StreamSelection) error
+
 	// Scrobble marks an item as watched.
 	Scrobble(ctx context.Context, ratingKey string) error
 
