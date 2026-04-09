@@ -59,13 +59,14 @@ func (s *settingsState) transcodeParams(qualityIdx, audioIdx, subtitleIdx int) *
 	}
 
 	return &sources.TranscodeParams{
-		RatingKey:         s.params.RatingKey,
-		SessionID:         s.sessionID,
-		DirectStreamAudio: preset.DirectPlay,
-		MaxBitrate:        preset.MaxBitrate,
-		MaxResolution:     preset.MaxResolution,
-		AudioStreamID:     audioID,
-		SubtitleStreamID:  subtitleID,
+		RatingKey:                 s.params.RatingKey,
+		SessionID:                 s.sessionID,
+		DirectStreamAudio:         preset.DirectPlay,
+		MaxBitrate:                preset.MaxBitrate,
+		MaxResolution:             preset.MaxResolution,
+		AudioStreamID:             audioID,
+		SubtitleStreamID:          subtitleID,
+		SubtitleSelectionExplicit: len(s.subtitleStreamIDs) > 1,
 	}
 }
 
@@ -79,10 +80,18 @@ func streamLabel(stream sources.Stream, index int) string {
 	return fmt.Sprintf("Track %d", index+1)
 }
 
+func resumeOffsetSeconds(timestampMicroseconds int64) int {
+	if timestampMicroseconds <= 0 {
+		return 0
+	}
+	return int(timestampMicroseconds / 1000000)
+}
+
 func buildSettingsPopover(
 	params PlayerParams,
 	src sources.Source,
 	sessionID string,
+	currentPosition func() int64,
 	onChanged func(newURL string, transcodeParams *sources.TranscodeParams),
 ) *gtk.Popover {
 	streams := params.Media[0].Part[0].Stream
@@ -171,6 +180,9 @@ func buildSettingsPopover(
 		)
 
 		params := state.transcodeParams(qi, ai, si)
+		if params != nil {
+			params.Offset = resumeOffsetSeconds(currentPosition())
+		}
 		go func() {
 			audioID := 0
 			if ai >= 0 && ai < len(state.audioStreamIDs) {

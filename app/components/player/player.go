@@ -94,18 +94,42 @@ func NewPlayer(params PlayerParams) {
 	picture.SetVexpand(true)
 	var media *gtk.MediaFile
 
+	knownDurationUs := int64(0)
+	if len(params.Media) > 0 {
+		if params.Media[0].Duration > 0 {
+			knownDurationUs = int64(params.Media[0].Duration) * 1000
+		} else if len(params.Media[0].Part) > 0 && params.Media[0].Part[0].Duration > 0 {
+			knownDurationUs = int64(params.Media[0].Part[0].Duration) * 1000
+		}
+	}
+	var streamBaseOffsetUs atomic.Int64
+
 	// --- Lifecycle guard ---
 	var closed atomic.Bool // set during cleanup; prevents late async mutations
 
 	// --- Progress reporting ---
 	var lastProgressUpdate atomic.Int64 // monotonic ms of last progress report
 
+	currentTimestampUs := func() int64 {
+		if media == nil {
+			return streamBaseOffsetUs.Load()
+		}
+		return playbackTimestampUs(streamBaseOffsetUs.Load(), media.GetTimestamp())
+	}
+
+	currentDurationUs := func() int64 {
+		if media == nil {
+			return knownDurationUs
+		}
+		return playbackDurationUs(knownDurationUs, streamBaseOffsetUs.Load(), media.GetDuration())
+	}
+
 	sendProgress := func(state sources.PlaybackState) {
 		if media == nil {
 			return
 		}
-		ts := media.GetTimestamp()
-		dur := media.GetDuration()
+		ts := currentTimestampUs()
+		dur := currentDurationUs()
 		if dur <= 0 {
 			return
 		}
@@ -196,11 +220,29 @@ func NewPlayer(params PlayerParams) {
 
 		// Transcoded mode - restart stream at new position
 		offsetSeconds := int(targetMicroseconds / 1000000)
-		params := *currentTranscodeParams
-		params.Offset = offsetSeconds
+		tcParams := *currentTranscodeParams
+		tcParams.Offset = offsetSeconds
 
 		go func() {
-			q := src.BuildTranscodeQuery(params)
+			if len(params.Media) > 0 && len(params.Media[0].Part) > 0 {
+				partID := params.Media[0].Part[0].ID
+				if partID > 0 {
+					selection := sources.StreamSelection{}
+					if tcParams.AudioStreamID > 0 {
+						audioID := tcParams.AudioStreamID
+						selection.AudioStreamID = &audioID
+					}
+					if tcParams.SubtitleSelectionExplicit {
+						subtitleID := tcParams.SubtitleStreamID
+						selection.SubtitleStreamID = &subtitleID
+					}
+					if err := src.SelectStreams(ctx, partID, selection); err != nil {
+						slog.Warn("player: seek stream selection failed", "error", err)
+					}
+				}
+			}
+
+			q := src.BuildTranscodeQuery(tcParams)
 			if err := src.MakeTranscodeDecision(ctx, q); err != nil {
 				slog.Error("player: seek decision failed", "error", err)
 				return
@@ -216,6 +258,7 @@ func NewPlayer(params PlayerParams) {
 				newMedia.SetVolume(vol)
 
 				picture.SetPaintable(&gdk.PaintableBase{Ptr: newMedia.GoPointer()})
+				streamBaseOffsetUs.Store(int64(tcParams.Offset) * 1000000)
 				media = newMedia
 				newMedia.Play()
 				playing.Store(true)
@@ -239,7 +282,7 @@ func NewPlayer(params PlayerParams) {
 			if media == nil {
 				return
 			}
-			ts := media.GetTimestamp()
+			ts := currentTimestampUs()
 			newTS := max(
 				// 30 seconds in microseconds
 				ts-30*1000000, 0)
@@ -282,8 +325,8 @@ func NewPlayer(params PlayerParams) {
 			if media == nil {
 				return
 			}
-			ts := media.GetTimestamp()
-			dur := media.GetDuration()
+			ts := currentTimestampUs()
+			dur := currentDurationUs()
 			newTS := ts + 30*1000000 // 30 seconds in microseconds
 			if dur > 0 && newTS > dur {
 				newTS = dur
@@ -346,50 +389,63 @@ func NewPlayer(params PlayerParams) {
 	// --- Settings popover (quality, audio, subtitles) ---
 	var settingsPopover *gtk.Popover
 	if len(params.Media) > 0 && len(params.Media[0].Part) > 0 {
-		settingsPopover = buildSettingsPopover(params, src, sessionID, func(newURL string, transcodeParams *sources.TranscodeParams) {
-			currentTranscodeParams = transcodeParams // Track current transcode state
-			slog.Debug("player: switching stream", "url", newURL, "transcoding", transcodeParams != nil)
+		settingsPopover = buildSettingsPopover(
+			params,
+			src,
+			sessionID,
+			func() int64 {
+				return currentTimestampUs()
+			},
+			func(newURL string, transcodeParams *sources.TranscodeParams) {
+				currentTranscodeParams = transcodeParams // Track current transcode state
+				slog.Debug("player: switching stream", "url", newURL, "transcoding", transcodeParams != nil)
 
-			var seekPos int64
-			var vol float64
-			if media != nil {
-				seekPos = media.GetTimestamp()
-				vol = media.GetVolume()
-				media.Pause()
-			} else {
-				vol = 1.0
-			}
+				var seekPos int64
+				var vol float64
+				if media != nil {
+					seekPos = media.GetTimestamp()
+					vol = media.GetVolume()
+					media.Pause()
+				} else {
+					vol = 1.0
+				}
 
-			newFile := gio.FileNewForUri(newURL)
-			newMedia := gtk.NewMediaFileForFile(newFile)
-			newMedia.SetMuted(false)
-			newMedia.SetVolume(vol)
+				newFile := gio.FileNewForUri(newURL)
+				newMedia := gtk.NewMediaFileForFile(newFile)
+				newMedia.SetMuted(false)
+				newMedia.SetVolume(vol)
 
-			picture.SetPaintable(&gdk.PaintableBase{Ptr: newMedia.GoPointer()})
-			media = newMedia
+				picture.SetPaintable(&gdk.PaintableBase{Ptr: newMedia.GoPointer()})
+				if transcodeParams != nil {
+					streamBaseOffsetUs.Store(int64(transcodeParams.Offset) * 1000000)
+				} else {
+					streamBaseOffsetUs.Store(0)
+				}
+				media = newMedia
 
-			newMedia.Play()
-			playing.Store(true)
-			if playPauseBtn != nil {
-				playPauseBtn.SetIconName("media-playback-pause-symbolic")
-			}
+				newMedia.Play()
+				playing.Store(true)
+				if playPauseBtn != nil {
+					playPauseBtn.SetIconName("media-playback-pause-symbolic")
+				}
 
-			// Poll until stream is prepared, then seek to saved position (only for direct play)
-			if seekPos > 0 && transcodeParams == nil {
-				seekCb := glib.SourceFunc(func(uintptr) bool {
-					if err := media.GetError(); err != nil {
-						slog.Error("player: stream error after switch", "error", err.Error())
+				// Poll until stream is prepared, then seek to saved position (only for direct play)
+				if seekPos > 0 && transcodeParams == nil {
+					seekCb := glib.SourceFunc(func(uintptr) bool {
+						if err := media.GetError(); err != nil {
+							slog.Error("player: stream error after switch", "error", err.Error())
+							return false
+						}
+						if !media.IsPrepared() {
+							return true // keep polling
+						}
+						media.Seek(seekPos)
 						return false
-					}
-					if !media.IsPrepared() {
-						return true // keep polling
-					}
-					media.Seek(seekPos)
-					return false
-				})
-				glib.TimeoutAdd(200, &seekCb, 0)
-			}
-		})
+					})
+					glib.TimeoutAdd(200, &seekCb, 0)
+				}
+			},
+		)
 	}
 
 	settingsBtn := MenuButton().
@@ -425,7 +481,7 @@ func NewPlayer(params PlayerParams) {
 			if media == nil {
 				return false
 			}
-			dur := media.GetDuration()
+			dur := currentDurationUs()
 			if dur > 0 {
 				seeking.Store(true)
 				doSeek(int64(val))
@@ -636,7 +692,7 @@ func NewPlayer(params PlayerParams) {
 			if media == nil {
 				return true
 			}
-			ts := media.GetTimestamp()
+			ts := currentTimestampUs()
 			newTS := max(ts-30*1000000, 0)
 			doSeek(newTS)
 			return true
@@ -644,8 +700,8 @@ func NewPlayer(params PlayerParams) {
 			if media == nil {
 				return true
 			}
-			ts := media.GetTimestamp()
-			dur := media.GetDuration()
+			ts := currentTimestampUs()
+			dur := currentDurationUs()
 			newTS := ts + 30*1000000
 			if dur > 0 && newTS > dur {
 				newTS = dur
@@ -692,8 +748,8 @@ func NewPlayer(params PlayerParams) {
 				"volume", media.GetVolume(),
 			)
 		}
-		dur := media.GetDuration()
-		ts := media.GetTimestamp()
+		dur := currentDurationUs()
+		ts := currentTimestampUs()
 		if !seeking.Load() && progressScale != nil && dur > 0 {
 			progressScale.SetRange(0, float64(dur))
 			progressScale.SetValue(float64(ts))
@@ -783,8 +839,8 @@ func NewPlayer(params PlayerParams) {
 		closed.Store(true)
 		if media != nil {
 			media.Pause()
-			dur := media.GetDuration()
-			ts := media.GetTimestamp()
+			dur := currentDurationUs()
+			ts := currentTimestampUs()
 			if dur > 0 {
 				timeMs := int(ts / 1000)
 				durationMs := int(dur / 1000)
@@ -925,4 +981,26 @@ func formatMicroseconds(us int64) string {
 		return fmt.Sprintf("%d:%02d:%02d", hours, minutes, seconds)
 	}
 	return fmt.Sprintf("%d:%02d", minutes, seconds)
+}
+
+func playbackTimestampUs(streamBaseOffsetUs, mediaTimestampUs int64) int64 {
+	if mediaTimestampUs < 0 {
+		return streamBaseOffsetUs
+	}
+	return streamBaseOffsetUs + mediaTimestampUs
+}
+
+func playbackDurationUs(knownDurationUs, streamBaseOffsetUs, mediaDurationUs int64) int64 {
+	if mediaDurationUs <= 0 {
+		return knownDurationUs
+	}
+
+	candidate := mediaDurationUs + streamBaseOffsetUs
+	if candidate > knownDurationUs {
+		return candidate
+	}
+	if knownDurationUs > 0 {
+		return knownDurationUs
+	}
+	return mediaDurationUs
 }

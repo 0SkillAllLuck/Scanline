@@ -7,6 +7,26 @@ import (
 	"testing"
 )
 
+func TestBuildTranscodeQueryExplicitSubtitleOff(t *testing.T) {
+	t.Parallel()
+
+	client := NewClient("http://localhost:32400", "token", "client-id")
+	query := client.BuildTranscodeQuery(TranscodeParams{
+		RatingKey:                 "42",
+		SessionID:                 "session",
+		DirectStreamAudio:         true,
+		SubtitleStreamID:          0,
+		SubtitleSelectionExplicit: true,
+	})
+
+	if got := query.Get("subtitleStreamID"); got != "0" {
+		t.Fatalf("subtitleStreamID = %q, want %q", got, "0")
+	}
+	if got := query.Get("subtitles"); got != "none" {
+		t.Fatalf("subtitles = %q, want %q", got, "none")
+	}
+}
+
 func TestClientSelectStreamsAllowsSubtitleOff(t *testing.T) {
 	t.Parallel()
 

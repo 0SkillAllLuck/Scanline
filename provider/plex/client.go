@@ -120,6 +120,10 @@ type TranscodeParams struct {
 	// SubtitleStreamID is the ID of the subtitle stream to render.
 	SubtitleStreamID int
 
+	// SubtitleSelectionExplicit indicates that subtitle handling should be
+	// explicitly communicated to Plex, including the "None" case.
+	SubtitleSelectionExplicit bool
+
 	// Offset is the playback start position in seconds (for seeking).
 	Offset int
 }
@@ -180,6 +184,10 @@ func (c *Client) BuildTranscodeQuery(params TranscodeParams) url.Values {
 
 	if params.AudioStreamID > 0 {
 		q.Set("audioStreamID", fmt.Sprint(params.AudioStreamID))
+	}
+	if params.SubtitleSelectionExplicit && params.SubtitleStreamID == 0 {
+		q.Set("subtitleStreamID", "0")
+		q.Set("subtitles", "none")
 	}
 	if params.SubtitleStreamID > 0 {
 		q.Set("subtitleStreamID", fmt.Sprint(params.SubtitleStreamID))
