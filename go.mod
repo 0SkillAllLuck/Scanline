@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	codeberg.org/dergs/tonearm v1.4.1-0.20260304095737-2bc41c208498
-	codeberg.org/puregotk/puregotk v0.0.0-20260226083027-5647eb6a2bba
+	codeberg.org/puregotk/puregotk v0.0.0-20260320050432-5bb8c3359c53
 	github.com/google/uuid v1.6.0
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade
 	github.com/keybase/go-keychain v0.0.1
@@ -21,5 +21,5 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/yeqown/reedsolomon v1.0.0 // indirect
 	golang.org/x/image v0.38.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
 )

@@ -2,8 +2,8 @@ codeberg.org/dergs/tonearm v1.4.1-0.20260304095737-2bc41c208498 h1:AboL9yBPVCXMI
 codeberg.org/dergs/tonearm v1.4.1-0.20260304095737-2bc41c208498/go.mod h1:0tdRotuB0qHS0o4fEHZpyJqHXH3RCfiv2HaZCBSB3e0=
 codeberg.org/puregotk/purego v0.0.0-20260224095105-2513c838cb80 h1:y5ZxMLLOjl4xc2tBl02olxZQ06xbbKiR+2ipBfDrVcs=
 codeberg.org/puregotk/purego v0.0.0-20260224095105-2513c838cb80/go.mod h1:hVVM4ddvYRlc3IcK3CXJPlMwd/vaLj7gdDBZ6oPgT8w=
-codeberg.org/puregotk/puregotk v0.0.0-20260226083027-5647eb6a2bba h1:vaq9DqM7xkLsqKP7aYvVwirqStiJk6OnXy12BtwiG6k=
-codeberg.org/puregotk/puregotk v0.0.0-20260226083027-5647eb6a2bba/go.mod h1:Q2E89WEkiGRObalH0QeYJe19f1H+6cn40xavs9+cxdU=
+codeberg.org/puregotk/puregotk v0.0.0-20260320050432-5bb8c3359c53 h1:2djv1s/tkZRjI8DNzA97mfpGR31VJ1da8QHaqecWCDI=
+codeberg.org/puregotk/puregotk v0.0.0-20260320050432-5bb8c3359c53/go.mod h1:Q2E89WEkiGRObalH0QeYJe19f1H+6cn40xavs9+cxdU=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fogleman/gg v1.3.0 h1:/7zJX8F6AaYQc57WQCyN9cAIz+4bCJGO9B+dyW29am8=
@@ -34,7 +34,7 @@ github.com/yeqown/reedsolomon v1.0.0 h1:x1h/Ej/uJnNu8jaX7GLHBWmZKCAWjEJTetkqaabr
 github.com/yeqown/reedsolomon v1.0.0/go.mod h1:P76zpcn2TCuL0ul1Fso373qHRc69LKwAw/Iy6g1WiiM=
 golang.org/x/image v0.38.0 h1:5l+q+Y9JDC7mBOMjo4/aPhMDcxEptsX+Tt3GgRQRPuE=
 golang.org/x/image v0.38.0/go.mod h1:/3f6vaXC+6CEanU4KJxbcUZyEePbyKbaLoDOe4ehFYY=
-golang.org/x/sys v0.41.0 h1:Ivj+2Cp/ylzLiEU89QhWblYnOE9zerudt9Ftecq2C6k=
-golang.org/x/sys v0.41.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
+golang.org/x/sys v0.43.0 h1:Rlag2XtaFTxp19wS8MXlJwTvoh8ArU6ezoyFsMyCTNI=
+golang.org/x/sys v0.43.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
