@@ -54,6 +54,7 @@ func NewPlayer(params PlayerParams) {
 	src := params.Source
 	sessionID := uuid.NewString()
 	ctx, ctxCancel := context.WithCancel(params.Ctx)
+	initialTranscodeParams := initialManagedPlaybackParams(params, sessionID)
 
 	windowed := preference.Experimental().EnableWindowedPlayer()
 
@@ -929,10 +930,26 @@ func NewPlayer(params PlayerParams) {
 
 	// Resolve playback URL via decision endpoint, then start playback
 	go func() {
-		streamURL := src.ResolvePlaybackURL(ctx, params.PartKey, params.RatingKey, sessionID)
+		streamURL := ""
+		if initialTranscodeParams != nil {
+			q := src.BuildTranscodeQuery(*initialTranscodeParams)
+			if err := src.MakeTranscodeDecision(ctx, q); err != nil {
+				slog.Error("player: initial decision failed", "error", err)
+				return
+			}
+			streamURL = src.TranscodeStartURL(q)
+		} else {
+			streamURL = src.ResolvePlaybackURL(ctx, params.PartKey, params.RatingKey, sessionID)
+		}
 		schwifty.OnMainThreadOncePure(func() {
 			if closed.Load() {
 				return
+			}
+			currentTranscodeParams = initialTranscodeParams
+			if initialTranscodeParams != nil {
+				streamBaseOffsetUs.Store(int64(initialTranscodeParams.Offset) * 1000000)
+			} else {
+				streamBaseOffsetUs.Store(0)
 			}
 			gioFile := gio.FileNewForUri(streamURL)
 			media = gtk.NewMediaFileForFile(gioFile)
@@ -947,7 +964,7 @@ func NewPlayer(params PlayerParams) {
 			scheduleHide()
 
 			// Resume from saved position if ViewOffset is set
-			if params.ViewOffset > 0 {
+			if params.ViewOffset > 0 && initialTranscodeParams == nil {
 				targetUs := int64(params.ViewOffset) * 1000 // ms to µs
 				seekCb := glib.SourceFunc(func(uintptr) bool {
 					if closed.Load() {
@@ -981,6 +998,45 @@ func formatMicroseconds(us int64) string {
 		return fmt.Sprintf("%d:%02d:%02d", hours, minutes, seconds)
 	}
 	return fmt.Sprintf("%d:%02d", minutes, seconds)
+}
+
+func initialManagedPlaybackParams(params PlayerParams, sessionID string) *sources.TranscodeParams {
+	if len(params.Media) == 0 || len(params.Media[0].Part) == 0 {
+		return nil
+	}
+
+	streams := params.Media[0].Part[0].Stream
+	hasSubtitleTracks := false
+	selectedSubtitleID := 0
+	selectedAudioID := 0
+
+	for _, stream := range streams {
+		switch stream.StreamType {
+		case 2:
+			if stream.Selected {
+				selectedAudioID = stream.ID
+			}
+		case 3:
+			hasSubtitleTracks = true
+			if stream.Selected {
+				selectedSubtitleID = stream.ID
+			}
+		}
+	}
+
+	if !hasSubtitleTracks {
+		return nil
+	}
+
+	return &sources.TranscodeParams{
+		RatingKey:                 params.RatingKey,
+		SessionID:                 sessionID,
+		DirectStreamAudio:         true,
+		AudioStreamID:             selectedAudioID,
+		SubtitleStreamID:          selectedSubtitleID,
+		SubtitleSelectionExplicit: true,
+		Offset:                    params.ViewOffset / 1000,
+	}
 }
 
 func playbackTimestampUs(streamBaseOffsetUs, mediaTimestampUs int64) int64 {
