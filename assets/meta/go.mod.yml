@@ -3,15 +3,15 @@
   path: assets/meta/modules.txt
   type: file
 - dest: vendor/codeberg.org/dergs/tonearm
-  sha256: dcb91873c7b49d7559dcaf0df9c3e86dee669839ded1d1a53193fca07c0983ac
+  sha256: 8fb29b284ef0b7dcc9761a646470c80651344553543cdddf1c1f1de00435c4b5
   strip-components: 3
   type: archive
-  url: https://proxy.golang.org/codeberg.org/dergs/tonearm/@v/v1.4.1-0.20260304095737-2bc41c208498.zip
+  url: https://proxy.golang.org/codeberg.org/dergs/tonearm/@v/v1.4.1-0.20260423094524-7e92b9bac909.zip
 - dest: vendor/codeberg.org/puregotk/puregotk
-  sha256: 9d9a3c7b34bd5a9b1556630adf8da2fc24c177ebbc3cce37fcaf3ada283e79ca
+  sha256: e7fded6b4e364e3f2926d9470a991de1e422a712849008a24c347b2ccd96b5cf
   strip-components: 3
   type: archive
-  url: https://proxy.golang.org/codeberg.org/puregotk/puregotk/@v/v0.0.0-20260320050432-5bb8c3359c53.zip
+  url: https://proxy.golang.org/codeberg.org/puregotk/puregotk/@v/v0.0.0-20260420231554-98419d54d2d2.zip
 - dest: vendor/github.com/google/uuid
   sha256: d0f02f377217f42702e259684e06441edbf5140dddcc34ba9bea56038b38a6ed
   strip-components: 3
@@ -32,11 +32,6 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/github.com/leonelquinteros/gotext/@v/v1.7.2.zip
-- dest: vendor/github.com/lescuer97/go-libsecret
-  sha256: 10a7fbab46f2c68a5ba5eb773c259aa13c8e3af842152ac5e27b559de6fc24f3
-  strip-components: 3
-  type: archive
-  url: https://proxy.golang.org/github.com/lescuer97/go-libsecret/@v/v0.0.0-20251130160347-067b741bcf5a.zip
 - dest: vendor/github.com/yeqown/go-qrcode/v2
   sha256: 6d6d8af4e03b8f69e76be64b793fb9715934eb215ca88feeaa79e20ae3b5c512
   strip-components: 4
