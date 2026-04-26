@@ -1,9 +1,9 @@
-codeberg.org/dergs/tonearm v1.4.1-0.20260304095737-2bc41c208498 h1:AboL9yBPVCXMISsHh+CtQDYvKyoRS+ParsmBvy2Q5w0=
-codeberg.org/dergs/tonearm v1.4.1-0.20260304095737-2bc41c208498/go.mod h1:0tdRotuB0qHS0o4fEHZpyJqHXH3RCfiv2HaZCBSB3e0=
+codeberg.org/dergs/tonearm v1.4.1-0.20260423094524-7e92b9bac909 h1:FcEkczk1EFQ8nJswlz4rzD72UatIfN97Kpp6GbjxeEE=
+codeberg.org/dergs/tonearm v1.4.1-0.20260423094524-7e92b9bac909/go.mod h1:Qi5NGNFaMtp8NWwtGtbCGWLJ3LpvDTWxcv3aC0iEhFI=
 codeberg.org/puregotk/purego v0.0.0-20260224095105-2513c838cb80 h1:y5ZxMLLOjl4xc2tBl02olxZQ06xbbKiR+2ipBfDrVcs=
 codeberg.org/puregotk/purego v0.0.0-20260224095105-2513c838cb80/go.mod h1:hVVM4ddvYRlc3IcK3CXJPlMwd/vaLj7gdDBZ6oPgT8w=
-codeberg.org/puregotk/puregotk v0.0.0-20260320050432-5bb8c3359c53 h1:2djv1s/tkZRjI8DNzA97mfpGR31VJ1da8QHaqecWCDI=
-codeberg.org/puregotk/puregotk v0.0.0-20260320050432-5bb8c3359c53/go.mod h1:Q2E89WEkiGRObalH0QeYJe19f1H+6cn40xavs9+cxdU=
+codeberg.org/puregotk/puregotk v0.0.0-20260420231554-98419d54d2d2 h1:i2Z8LWUE+bunEy9O43+CeQeFj3SvAtkiIzJibDp0XxY=
+codeberg.org/puregotk/puregotk v0.0.0-20260420231554-98419d54d2d2/go.mod h1:KDQjaDscQiL2OiLWuBFBF4l/x/1DW+M0lPcQTa0Id0o=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fogleman/gg v1.3.0 h1:/7zJX8F6AaYQc57WQCyN9cAIz+4bCJGO9B+dyW29am8=
@@ -18,8 +18,6 @@ github.com/keybase/go-keychain v0.0.1 h1:way+bWYa6lDppZoZcgMbYsvC7GxljxrskdNInRt
 github.com/keybase/go-keychain v0.0.1/go.mod h1:PdEILRW3i9D8JcdM+FmY6RwkHGnhHxXwkPPMeUgOK1k=
 github.com/leonelquinteros/gotext v1.7.2 h1:bDPndU8nt+/kRo1m4l/1OXiiy2v7Z7dfPQ9+YP7G1Mc=
 github.com/leonelquinteros/gotext v1.7.2/go.mod h1:9/haCkm5P7Jay1sxKDGJ5WIg4zkz8oZKw4ekNpALob8=
-github.com/lescuer97/go-libsecret v0.0.0-20251130160347-067b741bcf5a h1:0U0890+79rkdjJx4M3+0TGmRhcvRPqUcz4z2DHz3CB4=
-github.com/lescuer97/go-libsecret v0.0.0-20251130160347-067b741bcf5a/go.mod h1:NVIUI2eo6wJGm+999fHgjvc95/u1EfdXnBJ67+S7ai0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
