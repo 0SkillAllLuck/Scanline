@@ -3,13 +3,12 @@ module github.com/0skillallluck/scanline
 go 1.26.0
 
 require (
-	codeberg.org/dergs/tonearm v1.4.1-0.20260304095737-2bc41c208498
-	codeberg.org/puregotk/puregotk v0.0.0-20260320050432-5bb8c3359c53
+	codeberg.org/dergs/tonearm v1.4.1-0.20260423094524-7e92b9bac909
+	codeberg.org/puregotk/puregotk v0.0.0-20260420231554-98419d54d2d2
 	github.com/google/uuid v1.6.0
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade
 	github.com/keybase/go-keychain v0.0.1
 	github.com/leonelquinteros/gotext v1.7.2
-	github.com/lescuer97/go-libsecret v0.0.0-20251130160347-067b741bcf5a
 	github.com/yeqown/go-qrcode/v2 v2.2.5
 	github.com/yeqown/go-qrcode/writer/standard v1.3.0
 )

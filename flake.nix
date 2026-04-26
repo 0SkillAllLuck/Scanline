@@ -81,7 +81,7 @@
           pname = "scanline";
           version = "0.4.0";
           src = pkgs.lib.cleanSource ./.;
-          vendorHash = "sha256-4cZJI0Q1cmMeeBCCUIQFD667Z9Q50cAqNjB+pttJ4ts=";
+          vendorHash = "sha256-1s5fUO5xXY6q0tYBDgxwhhH4oQ5oYsnpnGH/54Eq4Ik=";
 
           ldflags = [
             "-X \"github.com/0skillallluck/scanline/app/dialogs/about.Commit=${
