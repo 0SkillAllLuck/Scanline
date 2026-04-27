@@ -36,3 +36,11 @@ func (e *ExperimentalSettings) BindAutoSkipCredits(target *gobject.Object, prope
 func (e *ExperimentalSettings) AutoSkipCredits() bool {
 	return e.settings.GetBoolean("auto-skip-credits")
 }
+
+func (e *ExperimentalSettings) BindAutoSkipIntro(target *gobject.Object, property string) {
+	e.settings.Bind("auto-skip-intro", target, property, gio.GSettingsBindNoSensitivityValue)
+}
+
+func (e *ExperimentalSettings) AutoSkipIntro() bool {
+	return e.settings.GetBoolean("auto-skip-intro")
+}

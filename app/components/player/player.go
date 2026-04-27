@@ -496,19 +496,52 @@ func NewPlayer(params PlayerParams) {
 		CSS("box { background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 4px 0 20px 0; }").
 		ToGTK()
 
-	// --- Credits markers ---
-	// creditsStartMs / creditsEndMs hold the credits marker offsets in
-	// milliseconds. 0 = not yet resolved, -1 = no marker found, >0 = valid.
-	var creditsStartMs atomic.Int64
-	var creditsEndMs atomic.Int64
-	// autoSkipped guards against repeated auto-skip seeks for the same credits run.
-	var autoSkipped atomic.Bool
-
+	// pillCSS is shared by the bottom-right floating action buttons
+	// (next-episode, skip-credits, skip-intro).
 	pillCSS := `button { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; font-weight: 500; }
 			button:hover { background: rgba(255,255,255,0.2); }`
 
+	makePillButton := func(iconName, label string, marginBottom int32, onClick func()) *gtk.Widget {
+		w := Button().
+			Child(HStack(
+				Image().FromIconName(iconName),
+				Label(label),
+			).Spacing(8)).
+			WithCSSClass("pill").
+			CSS(pillCSS).
+			ConnectClicked(func(b gtk.Button) { onClick() }).
+			ToGTK()
+		w.SetHalign(gtk.AlignEndValue)
+		w.SetValign(gtk.AlignEndValue)
+		w.SetMarginEnd(16)
+		w.SetMarginBottom(marginBottom)
+		w.SetVisible(false)
+		return w
+	}
+
+	// --- Credits / intro skip trackers ---
+	credits := &markerTracker{
+		name:     sources.MarkerTypeCredits,
+		autoSkip: preference.Experimental().AutoSkipCredits,
+	}
+	intro := &markerTracker{
+		name:     sources.MarkerTypeIntro,
+		autoSkip: preference.Experimental().AutoSkipIntro,
+	}
+	skipCreditsWidget := makePillButton(
+		"media-seek-forward-symbolic", "Skip Credits", 170,
+		func() { credits.seekToEnd(doSeek) },
+	)
+	credits.setVisible = skipCreditsWidget.SetVisible
+	skipIntroWidget := makePillButton(
+		"media-seek-forward-symbolic", "Skip Intro", 170,
+		func() { intro.seekToEnd(doSeek) },
+	)
+	intro.setVisible = skipIntroWidget.SetVisible
+
 	// --- "Next Episode" button ---
 	var nextEpisodeWidget *gtk.Widget
+	var nextEpisodeShown atomic.Bool
 
 	// playNextEpisode resolves the next-next episode, closes this player, and
 	// starts the next one. Shared by the button click and auto-play on end.
@@ -516,7 +549,6 @@ func NewPlayer(params PlayerParams) {
 
 	if params.NextEpisode != nil {
 		nextInfo := params.NextEpisode
-		nextBtnLabel := fmt.Sprintf("Next: %s", nextInfo.Title)
 
 		playNextEpisode = func() {
 			// Resolve the next-next episode before closing (context still alive).
@@ -538,49 +570,13 @@ func NewPlayer(params PlayerParams) {
 			})
 		}
 
-		nextEpisodeWidget = Button().
-			Child(
-				HStack(
-					Image().FromIconName("media-skip-forward-symbolic"),
-					Label(nextBtnLabel),
-				).Spacing(8),
-			).
-			WithCSSClass("pill").
-			CSS(pillCSS).
-			ConnectClicked(func(b gtk.Button) {
-				playNextEpisode()
-			}).
-			ToGTK()
-
-		nextEpisodeWidget.SetHalign(gtk.AlignEndValue)
-		nextEpisodeWidget.SetValign(gtk.AlignEndValue)
-		nextEpisodeWidget.SetMarginEnd(16)
-		nextEpisodeWidget.SetMarginBottom(115)
-		nextEpisodeWidget.SetVisible(false)
+		nextEpisodeWidget = makePillButton(
+			"media-skip-forward-symbolic",
+			fmt.Sprintf("Next: %s", nextInfo.Title),
+			115,
+			playNextEpisode,
+		)
 	}
-
-	// --- "Skip Credits" button ---
-	skipCreditsWidget := Button().
-		Child(
-			HStack(
-				Image().FromIconName("media-seek-forward-symbolic"),
-				Label("Skip Credits"),
-			).Spacing(8),
-		).
-		WithCSSClass("pill").
-		CSS(pillCSS).
-		ConnectClicked(func(b gtk.Button) {
-			endMs := creditsEndMs.Load()
-			if endMs > 0 {
-				doSeek(endMs * 1000)
-			}
-		}).
-		ToGTK()
-	skipCreditsWidget.SetHalign(gtk.AlignEndValue)
-	skipCreditsWidget.SetValign(gtk.AlignEndValue)
-	skipCreditsWidget.SetMarginEnd(16)
-	skipCreditsWidget.SetMarginBottom(170)
-	skipCreditsWidget.SetVisible(false)
 
 	// --- Controls visibility (auto-hide) ---
 	controlWidgets := []*gtk.Widget{topBarWidget, centerControlsWidget, bottomBarWidget}
@@ -752,43 +748,24 @@ func NewPlayer(params PlayerParams) {
 				}()
 			}
 		}
-		// Show "Next Episode" button when credits start or at 90%
-		if nextEpisodeWidget != nil && dur > 0 && ts > 0 {
-			creditsMs := creditsStartMs.Load()
-			if creditsMs > 0 {
-				// Credits marker found — show when position reaches it
-				// creditsMs is in milliseconds, ts is in microseconds
-				if ts >= creditsMs*1000 {
-					nextEpisodeWidget.SetVisible(true)
-				}
-			} else if creditsMs < 0 {
-				// No marker — fall back to 90% threshold
-				if float64(ts)/float64(dur) >= 0.9 {
-					nextEpisodeWidget.SetVisible(true)
-				}
+		// Show "Next Episode" button on the credits-start edge, falling back
+		// to the 90% threshold when no credits marker was returned. One-shot:
+		// once shown it stays for the rest of playback.
+		if nextEpisodeWidget != nil && !nextEpisodeShown.Load() && dur > 0 && ts > 0 {
+			creditsMs := credits.startMs.Load()
+			show := false
+			switch {
+			case creditsMs > 0:
+				show = ts >= creditsMs*1000
+			case creditsMs < 0:
+				show = float64(ts)/float64(dur) >= 0.9
 			}
-			// creditsMs == 0 means still resolving, don't show yet
-		}
-		// Show "Skip Credits" button while position is inside the credits
-		// marker. With Auto Skip Credits enabled, seek to the end of the
-		// marker the first time we enter the range.
-		if dur > 0 && ts > 0 {
-			startMs := creditsStartMs.Load()
-			endMs := creditsEndMs.Load()
-			if startMs > 0 && endMs > startMs {
-				startUs := startMs * 1000
-				endUs := endMs * 1000
-				inCredits := ts >= startUs && ts < endUs
-				skipCreditsWidget.SetVisible(inCredits)
-				if inCredits {
-					if preference.Experimental().AutoSkipCredits() && autoSkipped.CompareAndSwap(false, true) {
-						doSeek(endUs)
-					}
-				} else {
-					autoSkipped.Store(false)
-				}
+			if show && nextEpisodeShown.CompareAndSwap(false, true) {
+				nextEpisodeWidget.SetVisible(true)
 			}
 		}
+		credits.tick(ts, doSeek)
+		intro.tick(ts, doSeek)
 		return true // G_SOURCE_CONTINUE
 	})
 	tid := glib.TimeoutAdd(500, &tickerCb, 0)
@@ -803,7 +780,8 @@ func NewPlayer(params PlayerParams) {
 		AddOverlay(topBarWidget).
 		AddOverlay(centerControlsWidget).
 		AddOverlay(bottomBarWidget).
-		AddOverlay(skipCreditsWidget)
+		AddOverlay(skipCreditsWidget).
+		AddOverlay(skipIntroWidget)
 	if nextEpisodeWidget != nil {
 		overlay = overlay.AddOverlay(nextEpisodeWidget)
 	}
@@ -980,25 +958,40 @@ func NewPlayer(params PlayerParams) {
 	}
 	win.Present()
 
-	// Resolve credits markers in the background. Drives both the next-episode
-	// button timing and the skip-credits button / auto-skip behavior.
+	// Resolve markers in the background. Drives the next-episode button
+	// timing and the skip-credits / skip-intro buttons (with their auto-skip
+	// counterparts).
 	go func() {
+		trackers := map[string]*markerTracker{
+			sources.MarkerTypeCredits: credits,
+			sources.MarkerTypeIntro:   intro,
+		}
 		markers, err := src.GetMarkers(ctx, params.RatingKey)
 		if err != nil {
 			slog.Debug("player: failed to fetch markers", "error", err)
-			creditsStartMs.Store(-1) // fallback to 90% for next-episode
-			creditsEndMs.Store(-1)
+			for _, t := range trackers {
+				t.setNotFound()
+			}
 			return
 		}
+		found := make(map[string]bool, len(trackers))
 		for _, m := range markers {
-			if m.Type == "credits" {
-				creditsStartMs.Store(int64(m.StartTimeOffset))
-				creditsEndMs.Store(int64(m.EndTimeOffset))
-				return
+			t, ok := trackers[m.Type]
+			if !ok || found[m.Type] {
+				continue
+			}
+			t.setRange(m.StartTimeOffset, m.EndTimeOffset)
+			found[m.Type] = true
+			slog.Debug("player: resolved "+m.Type+" marker",
+				"start_ms", m.StartTimeOffset,
+				"end_ms", m.EndTimeOffset)
+		}
+		for typ, t := range trackers {
+			if !found[typ] {
+				t.setNotFound()
+				slog.Debug("player: no " + typ + " marker found")
 			}
 		}
-		creditsStartMs.Store(-1) // no credits marker found
-		creditsEndMs.Store(-1)
 	}()
 
 	// Resolve playback URL via decision endpoint, then start playback. Initial

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: v0.4.0-14-g2ac46d3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-01 00:42+0100\n"
+"POT-Creation-Date: 2026-04-27 17:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app/components/cards/poster_season.go:14
+#: app/components/cards/poster_season.go:19
 msgid "%d Episode"
 msgid_plural "%d Episodes"
 msgstr[0] ""
@@ -29,11 +29,11 @@ msgid_plural "%d Seasons"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/windows/main_content.go:50
+#: app/windows/main_content.go:49
 msgid "About Scanline"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:28
+#: app/dialogs/sources/sources.go:27
 msgid "Add Account"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Allow Scanline to load images poster images for libraries and details pages."
 msgstr ""
 
-#: app/secrets/service_linux.go:35
+#: app/secrets/service_linux.go:46
 msgid ""
 "An unknown error occurred when checking for a secret service provider.\n"
 "\n"
@@ -72,6 +72,22 @@ msgstr ""
 
 #: app/components/cards/media_info.go:51
 msgid "Audio"
+msgstr ""
+
+#: app/dialogs/preferences/player.go:25
+msgid "Auto Skip Credits"
+msgstr ""
+
+#: app/dialogs/preferences/player.go:19
+msgid "Auto Skip Intro"
+msgstr ""
+
+#: app/dialogs/preferences/player.go:26
+msgid "Automatically skip the credits when they begin playing."
+msgstr ""
+
+#: app/dialogs/preferences/player.go:20
+msgid "Automatically skip the intro when it begins playing."
 msgstr ""
 
 #: app/dialogs/shortcuts/shortcuts.go:20
@@ -110,11 +126,11 @@ msgstr ""
 msgid "Caching"
 msgstr ""
 
-#: app/dialogs/linking/linking.go:78
+#: app/dialogs/linking/linking.go:75
 msgid "Cancel Login"
 msgstr ""
 
-#: app/pages/episode.go:115
+#: app/pages/cast.go:27
 msgid "Cast"
 msgstr ""
 
@@ -134,7 +150,7 @@ msgstr ""
 msgid "Container"
 msgstr ""
 
-#: app/dialogs/secret_service/secret_service.go:30
+#: app/dialogs/secretservice/secret_service.go:30
 msgid "Continue"
 msgstr ""
 
@@ -142,31 +158,27 @@ msgstr ""
 msgid "Directed by"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:125
+#: app/dialogs/sources/sources.go:124
 msgid "Discovering servers..."
 msgstr ""
 
-#: app/dialogs/secret_service/secret_service.go:23
+#: app/dialogs/secretservice/secret_service.go:23
 msgid "Don't show again"
 msgstr ""
 
-#: app/pages/search.go:27
+#: app/pages/search.go:101
 msgid "E.g. The Matrix"
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:28
+#: app/dialogs/preferences/experimental.go:25
 msgid "Enable EMBY support"
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:25
+#: app/dialogs/preferences/experimental.go:22
 msgid "Enable Jellyfin support"
 msgstr ""
 
 #: app/dialogs/preferences/experimental.go:19
-msgid "Enable Non-Fullscreen support"
-msgstr ""
-
-#: app/dialogs/preferences/experimental.go:22
 msgid "Enable PiP support"
 msgstr ""
 
@@ -174,31 +186,27 @@ msgstr ""
 msgid "Enable Watchlist"
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:29
+#: app/dialogs/preferences/experimental.go:26
 msgid "Enable support for EMBY servers."
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:26
+#: app/dialogs/preferences/experimental.go:23
 msgid "Enable support for Jellyfin servers."
 msgstr ""
 
 #: app/dialogs/preferences/experimental.go:20
-msgid "Enable support for non-fullscreen mode."
-msgstr ""
-
-#: app/dialogs/preferences/experimental.go:23
 msgid "Enable support for picture-in-picture mode."
 msgstr ""
 
-#: app/pages/episode.go:25
+#: app/pages/episode.go:28
 msgid "Episode"
 msgstr ""
 
-#: app/components/cards/season_episode.go:37
+#: app/components/cards/season_episode.go:58
 msgid "Episode %d"
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:31
+#: app/dialogs/preferences/experimental.go:28
 msgid "Experimental"
 msgstr ""
 
@@ -206,7 +214,11 @@ msgstr ""
 msgid "Failed to discover servers"
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:30
+#: app/pages/episode.go:118
+msgid "Failed to update watch status"
+msgstr ""
+
+#: app/dialogs/preferences/experimental.go:27
 msgid "Features"
 msgstr ""
 
@@ -214,11 +226,15 @@ msgstr ""
 msgid "General"
 msgstr ""
 
+#: app/pages/genre.go:25
+msgid "Genre"
+msgstr ""
+
 #: app/dialogs/preferences/general.go:17
 msgid "History Length"
 msgstr ""
 
-#: app/pages/home.go:69
+#: app/pages/home.go:75
 msgid "Home"
 msgstr ""
 
@@ -246,43 +262,51 @@ msgstr ""
 msgid "Main Menu"
 msgstr ""
 
-#: app/pages/episode.go:46
+#: app/pages/episode.go:47
 msgid "Mark as Unwatched"
 msgstr ""
 
-#: app/pages/episode.go:43
+#: app/pages/episode.go:44
 msgid "Mark as Watched"
 msgstr ""
 
-#: app/pages/episode.go:47
+#: app/pages/episode.go:48
 msgid "Mark this episode as unwatched"
 msgstr ""
 
-#: app/pages/episode.go:44
+#: app/pages/episode.go:45
 msgid "Mark this episode as watched"
 msgstr ""
 
-#: app/pages/movie.go:60
+#: app/pages/movie.go:64
 msgid "Mark this movie as unwatched"
 msgstr ""
 
-#: app/pages/movie.go:57
+#: app/pages/movie.go:61
 msgid "Mark this movie as watched"
+msgstr ""
+
+#: app/pages/episode.go:131
+msgid "Marked as unwatched"
+msgstr ""
+
+#: app/pages/episode.go:139
+msgid "Marked as watched"
 msgstr ""
 
 #: app/dialogs/preferences/general.go:18
 msgid "Maximum history length before dropping old entries."
 msgstr ""
 
-#: app/pages/movie.go:28
+#: app/pages/movie.go:30
 msgid "Movie"
 msgstr ""
 
-#: app/windows/main_content.go:214
+#: app/windows/main_content.go:236
 msgid "Navigate Back"
 msgstr ""
 
-#: app/windows/main_content.go:75
+#: app/windows/main_content.go:74
 msgid "Navigate to Home"
 msgstr ""
 
@@ -298,11 +322,11 @@ msgstr ""
 msgid "No Results Found"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:52
+#: app/dialogs/sources/sources.go:51
 msgid "No accounts configured."
 msgstr ""
 
-#: app/secrets/service_linux.go:51
+#: app/secrets/service_linux.go:31
 msgid ""
 "No secret service provider is available.\n"
 "\n"
@@ -311,7 +335,7 @@ msgid ""
 "Please install a secret service provider such as GNOME Keyring or KDE Wallet."
 msgstr ""
 
-#: app/components/player/settings.go:110
+#: app/components/player/settings.go:183
 msgid "None"
 msgstr ""
 
@@ -319,7 +343,7 @@ msgstr ""
 msgid "Not Found"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:173
+#: app/dialogs/sources/sources.go:175
 msgid "Not connected"
 msgstr ""
 
@@ -327,27 +351,31 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: app/dialogs/linking/linking.go:71
+#: app/dialogs/linking/linking.go:68
 msgid "Open Plex page"
+msgstr ""
+
+#: app/dialogs/preferences/player.go:14
+msgid "Open the player in fullscreen mode by default."
 msgstr ""
 
 #: app/dialogs/preferences/performance.go:55
 msgid "Performance"
 msgstr ""
 
-#: app/pages/episode.go:38
+#: app/pages/episode.go:39
 msgid "Play"
 msgstr ""
 
-#: app/pages/episode.go:66
+#: app/pages/episode.go:74
 msgid "Play this episode"
 msgstr ""
 
-#: app/pages/movie.go:79
+#: app/pages/movie.go:85
 msgid "Play this movie"
 msgstr ""
 
-#: app/dialogs/preferences/player.go:8
+#: app/dialogs/preferences/player.go:30
 msgid "Player"
 msgstr ""
 
@@ -355,7 +383,7 @@ msgstr ""
 msgid "Preferences"
 msgstr ""
 
-#: app/components/player/settings.go:146
+#: app/components/player/settings.go:223
 msgid "Quality"
 msgstr ""
 
@@ -363,7 +391,11 @@ msgstr ""
 msgid "Quit"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:32
+#: app/pages/search.go:24
+msgid "Recently Added"
+msgstr ""
+
+#: app/dialogs/sources/sources.go:31
 msgid "Refresh Servers"
 msgstr ""
 
@@ -371,7 +403,7 @@ msgstr ""
 msgid "Resolution"
 msgstr ""
 
-#: app/dialogs/linking/linking.go:56
+#: app/dialogs/linking/linking.go:53
 msgid "Scan this QR code to sign into your Plex account."
 msgstr ""
 
@@ -387,27 +419,27 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: app/pages/season.go:23
+#: app/pages/season.go:26
 msgid "Season"
 msgstr ""
 
-#: app/pages/show.go:68
+#: app/pages/show.go:116
 msgid "Seasons"
 msgstr ""
 
-#: app/secrets/service_linux.go:34
+#: app/secrets/service_linux.go:45
 msgid "Secret Service Error"
 msgstr ""
 
-#: app/secrets/service_linux.go:58
+#: app/secrets/service_linux.go:38
 msgid "Secret Service Issue"
 msgstr ""
 
-#: app/secrets/service_linux.go:50
+#: app/secrets/service_linux.go:30
 msgid "Secret Service Unavailable"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:20
+#: app/dialogs/sources/sources.go:19
 msgid "Select Sources"
 msgstr ""
 
@@ -415,11 +447,11 @@ msgstr ""
 msgid "Show the Watchlist tab in the navigation bar."
 msgstr ""
 
-#: app/dialogs/linking/linking.go:56
+#: app/dialogs/linking/linking.go:53
 msgid "Sign In"
 msgstr ""
 
-#: app/dialogs/sources/sources.go:94
+#: app/dialogs/sources/sources.go:93
 msgid "Sign Out"
 msgstr ""
 
@@ -431,15 +463,19 @@ msgstr ""
 msgid "Signed in to Plex"
 msgstr ""
 
+#: app/dialogs/preferences/player.go:13
+msgid "Start in Fullscreen"
+msgstr ""
+
 #: app/pages/search/search.go:13
 msgid "Start typing in the search bar to search for movies, shows, and more."
 msgstr ""
 
-#: app/components/player/settings.go:150
+#: app/components/player/settings.go:227
 msgid "Subtitles"
 msgstr ""
 
-#: app/pages/show.go:24
+#: app/pages/show.go:28
 msgid "TV Show"
 msgstr ""
 
@@ -456,7 +492,15 @@ msgstr ""
 msgid "The requested deeplink did not have any available handlers."
 msgstr ""
 
-#: app/dialogs/preferences/experimental.go:30
+#: app/pages/search.go:20
+msgid "Title (A-Z)"
+msgstr ""
+
+#: app/pages/search.go:21
+msgid "Title (Z-A)"
+msgstr ""
+
+#: app/dialogs/preferences/experimental.go:27
 msgid "Toggle experimental features. These may be incomplete or unstable."
 msgstr ""
 
@@ -471,6 +515,14 @@ msgid ""
 "Error Message: "
 msgstr ""
 
+#: app/pages/cast.go:93
+msgid "Unknown Actor"
+msgstr ""
+
+#: app/dialogs/sources/sources.go:172
+msgid "Unreachable"
+msgstr ""
+
 #: app/components/cards/media_info.go:40
 msgid "Video"
 msgstr ""
@@ -479,7 +531,7 @@ msgstr ""
 msgid "View All"
 msgstr ""
 
-#: app/pages/watchlist.go:14
+#: app/pages/watchlist.go:26
 msgid "Watchlist"
 msgstr ""
 
@@ -487,15 +539,19 @@ msgstr ""
 msgid "Welcome to Scanline"
 msgstr ""
 
-#: app/pages/watchlist.go:18
-msgid "Work in progress."
+#: app/pages/search.go:22
+msgid "Year (Newest)"
 msgstr ""
 
-#: app/dialogs/linking/linking.go:26
+#: app/pages/search.go:23
+msgid "Year (Oldest)"
+msgstr ""
+
+#: app/dialogs/linking/linking.go:23
 msgid "You can also open the linking page using the button below."
 msgstr ""
 
-#: app/secrets/service_linux.go:59
+#: app/secrets/service_linux.go:39
 msgid ""
 "Your secret service provider was found, but refused to interact with Scanline.\n"
 "\n"
@@ -504,7 +560,11 @@ msgid ""
 "Scanline will not be able to store any authentication-related data and you will not be able to sign in."
 msgstr ""
 
-#: app/dialogs/about/about.go:128
+#: app/pages/watchlist.go:35
+msgid "Your watchlist is empty."
+msgstr ""
+
+#: app/dialogs/about/about.go:124
 msgid "translator-credits"
 msgstr ""
 

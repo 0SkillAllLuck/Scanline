@@ -110,6 +110,12 @@
             <description
             >Whether the player should automatically skip credits when they begin playing</description>
         </key>
+        <key name="auto-skip-intro" type="b">
+            <default>false</default>
+            <summary>Auto Skip Intro</summary>
+            <description
+            >Whether the player should automatically skip the intro when it begins playing</description>
+        </key>
     </schema>
 
 </schemalist>
