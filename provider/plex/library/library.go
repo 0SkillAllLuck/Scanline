@@ -343,12 +343,22 @@ type Part struct {
 	Stream []Stream `json:"Stream,omitempty"`
 }
 
+// Plex stream-type discriminators returned in Stream.StreamType.
+const (
+	StreamTypeVideo    = 1
+	StreamTypeAudio    = 2
+	StreamTypeSubtitle = 3
+)
+
 // Stream represents an individual media stream (video, audio, subtitle).
 type Stream struct {
 	// ID is the unique identifier for this stream.
 	ID int `json:"id"`
 
-	// StreamType indicates the stream type (1=video, 2=audio, 3=subtitle).
+	// Key is present for server-managed streams such as external subtitles.
+	Key string `json:"key,omitempty"`
+
+	// StreamType indicates the stream type. See StreamTypeVideo / Audio / Subtitle.
 	StreamType int `json:"streamType"`
 
 	// Codec is the codec name.
@@ -404,6 +414,9 @@ type Stream struct {
 
 	// Forced indicates if this is a forced subtitle stream.
 	Forced bool `json:"forced,omitempty"`
+
+	// External indicates that this stream is stored outside the media container.
+	External bool `json:"external,omitempty"`
 }
 
 // Tag represents a metadata tag (genre, director, actor, etc.).

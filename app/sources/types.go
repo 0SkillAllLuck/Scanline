@@ -20,6 +20,12 @@ type Metadata = library.Metadata
 type Media = library.Media
 type Part = library.Part
 type Stream = library.Stream
+
+const (
+	StreamTypeVideo    = library.StreamTypeVideo
+	StreamTypeAudio    = library.StreamTypeAudio
+	StreamTypeSubtitle = library.StreamTypeSubtitle
+)
 type Tag = library.Tag
 type Rating = library.Rating
 type Ratings = library.Ratings

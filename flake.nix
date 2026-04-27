@@ -44,6 +44,7 @@
               gst-plugins-good
               gst-plugins-bad
               gst-plugins-ugly
+              gst-plugins-rs
               gst-libav
             ]
           );
@@ -68,6 +69,7 @@
               gst_all_1.gst-plugins-good
               gst_all_1.gst-plugins-bad
               gst_all_1.gst-plugins-ugly
+              gst_all_1.gst-plugins-rs
               gst_all_1.gst-libav
               pkg-config # Needed for the first compile with CGO
               sass
@@ -81,7 +83,7 @@
           pname = "scanline";
           version = "0.4.0";
           src = pkgs.lib.cleanSource ./.;
-          vendorHash = "sha256-1s5fUO5xXY6q0tYBDgxwhhH4oQ5oYsnpnGH/54Eq4Ik=";
+          vendorHash = "sha256-VCILJElIVjGr3mZZvDcgA/HaEYFsDY272mv2+tFnZyY=";
 
           ldflags = [
             "-X \"github.com/0skillallluck/scanline/app/dialogs/about.Commit=${
@@ -97,6 +99,7 @@
             gst_all_1.gst-plugins-good
             gst_all_1.gst-plugins-bad
             gst_all_1.gst-plugins-ugly
+            gst_all_1.gst-plugins-rs
             gst_all_1.gst-libav
             libsecret
           ];

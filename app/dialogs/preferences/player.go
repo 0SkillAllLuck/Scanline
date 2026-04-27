@@ -14,10 +14,6 @@ var playerPreferences = PreferencesPage(
 			Subtitle(gettext.Get("Open the player in fullscreen mode by default.")).
 			ConnectConstruct(func(sr *adw.SwitchRow) {
 				preference.Experimental().BindStartInFullscreen(&sr.Object, "active")
-				sr.SetVisible(preference.Experimental().EnableWindowedPlayer())
-				preference.Experimental().OnEnableWindowedPlayerChanged(func() {
-					sr.SetVisible(preference.Experimental().EnableWindowedPlayer())
-				})
 			}),
-	).Title(gettext.Get("Windowed Player")),
+	).Title(gettext.Get("Player")),
 ).Title(gettext.Get("Player")).IconName("play")
