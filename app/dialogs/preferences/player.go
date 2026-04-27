@@ -16,6 +16,12 @@ var playerPreferences = PreferencesPage(
 				preference.Experimental().BindStartInFullscreen(&sr.Object, "active")
 			}),
 		SwitchRow().
+			Title(gettext.Get("Auto Skip Intro")).
+			Subtitle(gettext.Get("Automatically skip the intro when it begins playing.")).
+			ConnectConstruct(func(sr *adw.SwitchRow) {
+				preference.Experimental().BindAutoSkipIntro(&sr.Object, "active")
+			}),
+		SwitchRow().
 			Title(gettext.Get("Auto Skip Credits")).
 			Subtitle(gettext.Get("Automatically skip the credits when they begin playing.")).
 			ConnectConstruct(func(sr *adw.SwitchRow) {

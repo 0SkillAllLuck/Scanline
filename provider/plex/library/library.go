@@ -253,12 +253,18 @@ type Metadata struct {
 	Marker []Marker `json:"Marker,omitempty"`
 }
 
+// Marker type values returned by the Plex /library/metadata endpoint.
+const (
+	MarkerTypeCredits = "credits"
+	MarkerTypeIntro   = "intro"
+)
+
 // Marker represents a chapter marker (credits, intro, etc.) for a media item.
 type Marker struct {
 	// ID is the unique identifier for this marker.
 	ID int `json:"id"`
 
-	// Type is the marker type ("credits", "intro").
+	// Type is the marker type — one of the MarkerType* constants.
 	Type string `json:"type"`
 
 	// Final indicates whether this is the last marker of its type.
@@ -452,10 +458,6 @@ type librarySectionsContainer struct {
 type metadataContainer struct {
 	mediaContainer
 	Metadata []Metadata `json:"Metadata"`
-}
-
-type markerContainer struct {
-	Marker []Marker `json:"Marker"`
 }
 
 type mediaContainerResponse[T any] struct {

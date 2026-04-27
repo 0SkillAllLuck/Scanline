@@ -32,6 +32,11 @@ type Ratings = library.Ratings
 type LibrarySection = library.LibrarySection
 type ContentOptions = library.ContentOptions
 type Marker = library.Marker
+
+const (
+	MarkerTypeCredits = library.MarkerTypeCredits
+	MarkerTypeIntro   = library.MarkerTypeIntro
+)
 type Hub = hubs.Hub
 type TranscodeParams = plex.TranscodeParams
 type PlaybackState = timeline.PlaybackState
