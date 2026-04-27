@@ -30,17 +30,31 @@ var qualityPresets = []qualityPreset{
 }
 
 type settingsState struct {
-	params            PlayerParams
-	source            sources.Source
-	sessionID         string
-	partID            int
-	audioStreamIDs    []int // dropdown index → Stream.ID
-	subtitleStreamIDs []int // index 0 = "None" (ID 0), rest from metadata
+	params                        PlayerParams
+	ctx                           context.Context
+	source                        sources.Source
+	sessionID                     string
+	partID                        int
+	audioStreamIDs                []int  // dropdown index → Stream.ID
+	subtitleStreamIDs             []int  // index 0 = "None" (ID 0), rest from metadata
+	subtitleManagedPlaybackNeeded []bool // aligned with subtitleStreamIDs
+}
+
+type initialStreamSelection struct {
+	AudioIdx    int
+	SubtitleIdx int
 }
 
 // transcodeParams builds TranscodeParams from UI selections.
 // Returns nil if direct play should be used instead.
+//
+// Triggers for transcoding: a non-original video quality preset, a
+// non-default audio track, or a server-managed subtitle track that direct
+// play cannot see (external/sidecar subtitles). When a transcode IS happening,
+// the chosen subtitle has to be carried into the session — Plex burns or muxes
+// subtitles server-side based on SubtitleStreamID.
 func (s *settingsState) transcodeParams(qualityIdx, audioIdx, subtitleIdx int) *sources.TranscodeParams {
+	qualityIdx = normalizeQualityIndex(qualityIdx)
 	preset := qualityPresets[qualityIdx]
 	audioID := 0
 	if audioIdx >= 0 && audioIdx < len(s.audioStreamIDs) {
@@ -51,10 +65,7 @@ func (s *settingsState) transcodeParams(qualityIdx, audioIdx, subtitleIdx int) *
 		subtitleID = s.subtitleStreamIDs[subtitleIdx]
 	}
 
-	// Raw direct play cannot reliably control soft subtitle tracks in GTK/GStreamer.
-	// Once subtitle options exist, keep playback on the Plex-managed path so "None"
-	// actually disables subtitles instead of falling back to the container default.
-	if preset.DirectPlay && audioIdx == 0 && subtitleID == 0 && len(s.subtitleStreamIDs) == 1 {
+	if preset.DirectPlay && audioIdx <= 0 && !s.subtitleRequiresManagedPlayback(subtitleIdx) {
 		return nil
 	}
 
@@ -68,6 +79,32 @@ func (s *settingsState) transcodeParams(qualityIdx, audioIdx, subtitleIdx int) *
 		SubtitleStreamID:          subtitleID,
 		SubtitleSelectionExplicit: len(s.subtitleStreamIDs) > 1,
 	}
+}
+
+func (s *settingsState) subtitleRequiresManagedPlayback(subtitleIdx int) bool {
+	if subtitleIdx < 0 || subtitleIdx >= len(s.subtitleManagedPlaybackNeeded) {
+		return false
+	}
+	return s.subtitleManagedPlaybackNeeded[subtitleIdx]
+}
+
+func streamRequiresManagedPlayback(stream sources.Stream) bool {
+	return stream.StreamType == sources.StreamTypeSubtitle && (stream.External || stream.Key != "")
+}
+
+func normalizeQualityIndex(idx int) int {
+	if idx < 0 || idx >= len(qualityPresets) {
+		return 0
+	}
+	return idx
+}
+
+func selectedDropDownIndex(dd *gtk.DropDown) int {
+	selected := dd.GetSelected()
+	if selected == gtk.INVALID_LIST_POSITION {
+		return -1
+	}
+	return int(selected)
 }
 
 func streamLabel(stream sources.Stream, index int) string {
@@ -87,13 +124,34 @@ func resumeOffsetSeconds(timestampMicroseconds int64) int {
 	return int(timestampMicroseconds / 1000000)
 }
 
+// buildSettingsPopover constructs the in-player settings popover (quality,
+// audio, subtitles).
+//
+// Returns the popover and the dropdown's initial stream indices so the caller
+// can apply them to the player core once that's available — SetSelected on the
+// dropdown is a no-op when the value doesn't actually change, so the
+// notify::selected signal does NOT fire on first paint, and we'd otherwise drift
+// out of sync with whatever default streams playbin3 picks.
+//
+// Index convention: -1 == "None" (subtitle rendering off); 0+ is the Nth
+// text stream.
+//
+// Index ordering assumption: Plex returns container streams in declaration
+// order, and playbin3's MessageStreamCollection enumerates them in the same
+// order. So the dropdown's "first subtitle" lines up with playbin3 stream
+// index 0. If Plex ever rearranges (e.g. to put the user-selected stream
+// first), this mapping breaks and we'd need to match by language tag.
 func buildSettingsPopover(
 	params PlayerParams,
 	src sources.Source,
 	sessionID string,
+	ctx context.Context,
 	currentPosition func() int64,
+	transcodeActive func() bool,
 	onChanged func(newURL string, transcodeParams *sources.TranscodeParams),
-) *gtk.Popover {
+	onAudioChanged func(audioStreamIdx int),
+	onSubtitleChanged func(textStreamIdx int),
+) (*gtk.Popover, initialStreamSelection) {
 	streams := params.Media[0].Part[0].Stream
 
 	// Build quality labels
@@ -102,45 +160,51 @@ func buildSettingsPopover(
 		qualityLabels[i] = p.Label
 	}
 
-	// Build audio stream labels and IDs
+	// Audio dropdown: indices 0+ are audio streams in declaration order.
+	// selectedAudio stays at 0 if no stream is marked Selected, which falls
+	// back to the first audio stream — Plex's universal default.
 	var audioLabels []string
 	var audioStreamIDs []int
 	var selectedAudio uint32
-	var audioIdx uint32
 	for i, s := range streams {
-		if s.StreamType == 2 { // audio
-			audioLabels = append(audioLabels, streamLabel(s, i))
-			audioStreamIDs = append(audioStreamIDs, s.ID)
-			if s.Selected {
-				selectedAudio = audioIdx
-			}
-			audioIdx++
+		if s.StreamType != sources.StreamTypeAudio {
+			continue
+		}
+		audioStreamIDs = append(audioStreamIDs, s.ID)
+		audioLabels = append(audioLabels, streamLabel(s, i))
+		if s.Selected {
+			selectedAudio = uint32(len(audioLabels) - 1)
 		}
 	}
 
-	// Build subtitle stream labels and IDs ("None" + subtitle streams)
+	// Subtitle dropdown: index 0 is "None" (sentinel ID 0), indices 1+ are
+	// subtitle streams in declaration order. selectedSubtitle stays at 0 if
+	// no stream is marked Selected, leaving "None" as the safe fallback.
 	subtitleLabels := []string{gettext.Get("None")}
 	subtitleStreamIDs := []int{0}
+	subtitleManagedPlaybackNeeded := []bool{false}
 	var selectedSubtitle uint32
-	var subtitleIdx uint32
 	for i, s := range streams {
-		if s.StreamType == 3 { // subtitle
-			subtitleLabels = append(subtitleLabels, streamLabel(s, i))
-			subtitleStreamIDs = append(subtitleStreamIDs, s.ID)
-			subtitleIdx++
-			if s.Selected {
-				selectedSubtitle = subtitleIdx
-			}
+		if s.StreamType != sources.StreamTypeSubtitle {
+			continue
+		}
+		subtitleStreamIDs = append(subtitleStreamIDs, s.ID)
+		subtitleManagedPlaybackNeeded = append(subtitleManagedPlaybackNeeded, streamRequiresManagedPlayback(s))
+		subtitleLabels = append(subtitleLabels, streamLabel(s, i))
+		if s.Selected {
+			selectedSubtitle = uint32(len(subtitleLabels) - 1)
 		}
 	}
 
 	state := &settingsState{
-		params:            params,
-		source:            src,
-		sessionID:         sessionID,
-		partID:            params.Media[0].Part[0].ID,
-		audioStreamIDs:    audioStreamIDs,
-		subtitleStreamIDs: subtitleStreamIDs,
+		params:                        params,
+		ctx:                           ctx,
+		source:                        src,
+		sessionID:                     sessionID,
+		partID:                        params.Media[0].Part[0].ID,
+		audioStreamIDs:                audioStreamIDs,
+		subtitleStreamIDs:             subtitleStreamIDs,
+		subtitleManagedPlaybackNeeded: subtitleManagedPlaybackNeeded,
 	}
 
 	qualityDD := gtk.NewDropDownFromStrings(qualityLabels)
@@ -166,22 +230,37 @@ func buildSettingsPopover(
 
 	popover := Popover(content)
 	rawPopover := popover()
+	// GtkDropDown opens its own internal popover for the picker. When that
+	// inner popover closes — whether by selection or by escape/click-outside
+	// — GTK4 doesn't reliably hand the autohide grab back to this outer
+	// popover, leaving it dismissible only via ESC. cascade-popdown closes
+	// this popover whenever a child popover is dismissed, which sidesteps
+	// the broken grab handling and matches the "I'm done picking" mental
+	// model the user expects.
+	rawPopover.SetCascadePopdown(true)
 
-	fireChange := func() { //nolint:staticcheck // SA4006 - used in closure
+	// fireStreamSwitch handles quality/audio changes. These genuinely require
+	// reopening the stream (a transcode session change or a direct-play swap
+	// to pick up the new audio track), so we close the popover and rebuild
+	// the URL.
+	fireStreamSwitch := func() {
 		rawPopover.Popdown()
 
-		qi := int(qualityDD.GetSelected())
-		ai := int(audioDD.GetSelected())
-		si := int(subtitleDD.GetSelected())
+		qi := normalizeQualityIndex(selectedDropDownIndex(qualityDD))
+		ai := selectedDropDownIndex(audioDD)
+		si := selectedDropDownIndex(subtitleDD)
+		if si < 0 {
+			si = 0
+		}
 		slog.Debug("player settings changed",
 			"quality", qualityPresets[qi].Label,
 			"audioIdx", ai,
 			"subtitleIdx", si,
 		)
 
-		params := state.transcodeParams(qi, ai, si)
-		if params != nil {
-			params.Offset = resumeOffsetSeconds(currentPosition())
+		tcParams := state.transcodeParams(qi, ai, si)
+		if tcParams != nil {
+			tcParams.Offset = resumeOffsetSeconds(currentPosition())
 		}
 		go func() {
 			audioID := 0
@@ -202,39 +281,107 @@ func buildSettingsPopover(
 			}
 
 			if state.partID > 0 {
-				if err := state.source.SelectStreams(context.Background(), state.partID, selection); err != nil {
+				if err := state.source.SelectStreams(state.ctx, state.partID, selection); err != nil {
 					slog.Warn("player: saving stream selection failed", "error", err)
 				}
 			}
 
-			if params == nil {
+			if tcParams == nil {
 				schwifty.OnMainThreadOncePure(func() {
+					if onAudioChanged != nil {
+						onAudioChanged(ai)
+					}
+					if onSubtitleChanged != nil {
+						onSubtitleChanged(si - 1)
+					}
 					onChanged(state.source.StreamURL(state.params.PartKey), nil)
 				})
 				return
 			}
 
-			q := state.source.BuildTranscodeQuery(*params)
+			q := state.source.BuildTranscodeQuery(*tcParams)
 			startURL := state.source.TranscodeStartURL(q)
-			if err := state.source.MakeTranscodeDecision(context.Background(), q); err != nil {
+			if err := state.source.MakeTranscodeDecision(state.ctx, q); err != nil {
 				slog.Error("player: decision call failed", "error", err)
 				return
 			}
 			schwifty.OnMainThreadOncePure(func() {
-				onChanged(startURL, params)
+				onChanged(startURL, tcParams)
 			})
 		}()
 	}
 
+	// fireSubtitleChange handles subtitle dropdown changes without restarting
+	// the stream. It calls into the player's text-stream selector (which maps
+	// to playbin3's select-streams event) and persists the selection to Plex
+	// so other clients pick it up.
+	//
+	// Closing the outer popover here is deliberate: when GtkDropDown opens
+	// its internal popover for the picker, GTK's nested-popover grab handling
+	// leaves the parent settings popover in a state where click-outside no
+	// longer dismisses it (only ESC does). Calling Popdown() on selection
+	// matches the quality/audio behaviour and side-steps the stuck-popover
+	// bug entirely.
+	//
+	// Dropdown index 0 is "None" (textStreamIdx = -1 disables text rendering);
+	// indices 1+ correspond to the Nth text stream playbin3 sees, which lines
+	// up with the order Plex returns the subtitle metadata.
+	fireSubtitleChange := func() {
+		rawPopover.Popdown()
+
+		si := selectedDropDownIndex(subtitleDD)
+		if si < 0 {
+			si = 0
+		}
+		subtitleID := 0
+		if si >= 0 && si < len(state.subtitleStreamIDs) {
+			subtitleID = state.subtitleStreamIDs[si]
+		}
+
+		if onSubtitleChanged != nil {
+			onSubtitleChanged(si - 1)
+		}
+
+		if len(state.subtitleStreamIDs) > 1 && state.partID > 0 {
+			selection := sources.StreamSelection{SubtitleStreamID: &subtitleID}
+			go func() {
+				if err := state.source.SelectStreams(state.ctx, state.partID, selection); err != nil {
+					slog.Warn("player: saving subtitle selection failed", "error", err)
+				}
+			}()
+		}
+	}
+
 	qualityDD.ConnectSignal("notify::selected", new(func() {
-		fireChange()
+		fireStreamSwitch()
 	}))
 	audioDD.ConnectSignal("notify::selected", new(func() {
-		fireChange()
+		fireStreamSwitch()
 	}))
 	subtitleDD.ConnectSignal("notify::selected", new(func() {
-		fireChange()
+		// In direct play, playbin3 changes the text stream natively (cheap).
+		// In transcoded play, the active session was started with a specific
+		// SubtitleStreamID — Plex burns/muxes that subtitle server-side, so
+		// switching subtitles requires restarting the stream with the new pick.
+		// External/sidecar subtitles also need a managed stream because they
+		// don't exist in the direct-play media container.
+		si := selectedDropDownIndex(subtitleDD)
+		if si < 0 {
+			si = 0
+		}
+		if (transcodeActive != nil && transcodeActive()) || state.subtitleRequiresManagedPlayback(si) {
+			fireStreamSwitch()
+		} else {
+			fireSubtitleChange()
+		}
 	}))
 
-	return rawPopover
+	initialAudioIdx := -1
+	if len(audioLabels) > 0 {
+		initialAudioIdx = int(selectedAudio)
+	}
+	return rawPopover, initialStreamSelection{
+		AudioIdx:    initialAudioIdx,
+		SubtitleIdx: int(selectedSubtitle) - 1,
+	}
 }

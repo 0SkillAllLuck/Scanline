@@ -12,6 +12,16 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/codeberg.org/puregotk/puregotk/@v/v0.0.0-20260420231554-98419d54d2d2.zip
+- dest: vendor/github.com/go-gst/go-glib
+  sha256: 1c930b6f74dfee655c66a89d64d692a2ebcb704f367ffe18b91fa478ee0187b8
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/github.com/go-gst/go-glib/@v/v1.4.0.zip
+- dest: vendor/github.com/go-gst/go-gst
+  sha256: a3381352365982e90569400e47d0b39150aa89001e369cd410445f603a63f6ec
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/github.com/go-gst/go-gst/@v/v1.4.0.zip
 - dest: vendor/github.com/google/uuid
   sha256: d0f02f377217f42702e259684e06441edbf5140dddcc34ba9bea56038b38a6ed
   strip-components: 3
@@ -57,6 +67,11 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/github.com/golang/freetype/@v/v0.0.0-20170609003504-e2365dfdc4a0.zip
+- dest: vendor/github.com/mattn/go-pointer
+  sha256: 8206df6b68e3f40be943fb474f4c65a088332ae842763c4112a31b500350c849
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/github.com/mattn/go-pointer/@v/v0.0.1.zip
 - dest: vendor/github.com/pkg/errors
   sha256: d4c36b8bcd0616290a3913215e0f53b931bd6e00670596f2960df1b44af2bd07
   strip-components: 3
@@ -67,6 +82,11 @@
   strip-components: 3
   type: archive
   url: https://proxy.golang.org/github.com/yeqown/reedsolomon/@v/v1.0.0.zip
+- dest: vendor/golang.org/x/exp
+  sha256: 447a436882177a2a9fc281116f1858d6e0533c790a90f55cf3a64f1cafb752c6
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/golang.org/x/exp/@v/v0.0.0-20240909161429-701f63a606c0.zip
 - dest: vendor/golang.org/x/image
   sha256: f494b7080958495072b8e2ea236a068983d97c41d4ee0ab268f282710e831469
   strip-components: 3

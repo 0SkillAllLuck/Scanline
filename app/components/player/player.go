@@ -4,19 +4,19 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"runtime"
+	"strings"
 	"sync/atomic"
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"codeberg.org/puregotk/puregotk/v4/adw"
 	"codeberg.org/puregotk/puregotk/v4/gdk"
-	"codeberg.org/puregotk/puregotk/v4/gio"
 	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
+	"github.com/go-gst/go-gst/gst"
 	"github.com/google/uuid"
 )
 
@@ -48,52 +48,38 @@ type PlayerParams struct {
 }
 
 // NewPlayer creates a video player with overlay controls.
-// When the windowed player preference is enabled, the player reuses the main
-// window instead of opening a separate fullscreen window.
+// The player reuses the application's main window — there is no separate
+// fullscreen modal. The user can still toggle fullscreen via the F/F11 key
+// or the dedicated button in the top bar.
 func NewPlayer(params PlayerParams) {
 	src := params.Source
 	sessionID := uuid.NewString()
 	ctx, ctxCancel := context.WithCancel(params.Ctx)
 	initialTranscodeParams := initialManagedPlaybackParams(params, sessionID)
 
-	windowed := preference.Experimental().EnableWindowedPlayer()
-
-	// In fullscreen mode we create a separate modal window.
-	// In windowed mode we reuse the existing main window.
-	var win *gtk.Window
-	// adwWin is used in windowed mode to call SetContent/GetContent,
-	// since AdwApplicationWindow does not support SetChild/GetChild.
-	var adwWin *adw.ApplicationWindow
-	if !windowed {
-		win = gtk.NewWindow()
-		win.SetTitle(params.Title)
-		win.SetTransientFor(params.Window)
-		win.SetModal(true)
-	} else {
-		win = params.Window
-		adwWin = &adw.ApplicationWindow{}
-		adwWin.SetGoPointer(win.GoPointer())
-	}
+	win := params.Window
+	adwWin := &adw.ApplicationWindow{}
+	adwWin.SetGoPointer(win.GoPointer())
 
 	// Hide parent window content so it can't show through the player.
-	// For AdwApplicationWindow (windowed mode) use GetContent; for plain
-	// gtk.Window (fullscreen mode) use GetChild.
-	var parentContent *gtk.Widget
-	if adwWin != nil {
-		parentContent = adwWin.GetContent()
-	} else {
-		parentContent = params.Window.GetChild()
-	}
+	parentContent := adwWin.GetContent()
 	if parentContent != nil {
 		parentContent.SetVisible(false)
 	}
 
-	// Create picture placeholder (media attached after decision resolves)
+	// Create picture placeholder (paintable attached once core is built).
 	picture := gtk.NewPicture()
 	picture.SetContentFit(gtk.ContentFitContainValue)
 	picture.SetHexpand(true)
 	picture.SetVexpand(true)
-	var media *gtk.MediaFile
+
+	// Wrap the picture (not the overlay) in GraphicsOffload so on Wayland
+	// GTK can hand the paintable's dmabuf textures directly to the
+	// compositor. Wrapping the overlay instead drives GraphicsOffload down
+	// the fast path with non-trivial children and hits snapshot-machinery
+	// assertions — which was the SIGSEGV the earlier attempt hit.
+	pictureOffload := gtk.NewGraphicsOffload(&picture.Widget)
+	pictureOffload.SetBlackBackground(true)
 
 	knownDurationUs := int64(0)
 	if len(params.Media) > 0 {
@@ -103,7 +89,6 @@ func NewPlayer(params PlayerParams) {
 			knownDurationUs = int64(params.Media[0].Part[0].Duration) * 1000
 		}
 	}
-	var streamBaseOffsetUs atomic.Int64
 
 	// --- Lifecycle guard ---
 	var closed atomic.Bool // set during cleanup; prevents late async mutations
@@ -111,22 +96,28 @@ func NewPlayer(params PlayerParams) {
 	// --- Progress reporting ---
 	var lastProgressUpdate atomic.Int64 // monotonic ms of last progress report
 
+	// pcore holds the playbin3 wrapper; built synchronously before any URI is set.
+	var pcore *core
+	// resumeOffsetUs is set on URI swaps so the OnAsyncDone callback can apply
+	// a one-shot seek (used by ViewOffset resume on the initial direct-play URI).
+	var resumeOffsetUs atomic.Int64
+
 	currentTimestampUs := func() int64 {
-		if media == nil {
-			return streamBaseOffsetUs.Load()
+		if pcore == nil {
+			return 0
 		}
-		return playbackTimestampUs(streamBaseOffsetUs.Load(), media.GetTimestamp())
+		return pcore.PositionUs()
 	}
 
 	currentDurationUs := func() int64 {
-		if media == nil {
+		if pcore == nil {
 			return knownDurationUs
 		}
-		return playbackDurationUs(knownDurationUs, streamBaseOffsetUs.Load(), media.GetDuration())
+		return pcore.DurationUs()
 	}
 
 	sendProgress := func(state sources.PlaybackState) {
-		if media == nil {
+		if pcore == nil {
 			return
 		}
 		ts := currentTimestampUs()
@@ -134,7 +125,7 @@ func NewPlayer(params PlayerParams) {
 		if dur <= 0 {
 			return
 		}
-		// GTK uses microseconds; Plex uses milliseconds
+		// playbin3 reports microseconds (via core); Plex wants milliseconds.
 		timeMs := int(ts / 1000)
 		durationMs := int(dur / 1000)
 		rk := params.RatingKey
@@ -151,8 +142,6 @@ func NewPlayer(params PlayerParams) {
 		button image { -gtk-icon-shadow: 0 1px 3px rgba(0,0,0,0.8); -gtk-icon-size: 24px; }`
 
 	// closePlayer tears down the player and restores the original window content.
-	// In fullscreen mode it closes the separate window (triggering close-request).
-	// In windowed mode it performs cleanup inline.
 	var closePlayer func()
 
 	// --- Top bar (fullscreen toggle + close) ---
@@ -164,62 +153,79 @@ func NewPlayer(params PlayerParams) {
 		WithCSSClass("circular").
 		CSS(controlBtnCSS).
 		ConnectClicked(func(b gtk.Button) {
-			if media != nil {
-				media.Pause()
+			if pcore != nil {
+				pcore.Pause()
 			}
-			closePlayer()
+			if closePlayer != nil {
+				closePlayer()
+			}
 		})
 
-	var topBarWidget *gtk.Widget
-	if windowed {
-		fullscreenToggle := Button().
-			IconName("view-fullscreen-symbolic").
-			TooltipText("Toggle fullscreen").
-			WithCSSClass("circular").
-			CSS(controlBtnCSS).
-			ConnectConstruct(func(b *gtk.Button) {
-				fullscreenBtn = b
-			}).
-			ConnectClicked(func(b gtk.Button) {
-				if win.IsFullscreen() {
-					win.Unfullscreen()
-					b.SetIconName("view-fullscreen-symbolic")
-				} else {
-					win.Fullscreen()
-					b.SetIconName("view-restore-symbolic")
-				}
-			})
-		topBarWidget = HStack(fullscreenToggle, Spacer(), closeBtnSchwifty).
-			HMargin(12).MarginTop(12).
-			HAlign(gtk.AlignFillValue).
-			VAlign(gtk.AlignStartValue).
-			ToGTK()
-	} else {
-		topBarWidget = HStack(Spacer(), closeBtnSchwifty).
-			HMargin(12).MarginTop(12).
-			HAlign(gtk.AlignFillValue).
-			VAlign(gtk.AlignStartValue).
-			ToGTK()
-	}
+	fullscreenToggle := Button().
+		IconName("view-fullscreen-symbolic").
+		TooltipText("Toggle fullscreen").
+		WithCSSClass("circular").
+		CSS(controlBtnCSS).
+		ConnectConstruct(func(b *gtk.Button) {
+			fullscreenBtn = b
+		}).
+		ConnectClicked(func(b gtk.Button) {
+			if win.IsFullscreen() {
+				win.Unfullscreen()
+				b.SetIconName("view-fullscreen-symbolic")
+			} else {
+				win.Fullscreen()
+				b.SetIconName("view-restore-symbolic")
+			}
+		})
+	topBarWidget := HStack(fullscreenToggle, Spacer(), closeBtnSchwifty).
+		HMargin(12).MarginTop(12).
+		HAlign(gtk.AlignFillValue).
+		VAlign(gtk.AlignStartValue).
+		ToGTK()
 
 	// --- Center playback controls ---
 	var playing atomic.Bool
 	var playPauseBtn *gtk.Button
 	var currentTranscodeParams *sources.TranscodeParams // nil = direct play
 
+	togglePlayPause := func() {
+		if pcore == nil {
+			return
+		}
+		if playing.Load() {
+			pcore.Pause()
+			playing.Store(false)
+			if playPauseBtn != nil {
+				playPauseBtn.SetIconName("media-playback-start-symbolic")
+			}
+			sendProgress(sources.StatePaused)
+		} else {
+			pcore.Play()
+			playing.Store(true)
+			if playPauseBtn != nil {
+				playPauseBtn.SetIconName("media-playback-pause-symbolic")
+			}
+			sendProgress(sources.StatePlaying)
+		}
+	}
+
 	// doSeek handles seeking in both direct play and transcoded modes
 	doSeek := func(targetMicroseconds int64) {
-		if media == nil {
+		if pcore == nil {
 			return
 		}
 
 		if currentTranscodeParams == nil {
-			// Direct play - simple seek
-			media.Seek(targetMicroseconds)
+			// Direct play — let playbin3 do an accurate seek inside the same
+			// stream. baseOffset stays at 0, so no offset bookkeeping needed.
+			pcore.SeekUs(targetMicroseconds)
 			return
 		}
 
-		// Transcoded mode - restart stream at new position
+		// Transcoded mode — Plex transcode segments cannot be seeked inside,
+		// so we restart the stream at the new offset and let core track the
+		// new baseOffset.
 		offsetSeconds := int(targetMicroseconds / 1000000)
 		tcParams := *currentTranscodeParams
 		tcParams.Offset = offsetSeconds
@@ -250,18 +256,11 @@ func NewPlayer(params PlayerParams) {
 			}
 			newURL := src.TranscodeStartURL(q)
 			schwifty.OnMainThreadOncePure(func() {
-				vol := media.GetVolume()
-				media.Pause()
-
-				newFile := gio.FileNewForUri(newURL)
-				newMedia := gtk.NewMediaFileForFile(newFile)
-				newMedia.SetMuted(false)
-				newMedia.SetVolume(vol)
-
-				picture.SetPaintable(&gdk.PaintableBase{Ptr: newMedia.GoPointer()})
-				streamBaseOffsetUs.Store(int64(tcParams.Offset) * 1000000)
-				media = newMedia
-				newMedia.Play()
+				if closed.Load() {
+					return
+				}
+				resumeOffsetUs.Store(0)
+				pcore.SetURI(newURL, int64(tcParams.Offset)*1000000)
 				playing.Store(true)
 				if playPauseBtn != nil {
 					playPauseBtn.SetIconName("media-playback-pause-symbolic")
@@ -280,7 +279,7 @@ func NewPlayer(params PlayerParams) {
 		WithCSSClass("circular").
 		CSS(centerBtnCSS).
 		ConnectClicked(func(b gtk.Button) {
-			if media == nil {
+			if pcore == nil {
 				return
 			}
 			ts := currentTimestampUs()
@@ -301,20 +300,7 @@ func NewPlayer(params PlayerParams) {
 			playPauseBtn = b
 		}).
 		ConnectClicked(func(b gtk.Button) {
-			if media == nil {
-				return
-			}
-			if playing.Load() {
-				media.Pause()
-				playing.Store(false)
-				b.SetIconName("media-playback-start-symbolic")
-				sendProgress(sources.StatePaused)
-			} else {
-				media.Play()
-				playing.Store(true)
-				b.SetIconName("media-playback-pause-symbolic")
-				sendProgress(sources.StatePlaying)
-			}
+			togglePlayPause()
 		})
 
 	skipFwdBtn := Button().
@@ -323,7 +309,7 @@ func NewPlayer(params PlayerParams) {
 		WithCSSClass("circular").
 		CSS(centerBtnCSS).
 		ConnectClicked(func(b gtk.Button) {
-			if media == nil {
+			if pcore == nil {
 				return
 			}
 			ts := currentTimestampUs()
@@ -360,16 +346,10 @@ func NewPlayer(params PlayerParams) {
 		Inverted(true).
 		SizeRequest(-1, 120).
 		ConnectChangeValue(func(r gtk.Range, st gtk.ScrollType, val float64) bool {
-			if media == nil {
+			if pcore == nil {
 				return false
 			}
-			if val < 0 {
-				val = 0
-			}
-			if val > 1 {
-				val = 1
-			}
-			media.SetVolume(val)
+			pcore.SetVolume(val)
 			return false
 		})
 
@@ -389,62 +369,60 @@ func NewPlayer(params PlayerParams) {
 
 	// --- Settings popover (quality, audio, subtitles) ---
 	var settingsPopover *gtk.Popover
+	// initialStreams contains the dropdown's starting stream indices. We apply
+	// them to pcore once that's built so playback matches the saved Plex
+	// selection — see comment on buildSettingsPopover.
+	initialStreams := initialStreamSelection{AudioIdx: -1, SubtitleIdx: -1}
 	if len(params.Media) > 0 && len(params.Media[0].Part) > 0 {
-		settingsPopover = buildSettingsPopover(
+		settingsPopover, initialStreams = buildSettingsPopover(
 			params,
 			src,
 			sessionID,
+			ctx,
 			func() int64 {
 				return currentTimestampUs()
 			},
+			func() bool {
+				return currentTranscodeParams != nil
+			},
 			func(newURL string, transcodeParams *sources.TranscodeParams) {
+				if closed.Load() || pcore == nil {
+					return
+				}
 				currentTranscodeParams = transcodeParams // Track current transcode state
-				slog.Debug("player: switching stream", "url", newURL, "transcoding", transcodeParams != nil)
+				slog.Debug("player: switching stream", "url", redactToken(newURL), "transcoding", transcodeParams != nil)
 
-				var seekPos int64
-				var vol float64
-				if media != nil {
-					seekPos = media.GetTimestamp()
-					vol = media.GetVolume()
-					media.Pause()
-				} else {
-					vol = 1.0
-				}
+				// Capture absolute position so we can resume across the URI swap
+				// (only meaningful for direct play; transcode resumes via Offset).
+				resumePosUs := currentTimestampUs()
+				pcore.Pause()
 
-				newFile := gio.FileNewForUri(newURL)
-				newMedia := gtk.NewMediaFileForFile(newFile)
-				newMedia.SetMuted(false)
-				newMedia.SetVolume(vol)
-
-				picture.SetPaintable(&gdk.PaintableBase{Ptr: newMedia.GoPointer()})
+				var baseOffsetUs int64
 				if transcodeParams != nil {
-					streamBaseOffsetUs.Store(int64(transcodeParams.Offset) * 1000000)
+					baseOffsetUs = int64(transcodeParams.Offset) * 1000000
+					resumeOffsetUs.Store(0)
+					pcore.SelectTextStreamByIndex(-1)
 				} else {
-					streamBaseOffsetUs.Store(0)
+					baseOffsetUs = 0
+					resumeOffsetUs.Store(resumePosUs)
 				}
-				media = newMedia
-
-				newMedia.Play()
+				pcore.SetURI(newURL, baseOffsetUs)
 				playing.Store(true)
 				if playPauseBtn != nil {
 					playPauseBtn.SetIconName("media-playback-pause-symbolic")
 				}
-
-				// Poll until stream is prepared, then seek to saved position (only for direct play)
-				if seekPos > 0 && transcodeParams == nil {
-					seekCb := glib.SourceFunc(func(uintptr) bool {
-						if err := media.GetError(); err != nil {
-							slog.Error("player: stream error after switch", "error", err.Error())
-							return false
-						}
-						if !media.IsPrepared() {
-							return true // keep polling
-						}
-						media.Seek(seekPos)
-						return false
-					})
-					glib.TimeoutAdd(200, &seekCb, 0)
+			},
+			func(audioIdx int) {
+				if pcore == nil {
+					return
 				}
+				pcore.SelectAudioStreamByIndex(audioIdx)
+			},
+			func(textIdx int) {
+				if pcore == nil {
+					return
+				}
+				pcore.SelectTextStreamByIndex(textIdx)
 			},
 		)
 	}
@@ -479,7 +457,7 @@ func NewPlayer(params PlayerParams) {
 			progressScale = s
 		}).
 		ConnectChangeValue(func(r gtk.Range, st gtk.ScrollType, val float64) bool {
-			if media == nil {
+			if pcore == nil {
 				return false
 			}
 			dur := currentDurationUs()
@@ -655,42 +633,23 @@ func NewPlayer(params PlayerParams) {
 			closePlayer()
 			return true
 		case uint32(gdk.KEY_f), uint32(gdk.KEY_F), uint32(gdk.KEY_F11):
-			if windowed {
-				if win.IsFullscreen() {
-					win.Unfullscreen()
-					if fullscreenBtn != nil {
-						fullscreenBtn.SetIconName("view-fullscreen-symbolic")
-					}
-				} else {
-					win.Fullscreen()
-					if fullscreenBtn != nil {
-						fullscreenBtn.SetIconName("view-restore-symbolic")
-					}
+			if win.IsFullscreen() {
+				win.Unfullscreen()
+				if fullscreenBtn != nil {
+					fullscreenBtn.SetIconName("view-fullscreen-symbolic")
+				}
+			} else {
+				win.Fullscreen()
+				if fullscreenBtn != nil {
+					fullscreenBtn.SetIconName("view-restore-symbolic")
 				}
 			}
 			return true
 		case uint32(gdk.KEY_space):
-			if media == nil {
-				return true
-			}
-			if playing.Load() {
-				media.Pause()
-				playing.Store(false)
-				if playPauseBtn != nil {
-					playPauseBtn.SetIconName("media-playback-start-symbolic")
-				}
-				sendProgress(sources.StatePaused)
-			} else {
-				media.Play()
-				playing.Store(true)
-				if playPauseBtn != nil {
-					playPauseBtn.SetIconName("media-playback-pause-symbolic")
-				}
-				sendProgress(sources.StatePlaying)
-			}
+			togglePlayPause()
 			return true
 		case uint32(gdk.KEY_Left):
-			if media == nil {
+			if pcore == nil {
 				return true
 			}
 			ts := currentTimestampUs()
@@ -698,7 +657,7 @@ func NewPlayer(params PlayerParams) {
 			doSeek(newTS)
 			return true
 		case uint32(gdk.KEY_Right):
-			if media == nil {
+			if pcore == nil {
 				return true
 			}
 			ts := currentTimestampUs()
@@ -710,24 +669,16 @@ func NewPlayer(params PlayerParams) {
 			doSeek(newTS)
 			return true
 		case uint32(gdk.KEY_Up):
-			if media == nil {
+			if pcore == nil {
 				return true
 			}
-			vol := media.GetVolume() + 0.05
-			if vol > 1 {
-				vol = 1
-			}
-			media.SetVolume(vol)
+			pcore.SetVolume(pcore.Volume() + 0.05)
 			return true
 		case uint32(gdk.KEY_Down):
-			if media == nil {
+			if pcore == nil {
 				return true
 			}
-			vol := media.GetVolume() - 0.05
-			if vol < 0 {
-				vol = 0
-			}
-			media.SetVolume(vol)
+			pcore.SetVolume(pcore.Volume() - 0.05)
 			return true
 		}
 		return false
@@ -735,19 +686,13 @@ func NewPlayer(params PlayerParams) {
 	keyCtrl.ConnectKeyPressed(&keyPressedCb)
 
 	// --- Position ticker ---
+	// Drives the progress scale, time labels, periodic UpdateProgress, and the
+	// next-episode button. End-of-stream is delivered separately by the core
+	// via OnEOS, so the ticker only needs to handle position/UI updates.
 	var tickerID atomic.Uint32
-	var audioLogged atomic.Bool
 	tickerCb := glib.SourceFunc(func(uintptr) bool {
-		if media == nil {
-			return true // keep polling, media not ready yet
-		}
-		// Log audio diagnostics once when media is prepared
-		if media.IsPrepared() && !audioLogged.Swap(true) {
-			slog.Debug("player: media state",
-				"hasAudio", media.HasAudio(),
-				"muted", media.GetMuted(),
-				"volume", media.GetVolume(),
-			)
+		if pcore == nil {
+			return true // keep polling, core not built yet
 		}
 		dur := currentDurationUs()
 		ts := currentTimestampUs()
@@ -794,23 +739,17 @@ func NewPlayer(params PlayerParams) {
 			}
 			// creditsMs == 0 means still resolving, don't show yet
 		}
-
-		// Auto-play next episode when stream ends, or close the player
-		if media.GetEnded() {
-			if playNextEpisode != nil {
-				playNextEpisode()
-				return false // stop ticker, player is being replaced
-			}
-			closePlayer()
-			return false
-		}
 		return true // G_SOURCE_CONTINUE
 	})
 	tid := glib.TimeoutAdd(500, &tickerCb, 0)
 	tickerID.Store(tid)
 
 	// --- Set up window ---
-	overlay := Overlay(&picture.Widget).
+	// The overlay base is the offload-wrapped picture, keeping the offload
+	// widget's child a single paintable leaf. Controls layer above via
+	// Overlay's secondary children; when the auto-hide timer drops them,
+	// GTK can re-engage compositor offload.
+	overlay := Overlay(&pictureOffload.Widget).
 		AddOverlay(topBarWidget).
 		AddOverlay(centerControlsWidget).
 		AddOverlay(bottomBarWidget)
@@ -820,26 +759,32 @@ func NewPlayer(params PlayerParams) {
 	overlayWidget := overlay.
 		Controller(&motionCtrl.EventController).
 		ToGTK()
-	offload := gtk.NewGraphicsOffload(overlayWidget)
-	offload.SetBlackBackground(true)
-	if adwWin != nil {
-		// Wrap in a WindowHandle so the window remains draggable even
-		// though the header bar has been replaced by the player overlay.
-		handle := gtk.NewWindowHandle()
-		handle.SetChild(&offload.Widget)
-		adwWin.SetContent(&handle.Widget)
-	} else {
-		win.SetChild(&offload.Widget)
-	}
+	// WindowHandle keeps the window draggable even though the header bar
+	// has been replaced by the player overlay.
+	handle := gtk.NewWindowHandle()
+	handle.SetChild(overlayWidget)
+	adwWin.SetContent(&handle.Widget)
 	win.AddController(&keyCtrl.EventController)
 
-	// cleanup performs common teardown for both modes.
-	// Final progress and scrobble reports run synchronously before
-	// context cancellation so they are not silently dropped.
-	cleanup := func() {
-		closed.Store(true)
-		if media != nil {
-			media.Pause()
+	// cleanup tears down the player. Order matters: stop timers first so
+	// the ticker can't race with pcore teardown; do the final progress
+	// reports synchronously while ctx is still alive; detach the paintable
+	// from the picture before NULL'ing the pipeline (otherwise snapshots
+	// hit a closing sink); ctxCancel() last so blocking HTTP can finish.
+	cleanup := func() bool {
+		if !closed.CompareAndSwap(false, true) {
+			return false
+		}
+		if id := tickerID.Load(); id != 0 {
+			glib.SourceRemove(id)
+			tickerID.Store(0)
+		}
+		if id := hideTimerID.Load(); id != 0 {
+			glib.SourceRemove(id)
+			hideTimerID.Store(0)
+		}
+		if pcore != nil {
+			pcore.Pause()
 			dur := currentDurationUs()
 			ts := currentTimestampUs()
 			if dur > 0 {
@@ -854,60 +799,135 @@ func NewPlayer(params PlayerParams) {
 					slog.Error("failed to scrobble", "error", err)
 				}
 			}
+			// Detach paintable before pcore.Close — otherwise the picture
+			// may snapshot a sink whose state is being freed (SIGSEGV in
+			// gdk_paintable_snapshot). A typed-nil PaintableBase passes a
+			// NULL pointer through to gtk_picture_set_paintable.
+			picture.SetPaintable((*gdk.PaintableBase)(nil))
+			pcore.Close()
 		}
 		ctxCancel()
-		if id := tickerID.Load(); id != 0 {
-			glib.SourceRemove(id)
-			tickerID.Store(0)
-		}
-		if id := hideTimerID.Load(); id != 0 {
-			glib.SourceRemove(id)
-			hideTimerID.Store(0)
-		}
+		return true
 	}
 
-	if windowed {
-		// Windowed mode: player lives inside the main window.
-		closePlayer = func() {
+	// Build the playbin3 wrapper before presenting the window so the
+	// picture already has a paintable when GTK measures content. The bus
+	// watch dispatches on the GLib main loop, so callbacks may touch UI
+	// state directly. paintableAttached guards a one-shot SetPaintable —
+	// snapshotting gtk4paintablesink before its first preroll has SIGSEGV'd
+	// in the past, so we wait for PAUSED before attaching.
+	var paintableAttached atomic.Bool
+	{
+		var coreErr error
+		pcore, coreErr = newCore(coreOptions{
+			OnError: func(err error) {
+				slog.Error("player: pipeline error", "error", err)
+				if closed.Load() {
+					return
+				}
+				if closePlayer != nil {
+					closePlayer()
+				}
+			},
+			OnEOS: func() {
+				if closed.Load() {
+					return
+				}
+				if playNextEpisode != nil {
+					playNextEpisode()
+					return
+				}
+				if closePlayer != nil {
+					closePlayer()
+				}
+			},
+			OnStateChange: func(state gst.State) {
+				slog.Debug("player: pipeline state", "state", state.String())
+				if pcore == nil || paintableAttached.Load() {
+					return
+				}
+				if state == gst.StatePaused || state == gst.StatePlaying {
+					if !paintableAttached.Swap(true) {
+						picture.SetPaintable(pcore.Paintable())
+					}
+				}
+			},
+			OnAsyncDone: func() {
+				if closed.Load() {
+					return
+				}
+				if target := resumeOffsetUs.Swap(0); target > 0 {
+					pcore.SeekUs(target)
+				}
+			},
+			OnBuffering: func(percent int) {
+				slog.Debug("player: buffering", "percent", percent)
+			},
+		})
+		if coreErr != nil {
+			slog.Error("player: failed to build playbin3 pipeline", "error", coreErr)
 			cleanup()
-			// Remove controllers we added from the widgets they were attached to.
 			win.RemoveController(&keyCtrl.EventController)
 			overlayWidget.RemoveController(&motionCtrl.EventController)
-			// Exit fullscreen if we toggled it
-			if win.IsFullscreen() {
-				win.Unfullscreen()
-			}
-			// Restore the original content
 			adwWin.SetContent(parentContent)
 			if parentContent != nil {
 				parentContent.SetVisible(true)
 			}
 			router.Refresh()
-		}
-		if preference.Experimental().StartInFullscreen() {
-			win.Fullscreen()
-		}
-		win.Present()
-	} else {
-		// Fullscreen mode: separate modal window.
-		closePlayer = func() {
-			win.Close()
+			return
 		}
 
-		closeRequestCb := func(w gtk.Window) bool {
-			cleanup()
-			if parentContent != nil {
-				parentContent.SetVisible(true)
+		// pcore now owns a paintable wrapper whose finalizer is disabled
+		// (see readPaintableProperty). If anything between here and the
+		// closePlayer wiring panics, close pcore on the main thread before
+		// re-raising so the paintable doesn't leak.
+		defer func() {
+			if r := recover(); r != nil {
+				if pcore != nil {
+					pcore.Close()
+				}
+				panic(r)
 			}
-			win.Destroy()
-			router.Refresh()
-			return true
-		}
-		win.ConnectCloseRequest(&closeRequestCb)
+		}()
 
-		win.Fullscreen()
-		win.Present()
+		pcore.SetKnownDurationUs(knownDurationUs)
+		if initialTranscodeParams == nil {
+			// Sync playbin with the dropdown's initial values. Without this,
+			// saved Plex audio/subtitle selections can disagree with the
+			// container defaults that direct play chooses. The actual
+			// select-streams event is deferred until StreamCollection arrives.
+			pcore.SelectAudioStreamByIndex(initialStreams.AudioIdx)
+			pcore.SelectTextStreamByIndex(initialStreams.SubtitleIdx)
+		} else {
+			// Server-managed subtitle playback burns/muxes the selected
+			// subtitle into the transcode output, so there is no local text
+			// stream to select.
+			pcore.SelectTextStreamByIndex(-1)
+		}
 	}
+
+	closePlayer = func() {
+		if !cleanup() {
+			return
+		}
+		// Remove controllers we added from the widgets they were attached to.
+		win.RemoveController(&keyCtrl.EventController)
+		overlayWidget.RemoveController(&motionCtrl.EventController)
+		// Exit fullscreen if we toggled it.
+		if win.IsFullscreen() {
+			win.Unfullscreen()
+		}
+		// Restore the original content.
+		adwWin.SetContent(parentContent)
+		if parentContent != nil {
+			parentContent.SetVisible(true)
+		}
+		router.Refresh()
+	}
+	if preference.Experimental().StartInFullscreen() {
+		win.Fullscreen()
+	}
+	win.Present()
 
 	// Resolve credits markers in the background for next-episode button timing
 	if params.NextEpisode != nil {
@@ -928,7 +948,11 @@ func NewPlayer(params PlayerParams) {
 		}()
 	}
 
-	// Resolve playback URL via decision endpoint, then start playback
+	// Resolve playback URL via decision endpoint, then start playback. Initial
+	// playback uses direct play unless the saved subtitle selection is
+	// server-managed (external/sidecar), in which case Plex has to prepare a
+	// transcode session because playbin cannot discover that subtitle in the
+	// media container.
 	go func() {
 		streamURL := ""
 		if initialTranscodeParams != nil {
@@ -946,47 +970,25 @@ func NewPlayer(params PlayerParams) {
 				return
 			}
 			currentTranscodeParams = initialTranscodeParams
+			baseOffsetUs := int64(0)
 			if initialTranscodeParams != nil {
-				streamBaseOffsetUs.Store(int64(initialTranscodeParams.Offset) * 1000000)
-			} else {
-				streamBaseOffsetUs.Store(0)
+				baseOffsetUs = int64(initialTranscodeParams.Offset) * 1000000
+				resumeOffsetUs.Store(0)
+			} else if params.ViewOffset > 0 {
+				// Defer the resume seek until ASYNC_DONE is observed by the
+				// core (avoids the polled IsPrepared loop the gtk.MediaFile
+				// path used to need).
+				resumeOffsetUs.Store(int64(params.ViewOffset) * 1000)
 			}
-			gioFile := gio.FileNewForUri(streamURL)
-			media = gtk.NewMediaFileForFile(gioFile)
-			media.SetMuted(false)
-			media.SetVolume(1.0)
-			picture.SetPaintable(&gdk.PaintableBase{Ptr: media.GoPointer()})
-			media.Play()
+			pcore.SetURI(streamURL, baseOffsetUs)
 			playing.Store(true)
 			if playPauseBtn != nil {
 				playPauseBtn.SetIconName("media-playback-pause-symbolic")
 			}
 			scheduleHide()
-
-			// Resume from saved position if ViewOffset is set
-			if params.ViewOffset > 0 && initialTranscodeParams == nil {
-				targetUs := int64(params.ViewOffset) * 1000 // ms to µs
-				seekCb := glib.SourceFunc(func(uintptr) bool {
-					if closed.Load() {
-						return false
-					}
-					if err := media.GetError(); err != nil {
-						slog.Error("player: stream error during resume seek", "error", err.Error())
-						return false
-					}
-					if !media.IsPrepared() {
-						return true // keep polling
-					}
-					doSeek(targetUs)
-					return false
-				})
-				glib.TimeoutAdd(200, &seekCb, 0)
-			}
 		})
 	}()
 
-	// Prevent GC from collecting closures that reference media
-	runtime.KeepAlive(media)
 }
 
 func formatMicroseconds(us int64) string {
@@ -1005,26 +1007,24 @@ func initialManagedPlaybackParams(params PlayerParams, sessionID string) *source
 		return nil
 	}
 
-	streams := params.Media[0].Part[0].Stream
-	hasSubtitleTracks := false
-	selectedSubtitleID := 0
 	selectedAudioID := 0
-
-	for _, stream := range streams {
+	selectedSubtitleID := 0
+	selectedSubtitleNeedsManagedPlayback := false
+	for _, stream := range params.Media[0].Part[0].Stream {
 		switch stream.StreamType {
-		case 2:
+		case sources.StreamTypeAudio:
 			if stream.Selected {
 				selectedAudioID = stream.ID
 			}
-		case 3:
-			hasSubtitleTracks = true
-			if stream.Selected {
+		case sources.StreamTypeSubtitle:
+			if stream.Selected && streamRequiresManagedPlayback(stream) {
 				selectedSubtitleID = stream.ID
+				selectedSubtitleNeedsManagedPlayback = true
 			}
 		}
 	}
 
-	if !hasSubtitleTracks {
+	if !selectedSubtitleNeedsManagedPlayback {
 		return nil
 	}
 
@@ -1039,24 +1039,47 @@ func initialManagedPlaybackParams(params PlayerParams, sessionID string) *source
 	}
 }
 
-func playbackTimestampUs(streamBaseOffsetUs, mediaTimestampUs int64) int64 {
-	if mediaTimestampUs < 0 {
-		return streamBaseOffsetUs
+// redactToken scrubs Plex authentication tokens out of strings before they
+// reach a log sink. Only the value of `X-Plex-Token` is redacted; other
+// query params (rating key, session ID) stay visible for correlation.
+func redactToken(s string) string {
+	const key = "X-Plex-Token="
+	const replacement = "REDACTED"
+	if !strings.Contains(s, key) {
+		return s
 	}
-	return streamBaseOffsetUs + mediaTimestampUs
+	var b strings.Builder
+	b.Grow(len(s))
+	rest := s
+	for {
+		i := strings.Index(rest, key)
+		if i < 0 {
+			b.WriteString(rest)
+			return b.String()
+		}
+		valStart := i + len(key)
+		valEnd := valStart
+		for valEnd < len(rest) && !isTokenTerminator(rest[valEnd]) {
+			valEnd++
+		}
+		b.WriteString(rest[:valStart])
+		b.WriteString(replacement)
+		// Advance past the original token value; do NOT rescan `REDACTED`,
+		// otherwise an empty original value would loop forever.
+		rest = rest[valEnd:]
+	}
 }
 
-func playbackDurationUs(knownDurationUs, streamBaseOffsetUs, mediaDurationUs int64) int64 {
-	if mediaDurationUs <= 0 {
-		return knownDurationUs
+// isTokenTerminator reports whether c marks the end of a Plex token value
+// across the contexts redactToken is called from: URL query strings (`&`,
+// `#`), shell-style log lines (whitespace), quoted error messages (`"`,
+// `'`), and angle-bracket-wrapped log fragments (`<`, `>`). Errs on the
+// side of stopping early — better to redact too little context than to
+// gobble up surrounding non-secret text.
+func isTokenTerminator(c byte) bool {
+	switch c {
+	case '&', '#', '"', '\'', '<', '>', ' ', '\t', '\n', '\r':
+		return true
 	}
-
-	candidate := mediaDurationUs + streamBaseOffsetUs
-	if candidate > knownDurationUs {
-		return candidate
-	}
-	if knownDurationUs > 0 {
-		return knownDurationUs
-	}
-	return mediaDurationUs
+	return false
 }
