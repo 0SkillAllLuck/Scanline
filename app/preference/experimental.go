@@ -28,3 +28,11 @@ func (e *ExperimentalSettings) BindStartInFullscreen(target *gobject.Object, pro
 func (e *ExperimentalSettings) StartInFullscreen() bool {
 	return e.settings.GetBoolean("start-in-fullscreen")
 }
+
+func (e *ExperimentalSettings) BindAutoSkipCredits(target *gobject.Object, property string) {
+	e.settings.Bind("auto-skip-credits", target, property, gio.GSettingsBindNoSensitivityValue)
+}
+
+func (e *ExperimentalSettings) AutoSkipCredits() bool {
+	return e.settings.GetBoolean("auto-skip-credits")
+}

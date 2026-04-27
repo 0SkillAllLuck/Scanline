@@ -104,6 +104,12 @@
       		<description
             >Whether the player should start in fullscreen mode</description>
        	</key>
+        <key name="auto-skip-credits" type="b">
+            <default>false</default>
+            <summary>Auto Skip Credits</summary>
+            <description
+            >Whether the player should automatically skip credits when they begin playing</description>
+        </key>
     </schema>
 
 </schemalist>
