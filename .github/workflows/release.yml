@@ -31,14 +31,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build
-        uses: flatpak/flatpak-github-actions/flatpak-builder@92ae9851ad316786193b1fd3f40c4b51eb5cb101 # v6.6
+        uses: flatpak/flatpak-github-actions/flatpak-builder@401fe28a8384095fc1531b9d320b292f0ee45adb # v6.7
         with:
           bundle: dev.skillless.Scanline.${{ matrix.target.arch }}.flatpak
           manifest-path: dev.skillless.Scanline.json
           arch: ${{ matrix.target.arch }}
           cache-key: flatpak-builder-${{ matrix.target.arch }}-${{ github.sha }}
       - name: Upload Bundle
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dev.skillless.Scanline.${{ matrix.target.arch }}.flatpak
           path: dev.skillless.Scanline.${{ matrix.target.arch }}.flatpak
@@ -81,7 +81,7 @@ jobs:
             echo "RELEASE_NOTES_EOF"
           } >> "$GITHUB_OUTPUT"
       - name: Create Release
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           body: ${{ steps.notes.outputs.body }}
           files: '*.flatpak'
