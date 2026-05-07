@@ -13,6 +13,7 @@ import (
 	"github.com/0skillallluck/scanline/app/dialogs/shortcuts"
 	"github.com/0skillallluck/scanline/app/dialogs/sources"
 	"github.com/0skillallluck/scanline/app/router"
+	"github.com/0skillallluck/scanline/internal/accels"
 )
 
 // installAppActions installs actions that live for the entire app lifecycle:
@@ -31,28 +32,28 @@ func (w *Window) installAppActions() {
 		preferences.NewPreferencesDialog().Present(w)
 	}))
 	w.GetApplication().Application.AddAction(preferencesAction)
-	w.GetApplication().SetAccelsForAction("app.preferences", []string{"<Control>comma"})
+	w.GetApplication().SetAccelsForAction("app.preferences", []string{accels.PrimaryMod + "comma"})
 
 	shortcutsAction := gio.NewSimpleAction("shortcuts", nil)
 	shortcutsAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
 		shortcuts.NewShortcutsDialog().Present(w)
 	}))
 	w.GetApplication().Application.AddAction(shortcutsAction)
-	w.GetApplication().SetAccelsForAction("app.shortcuts", []string{"<Control>question"})
+	w.GetApplication().SetAccelsForAction("app.shortcuts", []string{accels.PrimaryMod + "question"})
 
 	quitAction := gio.NewSimpleAction("quit", nil)
 	quitAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
 		w.GetApplication().Quit()
 	}))
 	w.GetApplication().Application.AddAction(quitAction)
-	w.GetApplication().SetAccelsForAction("app.quit", []string{"<Ctrl>q"})
+	w.GetApplication().SetAccelsForAction("app.quit", []string{accels.PrimaryMod + "q"})
 
 	closeAction := gio.NewSimpleAction("close", nil)
 	closeAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
 		w.Close()
 	}))
 	w.AddAction(closeAction)
-	w.GetApplication().SetAccelsForAction("win.close", []string{"<Ctrl>w"})
+	w.GetApplication().SetAccelsForAction("win.close", []string{accels.PrimaryMod + "w"})
 }
 
 // installWindowActions installs actions that only make sense when main content is shown:
@@ -80,7 +81,7 @@ func (w *Window) installWindowActions() {
 		}
 	}))
 	w.AddAction(searchAction)
-	w.GetApplication().SetAccelsForAction("win.search", []string{"<Ctrl>f"})
+	w.GetApplication().SetAccelsForAction("win.search", []string{accels.PrimaryMod + "f"})
 
 	routeMovieAction := gio.NewSimpleAction("route.movie", glib.NewVariantType("s"))
 	routeMovieAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {

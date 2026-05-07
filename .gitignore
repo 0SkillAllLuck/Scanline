@@ -38,3 +38,6 @@ style.css
 style.css.map
 
 scanline
+
+# macOS
+.DS_Store
