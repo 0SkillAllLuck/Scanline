@@ -14,7 +14,26 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        # Workaround for libfyaml-0.9.6 in nixpkgs: the shipped libfyaml.pc
+        # contains a stray "none required" token in Libs: (an autoconf
+        # AC_SEARCH_LIBS artifact leaked from libfyaml.pc.in). Every consumer
+        # that runs `pkg-config --libs libfyaml` inherits it, and on Darwin
+        # clang treats "none" and "required" as missing input files, so any
+        # downstream build (e.g. appstream, transitively libadwaita) fails to
+        # link. Strip the bad token from the .pc file at fixup time.
+        libfyamlPcFix = final: prev: {
+          libfyaml = prev.libfyaml.overrideAttrs (old: {
+            postFixup = (old.postFixup or "") + ''
+              for pc in "$dev"/lib/pkgconfig/*.pc; do
+                substituteInPlace "$pc" --replace-quiet " none required " " "
+              done
+            '';
+          });
+        };
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ libfyamlPcFix ];
+        };
         libraryPath = pkgs.symlinkJoin {
           name = "scanline-puregotk-lib-folder";
           paths = with pkgs; [
