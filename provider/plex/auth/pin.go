@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -10,10 +9,12 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/0skillallluck/scanline/utils/httputils/request"
 )
 
 const (
-	plexTVBaseURL = "https://plex.tv"
+	plexTVBaseURL  = "https://plex.tv"
 	authAppBaseURL = "https://app.plex.tv/auth#"
 )
 
@@ -45,30 +46,28 @@ type Pin struct {
 // The clientIdentifier should be a unique identifier for the application instance.
 func RequestPin(clientIdentifier string) (*Pin, error) {
 	formValues := url.Values{
-		"strong":                    {"true"},
-		"X-Plex-Product":            {"Scanline"},
-		"X-Plex-Client-Identifier":  {clientIdentifier},
+		"strong":                   {"true"},
+		"X-Plex-Product":           {"Scanline"},
+		"X-Plex-Client-Identifier": {clientIdentifier},
 	}
 
-	req, err := http.NewRequest(http.MethodPost, plexTVBaseURL+"/api/v2/pins", strings.NewReader(formValues.Encode()))
-	if err != nil {
-		return nil, fmt.Errorf("creating pin request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Accept", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := request.NewRequest(http.MethodPost, plexTVBaseURL+"/api/v2/pins").
+		WithHeaders(map[string]string{
+			"Content-Type": "application/x-www-form-urlencoded",
+			"Accept":       "application/json",
+		}).
+		WithBody(strings.NewReader(formValues.Encode())).
+		Do()
 	if err != nil {
 		return nil, fmt.Errorf("executing pin request: %w", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("failed to request PIN: %s", resp.Status)
 	}
 
 	var pin Pin
-	if err := json.NewDecoder(resp.Body).Decode(&pin); err != nil {
+	if err := resp.JSON(&pin); err != nil {
 		return nil, fmt.Errorf("decoding pin response: %w", err)
 	}
 	slog.Debug("plex: PIN requested", "pin_id", pin.ID, "expires_in", pin.ExpiresIn)
@@ -78,29 +77,23 @@ func RequestPin(clientIdentifier string) (*Pin, error) {
 // CheckPin checks the status of a PIN and returns the updated PIN information.
 // If the user has authorized the PIN, the returned Pin will have AuthToken populated.
 func CheckPin(pinID int, pinCode, clientIdentifier string) (*Pin, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/v2/pins/%d", plexTVBaseURL, pinID), nil)
-	if err != nil {
-		return nil, fmt.Errorf("creating check request: %w", err)
-	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-Plex-Client-Identifier", clientIdentifier)
-
-	params := req.URL.Query()
-	params.Set("code", pinCode)
-	req.URL.RawQuery = params.Encode()
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := request.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/v2/pins/%d", plexTVBaseURL, pinID)).
+		WithHeaders(map[string]string{
+			"Accept":                   "application/json",
+			"X-Plex-Client-Identifier": clientIdentifier,
+		}).
+		WithQuery(map[string]string{"code": pinCode}).
+		Do()
 	if err != nil {
 		return nil, fmt.Errorf("executing check request: %w", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to check PIN: %s", resp.Status)
 	}
 
 	var pin Pin
-	if err := json.NewDecoder(resp.Body).Decode(&pin); err != nil {
+	if err := resp.JSON(&pin); err != nil {
 		return nil, fmt.Errorf("decoding check response: %w", err)
 	}
 	return &pin, nil
@@ -134,8 +127,8 @@ func PollPin(ctx context.Context, pinID int, pinCode, clientIdentifier string, i
 // AuthAppURL returns the URL where the user should be directed to authorize the PIN.
 func AuthAppURL(clientIdentifier, code, product string) string {
 	params := url.Values{
-		"clientID":                  {clientIdentifier},
-		"code":                      {code},
+		"clientID":                 {clientIdentifier},
+		"code":                     {code},
 		"context[device][product]": {product},
 	}
 	return authAppBaseURL + "?" + params.Encode()
