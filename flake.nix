@@ -30,9 +30,23 @@
             libsecret
           ];
         };
+        # nixpkgs librsvg on Darwin ships a broken loaders.cache (the SVG entry is
+        # missing) and the loader dylib has no LC_RPATH, so dlopen of @rpath/librsvg-2.2.dylib
+        # fails. Provide our own cache; pair with DYLD_FALLBACK_LIBRARY_PATH below.
+        # The trailing blank line is required: gdk-pixbuf parses entries terminated by \n\n.
+        darwinPixbufLoadersCache = pkgs.writeText "scanline-pixbuf-loaders.cache" ''
+          # GdkPixbuf Image Loader Modules file - Scanline devShell override
+          "${pkgs.librsvg.out}/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader_svg.dylib"
+          "svg" 6 "gdk-pixbuf" "Scalable Vector Graphics" "LGPL"
+          "image/svg+xml" "image/svg" "image/svg-xml" "image/vnd.adobe.svg+xml" "text/xml-svg" "image/svg+xml-compressed" ""
+          "svg" "svgz" "svg.gz" ""
+          " <svg" "*    " 100
+          " <!DOCTYPE svg" "*             " 100
+
+        '';
       in
       {
-        devShell = pkgs.mkShell {
+        devShell = pkgs.mkShell ({
           PUREGOTK_LIB_FOLDER = "${libraryPath}/lib";
           GSETTINGS_SCHEMA_DIR = "./assets/meta";
           SCANLINE_DEBUG = "1";
@@ -73,11 +87,23 @@
               gst_all_1.gst-libav
               pkg-config # Needed for the first compile with CGO
               sass
+              cacert
             ]
             ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
               flatpak-builder
             ];
-        };
+        } // pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
+          # Only set GIO_EXTRA_MODULES on Darwin where the system gio module
+          # path is unavailable. On Linux, leaving this unset lets gio find
+          # the system glib-networking modules required for HTTPS / TLS in
+          # souphttpsrc; setting it (even to empty) breaks network streaming.
+          GIO_EXTRA_MODULES = "${pkgs.glib-networking}/lib/gio/modules";
+          # Override after setup hooks (which propagate librsvg's broken cache).
+          shellHook = ''
+            export GDK_PIXBUF_MODULE_FILE=${darwinPixbufLoadersCache}
+            export DYLD_FALLBACK_LIBRARY_PATH=${libraryPath}/lib
+          '';
+        });
 
         packages.scanline = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) (finalAttrs: {
           pname = "scanline";
