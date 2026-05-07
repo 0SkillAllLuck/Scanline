@@ -128,7 +128,7 @@ func TestLayered_MemoryHitSkipsFile(t *testing.T) {
 	hashedKey := hashKey(key)
 
 	// Store only in memory
-	storeInMemory(hashedKey, data)
+	storeInMemory(hashedKey, data, 0, false)
 
 	// Get should return from memory without needing file
 	got, found := Get(key, Layered, 60)
