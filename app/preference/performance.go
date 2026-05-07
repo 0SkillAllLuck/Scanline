@@ -37,8 +37,16 @@ func (p *PerformanceSettings) BindCacheLibraries(target *gobject.Object, propert
 	p.settings.Bind("cache-libraries", target, property, gio.GSettingsBindNoSensitivityValue)
 }
 
+func (p *PerformanceSettings) ShouldCacheLibraries() bool {
+	return p.settings.GetBoolean("cache-libraries")
+}
+
 func (p *PerformanceSettings) BindCacheMetadata(target *gobject.Object, property string) {
 	p.settings.Bind("cache-metadata", target, property, gio.GSettingsBindNoSensitivityValue)
+}
+
+func (p *PerformanceSettings) ShouldCacheMetadata() bool {
+	return p.settings.GetBoolean("cache-metadata")
 }
 
 // Navigation
