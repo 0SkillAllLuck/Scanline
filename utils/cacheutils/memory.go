@@ -14,9 +14,8 @@ type memoryEntry struct {
 	key       string
 	data      []byte
 	expiresAt time.Time // zero value = no expiration
-	// layered is true when a file-cache copy of this entry also exists.
-	// LRU eviction must NOT drop the rawKeyIndex entry for such entries —
-	// the file copy is still invalidatable via DeleteByPrefix.
+	// layered: a file copy exists, so eviction must keep the rawKeyIndex
+	// entry alive for DeleteByPrefix to reach it.
 	layered bool
 }
 
@@ -48,14 +47,10 @@ func getFromMemory(hashedKey string) ([]byte, bool) {
 	return copyBytes(entry.data), true
 }
 
-// storeInMemory stores data under the given hashed key with an optional TTL.
-// ttl == 0 means the entry has no expiration (still subject to LRU eviction).
-// layered marks entries that also have a file-cache copy, so eviction can
-// preserve the rawKeyIndex entry for invalidation purposes.
-//
-// The byte cap is treated as a soft limit for the just-inserted entry: an
-// oversized entry is allowed to live at least until the next Store call. This
-// keeps the cache useful even when a single response exceeds the cap.
+// storeInMemory stores data under the given hashed key. ttl == 0 means no
+// expiration (still subject to LRU). The byte cap is soft for the just-
+// inserted entry — an oversized entry survives at least until the next Store,
+// keeping the cache useful when a single response exceeds the cap.
 func storeInMemory(hashedKey string, data []byte, ttl int, layered bool) {
 	memoryMu.Lock()
 	defer memoryMu.Unlock()
@@ -114,11 +109,9 @@ func clearMemory() {
 	memoryBytes = 0
 }
 
-// removeMemoryElement removes a list element and updates the index and byte
-// counter. For non-layered entries (memory-only) it also drops the rawKeyIndex
-// entry. Layered entries keep their index entry so invalidation can still
-// reach the file copy via DeleteByPrefix.
-// Caller must hold memoryMu.
+// removeMemoryElement evicts an LRU entry. Memory-only entries also drop the
+// rawKeyIndex; layered entries keep theirs so DeleteByPrefix can still reach
+// the file copy. Caller must hold memoryMu.
 func removeMemoryElement(el *list.Element) {
 	entry := el.Value.(*memoryEntry)
 	memoryList.Remove(el)

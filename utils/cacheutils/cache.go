@@ -51,10 +51,8 @@ func Get(key string, strategy Strategy, ttl int) ([]byte, bool) {
 		return nil, false
 	}
 
-	// Promote file hit to memory and re-index the raw key. Re-indexing is
-	// needed after process restarts (the index is in-process only) so that
-	// DeleteByPrefix can find file-cached entries that survived from a
-	// previous session.
+	// Re-index on promotion: rawKeyIndex is in-process only, so file hits
+	// across restarts need re-adding for DeleteByPrefix to find them.
 	storeInMemory(hashedKey, data, ttl, true)
 	rememberRawKey(key, hashedKey)
 

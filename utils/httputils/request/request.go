@@ -81,9 +81,8 @@ func (r *Request) doCached() (*response.Response, error) {
 	}
 
 	ch := requestGroup.DoChan(cacheKey, func() (any, error) {
-		// Re-check after acquiring the slot: another goroutine may have populated it.
-		// Validate before serving so corrupt entries fall through to a fresh fetch
-		// instead of being passed up the stack.
+		// Re-check now that we hold the slot — and validate, since corrupt
+		// bytes here must fall through to a fresh fetch.
 		if data, found := cacheutils.Get(cacheKey, r.cacheStrategy, r.cacheTTL); found {
 			if _, err := unmarshalResponse(data); err == nil {
 				return data, nil
@@ -109,9 +108,8 @@ func (r *Request) doCached() (*response.Response, error) {
 		return data, nil
 	})
 
-	// Honor the caller's context: a follower waiting on a slow leader's
-	// fetch must be able to abandon when its own context is canceled or
-	// times out. The leader's request keeps running on its own context.
+	// Followers honor their own context: a slow leader's fetch must not
+	// pin a canceled or timed-out follower. The leader runs on its own ctx.
 	ctx := r.ctx
 	if ctx == nil {
 		ctx = context.Background()
