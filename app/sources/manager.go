@@ -8,7 +8,6 @@ import (
 
 	"github.com/0skillallluck/scanline/app/secrets"
 	"github.com/0skillallluck/scanline/internal/signals"
-	"github.com/0skillallluck/scanline/provider/plex"
 	"github.com/0skillallluck/scanline/provider/plex/auth"
 	"github.com/0skillallluck/scanline/provider/plex/watchlist"
 	"github.com/google/uuid"
@@ -55,7 +54,7 @@ func NewManager() *Manager {
 			// Assume reachable until a connection probe says otherwise
 			srv.Reachable = srv.URL != ""
 			if srv.Enabled && srv.URL != "" {
-				client := plex.NewClient(srv.URL, tokenForServer(token, srv), acct.ClientID)
+				client := newPlexClient(srv.URL, tokenForServer(token, srv), acct.ClientID)
 				m.sources[srv.ID] = NewPlexSource(srv.ID, srv.Name, client)
 			}
 		}
@@ -174,7 +173,7 @@ func (m *Manager) AddPlexAccount(ctx context.Context, token, username, clientID 
 	m.accounts = append(m.accounts, acct)
 	for _, srv := range servers {
 		if srv.Enabled && srv.Reachable && srv.URL != "" {
-			client := plex.NewClient(srv.URL, tokenForServer(token, srv), clientID)
+			client := newPlexClient(srv.URL, tokenForServer(token, srv), clientID)
 			m.sources[srv.ID] = NewPlexSource(srv.ID, srv.Name, client)
 		}
 	}
@@ -240,7 +239,7 @@ func (m *Manager) SetServerEnabled(accountID, serverID string, enabled bool) {
 					slog.Warn("server URL not cached, need to refresh servers", "server", srv.Name)
 				}
 				if srv.URL != "" && token != "" {
-					client := plex.NewClient(srv.URL, tokenForServer(token, srv), acct.ClientID)
+					client := newPlexClient(srv.URL, tokenForServer(token, srv), acct.ClientID)
 					m.sources[srv.ID] = NewPlexSource(srv.ID, srv.Name, client)
 				}
 			} else {
@@ -355,7 +354,7 @@ func (m *Manager) RefreshServers(ctx context.Context) {
 						srv.Reachable = false
 					} else {
 						srv.URL = url
-						client := plex.NewClient(url, tokenForServer(token, srv), info.clientID)
+						client := newPlexClient(url, tokenForServer(token, srv), info.clientID)
 						newSources[srv.ID] = NewPlexSource(srv.ID, srv.Name, client)
 					}
 				}
