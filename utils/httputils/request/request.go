@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/0skillallluck/scanline/utils/cacheutils"
@@ -14,21 +15,22 @@ import (
 
 // Request represents a chainable HTTP request builder.
 type Request struct {
-	method        string
-	url           string
-	headers       http.Header
-	query         url.Values
-	body          io.Reader
-	ctx           context.Context
-	cancel        context.CancelFunc
-	timeout       time.Duration
-	timeoutSet    bool
-	client        *http.Client
-	cacheStrategy cacheutils.Strategy
-	cacheTTL      int
-	logging       bool
-	redactHeaders []string
-	err           error
+	method         string
+	url            string
+	headers        http.Header
+	query          url.Values
+	body           io.Reader
+	ctx            context.Context
+	cancel         context.CancelFunc
+	timeout        time.Duration
+	timeoutSet     bool
+	client         *http.Client
+	cacheStrategy  cacheutils.Strategy
+	cacheTTL       int
+	cacheKeyExtras []string
+	logging        bool
+	redactHeaders  []string
+	err            error
 }
 
 // DefaultTimeout is the default request timeout.
@@ -186,10 +188,18 @@ func (r *Request) buildURL() (string, error) {
 	return parsed.String(), nil
 }
 
-// buildCacheKey generates a cache key from URL and query parameters.
+// buildCacheKey generates a cache key from URL, query parameters, and any
+// extras added via WithCacheKey. The whole string is later SHA256-hashed by
+// cacheutils, so the format only needs to be deterministic.
 func (r *Request) buildCacheKey() string {
 	reqURL, _ := r.buildURL()
-	return reqURL
+	if len(r.cacheKeyExtras) == 0 {
+		return reqURL
+	}
+	parts := make([]string, 0, len(r.cacheKeyExtras)+1)
+	parts = append(parts, reqURL)
+	parts = append(parts, r.cacheKeyExtras...)
+	return strings.Join(parts, "|")
 }
 
 // logRequest logs the outgoing request details.
