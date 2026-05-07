@@ -14,6 +14,7 @@ import (
 	"github.com/0skillallluck/scanline/provider/plex/search"
 	"github.com/0skillallluck/scanline/provider/plex/server"
 	"github.com/0skillallluck/scanline/provider/plex/timeline"
+	"github.com/0skillallluck/scanline/utils/cacheutils"
 	"github.com/0skillallluck/scanline/utils/httputils/request"
 )
 
@@ -49,19 +50,35 @@ type Client struct {
 	Timeline *timeline.Timeline
 }
 
+// Option configures a Client at construction time.
+type Option func(*Client)
+
+// WithCachePolicy configures HTTP response caching for the cacheable Plex
+// endpoints. The two predicates are evaluated per request, so flipping the
+// underlying user preference takes effect on the next call. Pass nil for
+// either argument to disable caching for that category.
+func WithCachePolicy(libraries, metadata func() bool) Option {
+	return func(c *Client) {
+		c.base.Cache = base.CachePolicy{
+			Libraries: libraries,
+			Metadata:  metadata,
+		}
+	}
+}
+
 // NewClient creates a new Plex Media Server client.
 //
 // The serverURL should be the base URL of the Plex server (e.g., "http://localhost:32400").
 // The token is the authentication token for the server.
 // The clientID should be a unique identifier for the application instance (typically a UUID).
-func NewClient(serverURL, token, clientID string) *Client {
+func NewClient(serverURL, token, clientID string, opts ...Option) *Client {
 	b := &base.Base{
 		BaseURL:  serverURL,
 		Token:    token,
 		ClientID: clientID,
 	}
 
-	return &Client{
+	c := &Client{
 		base:      b,
 		Server:    server.New(b),
 		Library:   library.New(b),
@@ -70,6 +87,41 @@ func NewClient(serverURL, token, clientID string) *Client {
 		Playlists: playlists.New(b),
 		Timeline:  timeline.New(b),
 	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
+}
+
+// SetCachePolicy updates the cache policy on a live client. The shared base
+// is mutated, so the change is visible to all sub-services on the next call.
+func (c *Client) SetCachePolicy(libraries, metadata func() bool) {
+	c.base.Cache = base.CachePolicy{
+		Libraries: libraries,
+		Metadata:  metadata,
+	}
+}
+
+// InvalidateAfterPlayback evicts cached metadata for the given item and the
+// hubs whose contents may have shifted as a result of a playback action
+// (Scrobble, Unscrobble, or playback stop). parentRatingKey and
+// grandparentRatingKey may be empty when not known; they extend invalidation
+// up the episode → season → show chain.
+func (c *Client) InvalidateAfterPlayback(ratingKey, parentRatingKey, grandparentRatingKey string) {
+	if ratingKey != "" {
+		// Catches both Library.Metadata (no query) and Library.Markers
+		// (?includeMarkers=1) since they share this URL prefix.
+		cacheutils.DeleteByPrefix(c.base.BaseURL + "/library/metadata/" + ratingKey)
+	}
+	if parentRatingKey != "" {
+		cacheutils.DeleteByPrefix(c.base.BaseURL + "/library/metadata/" + parentRatingKey + "/children")
+	}
+	if grandparentRatingKey != "" {
+		cacheutils.DeleteByPrefix(c.base.BaseURL + "/library/metadata/" + grandparentRatingKey + "/children")
+	}
+	// Hubs that surface watched / in-progress items.
+	cacheutils.DeleteByPrefix(c.base.BaseURL + "/hubs/promoted")
+	cacheutils.DeleteByPrefix(c.base.BaseURL + "/hubs/continueWatching")
 }
 
 // ServerURL returns the base URL of the Plex server.
