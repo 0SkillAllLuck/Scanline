@@ -93,15 +93,6 @@ func NewClient(serverURL, token, clientID string, opts ...Option) *Client {
 	return c
 }
 
-// SetCachePolicy updates the cache policy on a live client. The shared base
-// is mutated, so the change is visible to all sub-services on the next call.
-func (c *Client) SetCachePolicy(libraries, metadata func() bool) {
-	c.base.Cache = base.CachePolicy{
-		Libraries: libraries,
-		Metadata:  metadata,
-	}
-}
-
 // InvalidateAfterPlayback evicts cached metadata for the given item and the
 // hubs whose contents may have shifted as a result of a playback action
 // (Scrobble, Unscrobble, or playback stop). parentRatingKey and
