@@ -20,14 +20,14 @@ func TestWithInMemoryCaching_GetRequest(t *testing.T) {
 	defer server.Close()
 
 	resp1, err := NewRequest(http.MethodGet, server.URL).
-		WithInMemoryCaching().
+		WithInMemoryCaching(0).
 		Do()
 	if err != nil {
 		t.Fatalf("First Do() error = %v", err)
 	}
 
 	resp2, err := NewRequest(http.MethodGet, server.URL).
-		WithInMemoryCaching().
+		WithInMemoryCaching(0).
 		Do()
 	if err != nil {
 		t.Fatalf("Second Do() error = %v", err)
@@ -55,7 +55,7 @@ func TestWithInMemoryCaching_PersistsForSessionLifetime(t *testing.T) {
 
 	// First request
 	_, err := NewRequest(http.MethodGet, server.URL).
-		WithInMemoryCaching().
+		WithInMemoryCaching(0).
 		Do()
 	if err != nil {
 		t.Fatalf("First Do() error = %v", err)
@@ -64,7 +64,7 @@ func TestWithInMemoryCaching_PersistsForSessionLifetime(t *testing.T) {
 	// Multiple subsequent requests should all be cached
 	for i := range 5 {
 		_, err := NewRequest(http.MethodGet, server.URL).
-			WithInMemoryCaching().
+			WithInMemoryCaching(0).
 			Do()
 		if err != nil {
 			t.Fatalf("Request %d Do() error = %v", i+2, err)
@@ -86,8 +86,8 @@ func TestWithInMemoryCaching_NonGetRequestIgnored(t *testing.T) {
 	}))
 	defer server.Close()
 
-	_, _ = NewRequest(http.MethodPost, server.URL).WithInMemoryCaching().Do()
-	_, _ = NewRequest(http.MethodPost, server.URL).WithInMemoryCaching().Do()
+	_, _ = NewRequest(http.MethodPost, server.URL).WithInMemoryCaching(0).Do()
+	_, _ = NewRequest(http.MethodPost, server.URL).WithInMemoryCaching(0).Do()
 
 	if callCount != 2 {
 		t.Errorf("POST requests should not be cached, got %d calls instead of 2", callCount)
@@ -105,10 +105,10 @@ func TestWithInMemoryCaching_DifferentURLsDifferentCache(t *testing.T) {
 	}))
 	defer server.Close()
 
-	_, _ = NewRequest(http.MethodGet, server.URL+"/path1").WithInMemoryCaching().Do()
-	_, _ = NewRequest(http.MethodGet, server.URL+"/path2").WithInMemoryCaching().Do()
-	_, _ = NewRequest(http.MethodGet, server.URL+"/path1").WithInMemoryCaching().Do()
-	_, _ = NewRequest(http.MethodGet, server.URL+"/path2").WithInMemoryCaching().Do()
+	_, _ = NewRequest(http.MethodGet, server.URL+"/path1").WithInMemoryCaching(0).Do()
+	_, _ = NewRequest(http.MethodGet, server.URL+"/path2").WithInMemoryCaching(0).Do()
+	_, _ = NewRequest(http.MethodGet, server.URL+"/path1").WithInMemoryCaching(0).Do()
+	_, _ = NewRequest(http.MethodGet, server.URL+"/path2").WithInMemoryCaching(0).Do()
 
 	if callCount != 2 {
 		t.Errorf("Server was called %d times, want 2 (one per unique path)", callCount)
