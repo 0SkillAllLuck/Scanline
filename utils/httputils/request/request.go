@@ -11,6 +11,7 @@ import (
 
 	"github.com/0skillallluck/scanline/utils/cacheutils"
 	"github.com/0skillallluck/scanline/utils/httputils/response"
+	"golang.org/x/sync/singleflight"
 )
 
 // Request represents a chainable HTTP request builder.
@@ -36,6 +37,9 @@ type Request struct {
 // DefaultTimeout is the default request timeout.
 const DefaultTimeout = 60 * time.Second
 
+// requestGroup deduplicates concurrent in-flight requests sharing a cache key.
+var requestGroup singleflight.Group
+
 // NewRequest creates a new Request with the given method and URL.
 // By default, requests have a 60-second timeout. Use WithTimeout to override.
 func NewRequest(method, rawURL string) *Request {
@@ -60,24 +64,54 @@ func (r *Request) Do() (*response.Response, error) {
 		return nil, r.err
 	}
 
-	// Check cache for GET requests
 	if r.method == http.MethodGet && r.cacheStrategy != cacheutils.None {
-		cacheKey := r.buildCacheKey()
-		if data, found := cacheutils.Get(cacheKey, r.cacheStrategy, r.cacheTTL); found {
-			if resp, err := unmarshalResponse(data); err == nil {
-				if r.logging {
-					slog.Debug("HTTP cache hit",
-						"method", r.method,
-						"url", r.url,
-						"cache_key", cacheKey,
-					)
-				}
-				return resp, nil
-			}
-		}
+		return r.doCached()
+	}
+	return r.doFetch()
+}
+
+// doCached handles the cached path: cache check, then singleflight-wrapped
+// fetch + store. Each caller unmarshals its own response from the shared
+// bytes so callers can safely mutate the returned response.
+func (r *Request) doCached() (*response.Response, error) {
+	cacheKey := r.buildCacheKey()
+
+	if resp, ok := r.cachedResponse(cacheKey); ok {
+		return resp, nil
 	}
 
-	// Apply timeout to the context right before execution
+	ch := requestGroup.DoChan(cacheKey, func() (any, error) {
+		// Re-check after acquiring the slot: another goroutine may have populated it.
+		// Validate before serving so corrupt entries fall through to a fresh fetch
+		// instead of being passed up the stack.
+		if data, found := cacheutils.Get(cacheKey, r.cacheStrategy, r.cacheTTL); found {
+			if _, err := unmarshalResponse(data); err == nil {
+				return data, nil
+			}
+			cacheutils.Delete(cacheKey)
+		}
+		resp, err := r.doFetch()
+		if err != nil {
+			return nil, err
+		}
+		data, err := marshalResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+		if resp.IsSuccess() {
+			if storeErr := cacheutils.Store(cacheKey, data, r.cacheStrategy, r.cacheTTL); storeErr != nil {
+				slog.Debug("Failed to cache response",
+					"error", storeErr,
+					"cache_key", cacheKey,
+				)
+			}
+		}
+		return data, nil
+	})
+
+	// Honor the caller's context: a follower waiting on a slow leader's
+	// fetch must be able to abandon when its own context is canceled or
+	// times out. The leader's request keeps running on its own context.
 	ctx := r.ctx
 	if ctx == nil {
 		ctx = context.Background()
@@ -85,47 +119,83 @@ func (r *Request) Do() (*response.Response, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	// Build the URL with query parameters
+	select {
+	case res := <-ch:
+		if res.Err != nil {
+			return nil, res.Err
+		}
+		if res.Shared && r.logging {
+			slog.Debug("HTTP request shared via singleflight", "cache_key", cacheKey)
+		}
+		return unmarshalResponse(res.Val.([]byte))
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+}
+
+// cachedResponse returns a fresh response from cache if present and valid.
+// Corrupt entries are deleted so subsequent paths can refetch.
+func (r *Request) cachedResponse(cacheKey string) (*response.Response, bool) {
+	data, found := cacheutils.Get(cacheKey, r.cacheStrategy, r.cacheTTL)
+	if !found {
+		return nil, false
+	}
+	resp, err := unmarshalResponse(data)
+	if err != nil {
+		cacheutils.Delete(cacheKey)
+		return nil, false
+	}
+	if r.logging {
+		slog.Debug("HTTP cache hit",
+			"method", r.method,
+			"url", r.url,
+			"cache_key", cacheKey,
+		)
+	}
+	return resp, true
+}
+
+// doFetch executes the HTTP request directly without consulting the cache.
+func (r *Request) doFetch() (*response.Response, error) {
+	ctx := r.ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	ctx, cancel := context.WithTimeout(ctx, r.timeout)
+	defer cancel()
+
 	reqURL, err := r.buildURL()
 	if err != nil {
 		return nil, err
 	}
 
-	// Create the HTTP request
 	req, err := http.NewRequestWithContext(ctx, r.method, reqURL, r.body)
 	if err != nil {
 		return nil, err
 	}
-
-	// Set headers
 	req.Header = r.headers
 
-	// Log request if enabled
 	start := time.Now()
 	if r.logging {
 		r.logRequest(req)
 	}
 
-	// Get the client
 	client := r.client
 	if client == nil {
 		client = DefaultClient()
 	}
 
-	// Execute the request
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read the body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	// Build the response
 	result := &response.Response{
 		StatusCode: resp.StatusCode,
 		Status:     resp.Status,
@@ -133,22 +203,8 @@ func (r *Request) Do() (*response.Response, error) {
 		Body:       body,
 	}
 
-	// Log response if enabled
 	if r.logging {
 		r.logResponse(result, time.Since(start))
-	}
-
-	// Cache successful GET responses
-	if r.method == http.MethodGet && r.cacheStrategy != cacheutils.None && result.IsSuccess() {
-		cacheKey := r.buildCacheKey()
-		if data, err := marshalResponse(result); err == nil {
-			if err := cacheutils.Store(cacheKey, data, r.cacheStrategy, r.cacheTTL); err != nil {
-				slog.Debug("Failed to cache response",
-					"error", err,
-					"cache_key", cacheKey,
-				)
-			}
-		}
 	}
 
 	return result, nil
