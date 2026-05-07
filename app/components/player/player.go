@@ -43,8 +43,33 @@ type PlayerParams struct {
 	Source     sources.Source  // the source for this playback
 	ViewOffset int             // resume position in milliseconds
 
+	// Parent / grandparent ratingKeys. For episodes: the season and show.
+	// Empty for movies. Used by post-playback cache invalidation to clear
+	// the season's children listing.
+	ParentRatingKey      string
+	GrandparentRatingKey string
+
 	// NextEpisode is the pre-resolved next episode (nil for movies or last episode).
 	NextEpisode *NextEpisodeInfo
+}
+
+// PlayerParamsForMetadata builds PlayerParams for a metadata item that has at
+// least one playable media part. Caller is responsible for verifying that
+// meta.Media[0].Part[0] exists.
+func PlayerParamsForMetadata(ctx context.Context, meta *sources.Metadata, src sources.Source, win *gtk.Window, nextEp *NextEpisodeInfo) PlayerParams {
+	return PlayerParams{
+		Ctx:                  ctx,
+		Title:                meta.Title,
+		PartKey:              meta.Media[0].Part[0].Key,
+		Window:               win,
+		RatingKey:            meta.RatingKey,
+		ParentRatingKey:      meta.ParentRatingKey,
+		GrandparentRatingKey: meta.GrandparentRatingKey,
+		Media:                meta.Media,
+		Source:               src,
+		ViewOffset:           meta.ViewOffset,
+		NextEpisode:          nextEp,
+	}
 }
 
 // NewPlayer creates a video player with overlay controls.
@@ -553,20 +578,25 @@ func NewPlayer(params PlayerParams) {
 		playNextEpisode = func() {
 			// Resolve the next-next episode before closing (context still alive).
 			var nextNext *NextEpisodeInfo
+			var parent, grandparent string
 			if nextInfo.Metadata != nil {
 				nextNext = ResolveNextEpisode(ctx, src, nextInfo.Metadata)
+				parent = nextInfo.Metadata.ParentRatingKey
+				grandparent = nextInfo.Metadata.GrandparentRatingKey
 			}
 			closePlayer()
 			NewPlayer(PlayerParams{
-				Ctx:         params.Ctx,
-				Title:       nextInfo.Title,
-				PartKey:     nextInfo.PartKey,
-				Window:      params.Window,
-				RatingKey:   nextInfo.RatingKey,
-				Media:       nextInfo.Media,
-				Source:      src,
-				ViewOffset:  nextInfo.ViewOffset,
-				NextEpisode: nextNext,
+				Ctx:                  params.Ctx,
+				Title:                nextInfo.Title,
+				PartKey:              nextInfo.PartKey,
+				Window:               params.Window,
+				RatingKey:            nextInfo.RatingKey,
+				ParentRatingKey:      parent,
+				GrandparentRatingKey: grandparent,
+				Media:                nextInfo.Media,
+				Source:               src,
+				ViewOffset:           nextInfo.ViewOffset,
+				NextEpisode:          nextNext,
 			})
 		}
 
@@ -816,17 +846,25 @@ func NewPlayer(params PlayerParams) {
 			pcore.Pause()
 			dur := currentDurationUs()
 			ts := currentTimestampUs()
+			progressReported := false
 			if dur > 0 {
 				timeMs := int(ts / 1000)
 				durationMs := int(dur / 1000)
 				if err := src.UpdateProgress(ctx, params.RatingKey, sources.StateStopped, timeMs, durationMs); err != nil {
 					slog.Error("failed to send final progress", "error", err)
+				} else {
+					progressReported = true
 				}
 			}
 			if dur > 0 && ts > 0 && float64(ts)/float64(dur) > 0.9 {
 				if err := src.Scrobble(ctx, params.RatingKey); err != nil {
 					slog.Error("failed to scrobble", "error", err)
+				} else {
+					progressReported = true
 				}
+			}
+			if progressReported {
+				src.InvalidateAfterPlayback(params.RatingKey, params.ParentRatingKey, params.GrandparentRatingKey)
 			}
 			// Detach paintable before pcore.Close — otherwise the picture
 			// may snapshot a sink whose state is being freed (SIGSEGV in
