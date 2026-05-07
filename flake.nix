@@ -28,6 +28,7 @@
             gobject-introspection
             librsvg
             libsecret
+            adwaita-icon-theme
           ];
         };
         # nixpkgs librsvg on Darwin ships a broken loaders.cache (the SVG entry is
@@ -99,9 +100,12 @@
           # souphttpsrc; setting it (even to empty) breaks network streaming.
           GIO_EXTRA_MODULES = "${pkgs.glib-networking}/lib/gio/modules";
           # Override after setup hooks (which propagate librsvg's broken cache).
+          # Prepend libraryPath/share so GTK's icon theme loader picks up the
+          # Adwaita icons that ship inside the symlinkJoin on macOS.
           shellHook = ''
             export GDK_PIXBUF_MODULE_FILE=${darwinPixbufLoadersCache}
             export DYLD_FALLBACK_LIBRARY_PATH=${libraryPath}/lib
+            export XDG_DATA_DIRS=${libraryPath}/share''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}
           '';
         });
 
