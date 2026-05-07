@@ -109,6 +109,7 @@ func Episode(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey
 									})
 									return
 								}
+								src.InvalidateAfterPlayback(ratingKey, meta.ParentRatingKey, meta.GrandparentRatingKey)
 								schwifty.OnMainThreadOncePure(func() {
 									b.SetSensitive(true)
 									if watched {
