@@ -4,8 +4,19 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/provider/plex"
 )
+
+// newPlexClient constructs a Plex client wired to the user's caching
+// preferences. The two predicates are evaluated per request, so toggling the
+// "Cache Libraries" / "Cache Metadata" switches takes effect immediately.
+func newPlexClient(serverURL, token, clientID string) *plex.Client {
+	return plex.NewClient(serverURL, token, clientID, plex.WithCachePolicy(
+		preference.Performance().ShouldCacheLibraries,
+		preference.Performance().ShouldCacheMetadata,
+	))
+}
 
 // PlexSource adapts a plex.Client to the Source interface.
 type PlexSource struct {
@@ -106,4 +117,8 @@ func (s *PlexSource) Unscrobble(ctx context.Context, ratingKey string) error {
 
 func (s *PlexSource) UpdateProgress(ctx context.Context, ratingKey string, state PlaybackState, timeMs, durationMs int) error {
 	return s.client.Timeline.UpdateProgress(ctx, ratingKey, state, timeMs, durationMs)
+}
+
+func (s *PlexSource) InvalidateAfterPlayback(ratingKey, parentRatingKey, grandparentRatingKey string) {
+	s.client.InvalidateAfterPlayback(ratingKey, parentRatingKey, grandparentRatingKey)
 }

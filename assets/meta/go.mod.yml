@@ -52,6 +52,11 @@
   strip-components: 5
   type: archive
   url: https://proxy.golang.org/github.com/yeqown/go-qrcode/writer/standard/@v/v1.3.0.zip
+- dest: vendor/golang.org/x/sync
+  sha256: a35481e5ae73e51ef01cf42bcad09c3b73bb3a4abb67d495d4a575021541ed02
+  strip-components: 3
+  type: archive
+  url: https://proxy.golang.org/golang.org/x/sync/@v/v0.12.0.zip
 - dest: vendor/codeberg.org/puregotk/purego
   sha256: 0d5fb9e11934b151ac357a9c0660e4dcd287d2f93db0829356415f6e6a8ef84b
   strip-components: 3

@@ -70,4 +70,11 @@ type Source interface {
 
 	// UpdateProgress reports playback position to the server.
 	UpdateProgress(ctx context.Context, ratingKey string, state PlaybackState, timeMs, durationMs int) error
+
+	// InvalidateAfterPlayback evicts cached metadata that may have changed
+	// after a playback action (Scrobble, Unscrobble, or playback stop).
+	// Pass empty strings for parent / grandparent if not known. Callers should
+	// invoke this after a successful Scrobble / Unscrobble / stop so that the
+	// next render sees fresh watch state.
+	InvalidateAfterPlayback(ratingKey, parentRatingKey, grandparentRatingKey string)
 }

@@ -24,7 +24,7 @@ func (e *EmptyResultError) Error() string {
 // Returns EmptyResultError if the item is not found.
 func (l *Library) Metadata(ctx context.Context, id string) (*Metadata, error) {
 	var resp mediaContainerResponse[metadataContainer]
-	err := l.Get(ctx, "/library/metadata/"+id).
+	err := l.GetCachedMetadata(ctx, "/library/metadata/"+id, 24*60*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err

@@ -7,7 +7,7 @@ import "context"
 // This includes the server name, version, platform, and configuration details.
 func (s *Server) Info(ctx context.Context) (*ServerInfo, error) {
 	var resp serverInfoContainer
-	err := s.Get(ctx, "/").
+	err := s.GetCachedMetadata(ctx, "/", 24*60*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err

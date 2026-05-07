@@ -6,7 +6,7 @@ import "context"
 func (l *Library) Collections(ctx context.Context, sectionID string) ([]Metadata, error) {
 	var resp mediaContainerResponse[metadataContainer]
 	query := map[string]string{"sectionID": sectionID}
-	err := l.GetWithQuery(ctx, "/library/collections", query).
+	err := l.GetCachedLibrariesWithQuery(ctx, "/library/collections", query, 60*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err

@@ -87,16 +87,7 @@ func Movie(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey s
 						WithCSSClass("pill").
 						ConnectClicked(func(b gtk.Button) {
 							if len(meta.Media) > 0 && len(meta.Media[0].Part) > 0 {
-								player.NewPlayer(player.PlayerParams{
-									Ctx:        ctx,
-									Title:      meta.Title,
-									PartKey:    meta.Media[0].Part[0].Key,
-									Window:     appCtx.Window,
-									RatingKey:  ratingKey,
-									Media:      meta.Media,
-									Source:     src,
-									ViewOffset: meta.ViewOffset,
-								})
+								player.NewPlayer(player.PlayerParamsForMetadata(ctx, meta, src, appCtx.Window, nil))
 							}
 						}),
 				).
@@ -128,6 +119,7 @@ func Movie(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey s
 									})
 									return
 								}
+								src.InvalidateAfterPlayback(ratingKey, meta.ParentRatingKey, meta.GrandparentRatingKey)
 								schwifty.OnMainThreadOncePure(func() {
 									b.SetSensitive(true)
 									if watched {

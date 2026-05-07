@@ -41,7 +41,7 @@ func (l *Library) Content(ctx context.Context, sectionID string, opts *ContentOp
 	}
 
 	var resp mediaContainerResponse[metadataContainer]
-	err := l.GetWithQuery(ctx, "/library/sections/"+sectionID+"/all", query).
+	err := l.GetCachedLibrariesWithQuery(ctx, "/library/sections/"+sectionID+"/all", query, 60*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, 0, err

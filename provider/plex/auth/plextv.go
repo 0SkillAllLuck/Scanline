@@ -2,10 +2,11 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	"github.com/0skillallluck/scanline/utils/httputils/request"
 )
 
 // Resource represents a Plex resource (server, player, etc.) discovered from plex.tv.
@@ -89,14 +90,12 @@ type ResourceConnection struct {
 // PlexTV provides access to plex.tv API endpoints for server discovery.
 type PlexTV struct {
 	clientIdentifier string
-	httpClient       *http.Client
 }
 
 // NewPlexTV creates a new PlexTV client with the given client identifier.
 func NewPlexTV(clientIdentifier string) *PlexTV {
 	return &PlexTV{
 		clientIdentifier: clientIdentifier,
-		httpClient:       http.DefaultClient,
 	}
 }
 
@@ -104,32 +103,29 @@ func NewPlexTV(clientIdentifier string) *PlexTV {
 // The token parameter is the authentication token obtained from PIN authentication.
 func (p *PlexTV) DiscoverServers(ctx context.Context, token string) ([]Resource, error) {
 	slog.Debug("plex: discovering servers")
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, plexTVBaseURL+"/api/v2/resources", nil)
-	if err != nil {
-		return nil, fmt.Errorf("creating request: %w", err)
-	}
-
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-Plex-Token", token)
-	req.Header.Set("X-Plex-Client-Identifier", p.clientIdentifier)
-
-	params := req.URL.Query()
-	params.Set("includeHttps", "1")
-	params.Set("includeRelay", "1")
-	req.URL.RawQuery = params.Encode()
-
-	resp, err := p.httpClient.Do(req)
+	resp, err := request.NewRequest(http.MethodGet, plexTVBaseURL+"/api/v2/resources").
+		WithContext(ctx).
+		WithHeaders(map[string]string{
+			"Accept":                   "application/json",
+			"X-Plex-Token":             token,
+			"X-Plex-Client-Identifier": p.clientIdentifier,
+		}).
+		WithLogging("X-Plex-Token").
+		WithQuery(map[string]string{
+			"includeHttps": "1",
+			"includeRelay": "1",
+		}).
+		Do()
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to discover servers: %s", resp.Status)
 	}
 
 	var resources []Resource
-	if err := json.NewDecoder(resp.Body).Decode(&resources); err != nil {
+	if err := resp.JSON(&resources); err != nil {
 		return nil, fmt.Errorf("decoding response: %w", err)
 	}
 	slog.Debug("plex: servers discovered", "resource_count", len(resources))
@@ -151,27 +147,27 @@ type User struct {
 // GetUser retrieves the Plex account information for the authenticated user.
 func (p *PlexTV) GetUser(ctx context.Context, token string) (*User, error) {
 	slog.Debug("plex: fetching user info")
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, plexTVBaseURL+"/api/v2/user", nil)
-	if err != nil {
-		return nil, fmt.Errorf("creating request: %w", err)
-	}
-
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("X-Plex-Token", token)
-	req.Header.Set("X-Plex-Client-Identifier", p.clientIdentifier)
-
-	resp, err := p.httpClient.Do(req)
+	resp, err := request.NewRequest(http.MethodGet, plexTVBaseURL+"/api/v2/user").
+		WithContext(ctx).
+		WithHeaders(map[string]string{
+			"Accept":                   "application/json",
+			"X-Plex-Token":             token,
+			"X-Plex-Client-Identifier": p.clientIdentifier,
+		}).
+		WithLogging("X-Plex-Token").
+		WithInMemoryCaching(60 * 60).
+		WithCacheKey(token).
+		Do()
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to get user: %s", resp.Status)
 	}
 
 	var user User
-	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+	if err := resp.JSON(&user); err != nil {
 		return nil, fmt.Errorf("decoding response: %w", err)
 	}
 	slog.Debug("plex: user fetched", "username", user.Username)
