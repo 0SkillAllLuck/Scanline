@@ -7,7 +7,7 @@ import "context"
 // The id parameter is the rating key of the item.
 func (h *Hubs) Related(ctx context.Context, id string) ([]Hub, error) {
 	var resp mediaContainerResponse[hubsContainer]
-	err := h.Get(ctx, "/hubs/metadata/"+id+"/related").
+	err := h.GetCachedMetadata(ctx, "/hubs/metadata/"+id+"/related", 60*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ import (
 // Items returns the items in a playlist.
 func (p *Playlists) Items(ctx context.Context, playlistID string) ([]library.Metadata, error) {
 	var resp mediaContainerResponse[metadataContainer]
-	err := p.Get(ctx, "/playlists/"+playlistID+"/items").
+	err := p.GetMemCachedLibraries(ctx, "/playlists/"+playlistID+"/items", 60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err

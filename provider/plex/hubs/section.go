@@ -5,7 +5,7 @@ import "context"
 // Section returns the hubs for a specific library section.
 func (h *Hubs) Section(ctx context.Context, sectionID string) ([]Hub, error) {
 	var resp mediaContainerResponse[hubsContainer]
-	err := h.Get(ctx, "/hubs/sections/"+sectionID).
+	err := h.GetCachedLibraries(ctx, "/hubs/sections/"+sectionID, 15*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err

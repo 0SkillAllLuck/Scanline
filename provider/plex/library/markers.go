@@ -9,9 +9,9 @@ import "context"
 // returns 404 on most Plex Media Server versions.
 func (l *Library) Markers(ctx context.Context, id string) ([]Marker, error) {
 	var resp mediaContainerResponse[metadataContainer]
-	err := l.GetWithQuery(ctx, "/library/metadata/"+id, map[string]string{
+	err := l.GetCachedMetadataWithQuery(ctx, "/library/metadata/"+id, map[string]string{
 		"includeMarkers": "1",
-	}).DoAndDecode(&resp)
+	}, 24*60*60).DoAndDecode(&resp)
 	if err != nil {
 		return nil, err
 	}

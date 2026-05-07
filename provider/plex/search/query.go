@@ -17,7 +17,7 @@ func (s *Search) Query(ctx context.Context, query string, limit int) ([]Hub, err
 	}
 
 	var resp mediaContainerResponse[hubsContainer]
-	err := s.GetWithQuery(ctx, "/hubs/search", params).
+	err := s.GetMemCachedLibrariesWithQuery(ctx, "/hubs/search", params, 5*60).
 		DoAndDecode(&resp)
 	if err != nil {
 		return nil, err
