@@ -16,7 +16,7 @@ jobs:
     name: Flatpak Build (${{ matrix.target.arch }})
     runs-on: ${{ matrix.target.runner }}
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      image: ghcr.io/flathub-infra/flatpak-github-actions@sha256:9a7383aad71e6e966f120330d5a16ed99a2f41a68e36cc2fd1625bc635420707  # gnome-50
       options: --privileged
     strategy:
       matrix:
