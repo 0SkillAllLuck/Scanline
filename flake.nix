@@ -321,7 +321,7 @@
                 <key>CFBundleVersion</key>
                 <string>$version</string>
                 <key>LSMinimumSystemVersion</key>
-                <string>13.0</string>
+                <string>15.0</string>
                 <key>NSHighResolutionCapable</key>
                 <true/>
                 <key>CFBundleURLTypes</key>
