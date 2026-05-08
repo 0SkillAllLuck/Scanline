@@ -8,7 +8,6 @@ import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty/state"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"codeberg.org/puregotk/puregotk/v4/adw"
-	"codeberg.org/puregotk/puregotk/v4/gio"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/components"
 	"github.com/0skillallluck/scanline/app/preference"
@@ -39,15 +38,6 @@ func updateDecorationLayout() {
 	} else {
 		decorationLayoutState.SetValue(configured)
 	}
-}
-
-func (w *Window) buildMainMenu() *gio.Menu {
-	mainMenu := gio.NewMenu()
-	mainMenu.Append(gettext.Get("Select Sources"), "win.select-sources")
-	mainMenu.Append(gettext.Get("Preferences"), "app.preferences")
-	mainMenu.Append(gettext.Get("Keyboard Shortcuts"), "app.shortcuts")
-	mainMenu.Append(gettext.Get("About Scanline"), "app.about")
-	return mainMenu
 }
 
 func iconForSectionType(sectionType string) string {
@@ -181,8 +171,6 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 		})
 	})
 
-	mainMenu := w.buildMainMenu()
-
 	gtkSettings := gtk.SettingsGetDefault()
 	gtkSettings.ConnectSignal("notify::gtk-decoration-layout", new(func() {
 		updateDecorationLayout()
@@ -191,7 +179,7 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 
 	hasSources := len(mgr.EnabledSources()) > 0
 
-	headerbar := HeaderBar().
+	headerbarBuilder := HeaderBar().
 		BindDecorationLayout(decorationLayoutState).
 		CenteringPolicy(adw.CenteringPolicyStrictValue).
 		PackStart(
@@ -251,20 +239,11 @@ func (w *Window) buildContentHeader() *gtk.Widget {
 					}))
 				}),
 		).
-		TitleWidget(defaultToolbar).
-		PackEnd(
-			MenuButton().
-				IconName("open-menu-symbolic").
-				MenuModel(&mainMenu.MenuModel).
-				TooltipText(gettext.Get("Main Menu")).ConnectConstruct(func(mb *gtk.MenuButton) {
-				menuAction := gio.NewSimpleAction("main-menu", nil)
-				menuAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
-					mb.Popup()
-				}))
-				w.AddAction(menuAction)
-				w.GetApplication().SetAccelsForAction("win.main-menu", []string{"F10"})
-			}),
-		).
+		TitleWidget(defaultToolbar)
+
+	headerbarBuilder = w.packMainMenuButton(headerbarBuilder)
+
+	headerbar := headerbarBuilder.
 		ConnectDestroy(func(w gtk.Widget) {
 			gtkSettings.Unref()
 		})()

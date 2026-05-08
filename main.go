@@ -49,6 +49,9 @@ func init() {
 }
 
 func main() {
+	glib.SetApplicationName("Scanline")
+	glib.SetPrgname("Scanline")
+
 	application := adw.NewApplication("dev.skillless.Scanline", gio.GApplicationDefaultFlagsValue)
 	defer application.Unref()
 	application.ConnectActivate(new(app.OnActivate(application)))
