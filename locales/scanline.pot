@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: v0.4.0-14-g2ac46d3\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-27 17:17+0200\n"
+"POT-Creation-Date: 2026-05-09 01:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgid_plural "%d Seasons"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/windows/main_content.go:49
+#: app/windows/menubar_darwin.go:41
 msgid "About Scanline"
 msgstr ""
 
@@ -37,11 +37,11 @@ msgstr ""
 msgid "Add Account"
 msgstr ""
 
-#: app/windows/main.go:99
+#: app/windows/main.go:100
 msgid "Add Sources"
 msgstr ""
 
-#: app/windows/main.go:96
+#: app/windows/main.go:97
 msgid "Add your Plex media sources to get started."
 msgstr ""
 
@@ -90,12 +90,16 @@ msgstr ""
 msgid "Automatically skip the intro when it begins playing."
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:20
+#: app/dialogs/shortcuts/shortcuts.go:26
 msgid "Back"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:18
+#: app/dialogs/shortcuts/shortcuts.go:24
 msgid "Basic Shortcuts"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:32
+msgid "Bring All to Front"
 msgstr ""
 
 #: app/dialogs/preferences/performance.go:28
@@ -138,8 +142,12 @@ msgstr ""
 msgid "Clear Cache"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:13
+#: app/dialogs/shortcuts/shortcuts.go:12
 msgid "Close"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:22
+msgid "Close Window"
 msgstr ""
 
 #: app/dialogs/preferences/general.go:24
@@ -168,6 +176,10 @@ msgstr ""
 
 #: app/pages/search.go:101
 msgid "E.g. The Matrix"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:27
+msgid "Edit"
 msgstr ""
 
 #: app/dialogs/preferences/experimental.go:25
@@ -214,12 +226,20 @@ msgstr ""
 msgid "Failed to discover servers"
 msgstr ""
 
-#: app/pages/episode.go:118
+#: app/pages/episode.go:108
 msgid "Failed to update watch status"
 msgstr ""
 
 #: app/dialogs/preferences/experimental.go:27
 msgid "Features"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:23
+msgid "File"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:26
+msgid "Find"
 msgstr ""
 
 #: app/dialogs/preferences/general.go:25
@@ -228,6 +248,10 @@ msgstr ""
 
 #: app/pages/genre.go:25
 msgid "Genre"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:43
+msgid "Help"
 msgstr ""
 
 #: app/dialogs/preferences/general.go:17
@@ -246,7 +270,7 @@ msgstr ""
 msgid "Internal Error"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:16
+#: app/dialogs/shortcuts/shortcuts.go:19
 msgid "Keyboard Shortcuts"
 msgstr ""
 
@@ -258,7 +282,7 @@ msgstr ""
 msgid "Library"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:15
+#: app/dialogs/shortcuts/shortcuts_other.go:12
 msgid "Main Menu"
 msgstr ""
 
@@ -286,11 +310,11 @@ msgstr ""
 msgid "Mark this movie as watched"
 msgstr ""
 
-#: app/pages/episode.go:131
+#: app/pages/episode.go:122
 msgid "Marked as unwatched"
 msgstr ""
 
-#: app/pages/episode.go:139
+#: app/pages/episode.go:130
 msgid "Marked as watched"
 msgstr ""
 
@@ -298,19 +322,23 @@ msgstr ""
 msgid "Maximum history length before dropping old entries."
 msgstr ""
 
+#: app/windows/menubar_darwin.go:30
+msgid "Minimize"
+msgstr ""
+
 #: app/pages/movie.go:30
 msgid "Movie"
 msgstr ""
 
-#: app/windows/main_content.go:236
+#: app/windows/main_content.go:224
 msgid "Navigate Back"
 msgstr ""
 
-#: app/windows/main_content.go:74
+#: app/windows/main_content.go:64
 msgid "Navigate to Home"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:22
+#: app/dialogs/shortcuts/shortcuts.go:28
 msgid "Navigation"
 msgstr ""
 
@@ -379,7 +407,7 @@ msgstr ""
 msgid "Player"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:17
+#: app/dialogs/shortcuts/shortcuts.go:20
 msgid "Preferences"
 msgstr ""
 
@@ -387,7 +415,7 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:14
+#: app/dialogs/shortcuts/shortcuts.go:13
 msgid "Quit"
 msgstr ""
 
@@ -415,7 +443,7 @@ msgstr ""
 msgid "Scroll to the right"
 msgstr ""
 
-#: app/dialogs/shortcuts/shortcuts.go:21
+#: app/dialogs/shortcuts/shortcuts.go:27
 msgid "Search"
 msgstr ""
 
@@ -423,7 +451,7 @@ msgstr ""
 msgid "Season"
 msgstr ""
 
-#: app/pages/show.go:116
+#: app/pages/show.go:106
 msgid "Seasons"
 msgstr ""
 
@@ -441,6 +469,10 @@ msgstr ""
 
 #: app/dialogs/sources/sources.go:19
 msgid "Select Sources"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:21
+msgid "Select Sources…"
 msgstr ""
 
 #: app/dialogs/preferences/experimental.go:14
@@ -535,8 +567,12 @@ msgstr ""
 msgid "Watchlist"
 msgstr ""
 
-#: app/windows/main.go:95
+#: app/windows/main.go:96
 msgid "Welcome to Scanline"
+msgstr ""
+
+#: app/windows/menubar_darwin.go:36
+msgid "Window"
 msgstr ""
 
 #: app/pages/search.go:22
@@ -562,6 +598,10 @@ msgstr ""
 
 #: app/pages/watchlist.go:35
 msgid "Your watchlist is empty."
+msgstr ""
+
+#: app/windows/menubar_darwin.go:31
+msgid "Zoom"
 msgstr ""
 
 #: app/dialogs/about/about.go:124

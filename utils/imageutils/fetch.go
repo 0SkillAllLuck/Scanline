@@ -9,6 +9,14 @@ import (
 	"github.com/0skillallluck/scanline/utils/cacheutils"
 )
 
+// Fetch returns the bytes for an image URL, layered through the disk +
+// in-memory cache when image caching is enabled. Use this when you need the
+// raw bytes (e.g. to hand to a non-GTK consumer like macOS MediaPlayer).
+// Loader-style helpers in this package go through the same path internally.
+func Fetch(url string) ([]byte, error) {
+	return fetch(url)
+}
+
 func fetch(url string) ([]byte, error) {
 	if preference.Performance().ShouldCacheImages() {
 		if data, ok := cacheutils.Get(url, cacheutils.Layered, 0); ok {
