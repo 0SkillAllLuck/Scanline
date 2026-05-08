@@ -54,6 +54,37 @@ func (w *Window) installAppActions() {
 	}))
 	w.AddAction(closeAction)
 	w.GetApplication().SetAccelsForAction("win.close", []string{accels.PrimaryMod + "w"})
+
+	minimizeAction := gio.NewSimpleAction("minimize", nil)
+	minimizeAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
+		w.Minimize()
+	}))
+	w.AddAction(minimizeAction)
+	w.GetApplication().SetAccelsForAction("win.minimize", []string{accels.PrimaryMod + "m"})
+
+	zoomAction := gio.NewSimpleAction("zoom", nil)
+	zoomAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
+		if w.IsMaximized() {
+			w.Unmaximize()
+		} else {
+			w.Maximize()
+		}
+	}))
+	w.AddAction(zoomAction)
+
+	bringAllAction := gio.NewSimpleAction("bring-all-to-front", nil)
+	bringAllAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {
+		for node := w.GetApplication().GetWindows(); node != nil; node = node.Next {
+			gtk.WindowNewFromInternalPtr(node.Data).Present()
+		}
+	}))
+	w.GetApplication().Application.AddAction(bringAllAction)
+
+	// Bind accels for window actions referenced by the macOS menubar so the
+	// shortcut labels render — installWindowActions runs after the menubar
+	// is built, which is too late on macOS where NSMenu bakes in accels at
+	// conversion time.
+	w.GetApplication().SetAccelsForAction("win.search", []string{accels.PrimaryMod + "f"})
 }
 
 // installWindowActions installs actions that only make sense when main content is shown:
@@ -81,7 +112,6 @@ func (w *Window) installWindowActions() {
 		}
 	}))
 	w.AddAction(searchAction)
-	w.GetApplication().SetAccelsForAction("win.search", []string{accels.PrimaryMod + "f"})
 
 	routeMovieAction := gio.NewSimpleAction("route.movie", glib.NewVariantType("s"))
 	routeMovieAction.ConnectActivate(new(func(action gio.SimpleAction, parameter uintptr) {

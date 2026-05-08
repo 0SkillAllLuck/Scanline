@@ -8,14 +8,20 @@ import (
 
 // NewShortcutsDialog creates and returns a new keyboard shortcuts dialog.
 func NewShortcutsDialog() schwifty.ShortcutsDialog {
+	basic := []any{
+		ShortcutsItemFromAction(gettext.Get("Close"), "win.close"),
+		ShortcutsItemFromAction(gettext.Get("Quit"), "app.quit"),
+	}
+	if item := mainMenuShortcut(); item != nil {
+		basic = append(basic, item)
+	}
+	basic = append(basic,
+		ShortcutsItemFromAction(gettext.Get("Keyboard Shortcuts"), "app.shortcuts"),
+		ShortcutsItemFromAction(gettext.Get("Preferences"), "app.preferences"),
+	)
+
 	return ShortcutsDialog(
-		ShortcutsSection(
-			ShortcutsItemFromAction(gettext.Get("Close"), "win.close"),
-			ShortcutsItemFromAction(gettext.Get("Quit"), "app.quit"),
-			ShortcutsItemFromAction(gettext.Get("Main Menu"), "win.main-menu"),
-			ShortcutsItemFromAction(gettext.Get("Keyboard Shortcuts"), "app.shortcuts"),
-			ShortcutsItemFromAction(gettext.Get("Preferences"), "app.preferences"),
-		).Title(gettext.Get("Basic Shortcuts")),
+		ShortcutsSection(basic...).Title(gettext.Get("Basic Shortcuts")),
 		ShortcutsSection(
 			ShortcutsItemFromAction(gettext.Get("Back"), "win.navigate-back"),
 			ShortcutsItemFromAction(gettext.Get("Search"), "win.search"),

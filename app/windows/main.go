@@ -72,6 +72,7 @@ func NewWindow(app *adw.Application, appCtx *appctx.AppContext) *Window {
 	}
 
 	window.installAppActions()
+	window.installNativeMenubar()
 
 	if appCtx.Manager.HasAccounts() {
 		window.showMainContent()
