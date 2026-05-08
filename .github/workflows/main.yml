@@ -3,6 +3,7 @@ name: Main
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -37,3 +38,22 @@ jobs:
           manifest-path: dev.skillless.Scanline.json
           arch: ${{ matrix.target.arch }}
           cache-key: flatpak-builder-${{ matrix.target.arch }}-${{ github.sha }}
+
+  macos-build:
+    name: macOS DMG (aarch64)
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
+      - name: Build .app
+        run: nix build .#scanline-darwin-app
+      - name: Build DMG
+        run: ./scripts/build-dmg.sh ./result/Scanline.app dev.skillless.Scanline.aarch64.dmg
+      - name: Upload Bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dev.skillless.Scanline.aarch64.dmg
+          path: dev.skillless.Scanline.aarch64.dmg
+          retention-days: 7
