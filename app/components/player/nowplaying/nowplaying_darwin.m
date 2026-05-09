@@ -60,7 +60,7 @@ void scanline_np_init(void) {
 }
 
 void scanline_np_set_metadata(const char *title, const char *artist,
-    const char *album, double durSec, int kind) {
+    const char *album, double durSec) {
     @autoreleasepool {
         if (title && *title) {
             sInfo[MPMediaItemPropertyTitle] = [NSString stringWithUTF8String:title];

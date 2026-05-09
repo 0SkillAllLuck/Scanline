@@ -988,81 +988,6 @@ func NewPlayer(params PlayerParams) {
 		}
 	}
 
-	// --- macOS Now Playing integration ---
-	// Publish the session to MPNowPlayingInfoCenter and wire MPRemoteCommandCenter
-	// commands to the existing player closures. No-op on non-Darwin builds.
-	{
-		var nextHandler func()
-		if playNextEpisode != nil {
-			nextHandler = playNextEpisode
-		}
-		nowplaying.Configure(
-			nowplaying.Info{
-				Title:      params.Title,
-				Kind:       nowplayingKindFor(params),
-				DurationUs: knownDurationUs,
-			},
-			nowplaying.Handlers{
-				PlayPause: togglePlayPause,
-				Play: func() {
-					if pcore == nil {
-						return
-					}
-					pcore.Play()
-					playing.Store(true)
-					if playPauseBtn != nil {
-						playPauseBtn.SetIconName("media-playback-pause-symbolic")
-					}
-					sendProgress(sources.StatePlaying)
-				},
-				Pause: func() {
-					if pcore == nil {
-						return
-					}
-					pcore.Pause()
-					playing.Store(false)
-					if playPauseBtn != nil {
-						playPauseBtn.SetIconName("media-playback-start-symbolic")
-					}
-					sendProgress(sources.StatePaused)
-				},
-				Next: nextHandler,
-				Previous: func() {
-					// "Seek to start of current item" — confirmed scope choice
-					// for the initial Now Playing PR (matches Music.app for a
-					// queue with a single track past 3s in).
-					doSeek(0)
-				},
-				SkipFwd: func(seconds float64) {
-					ts := currentTimestampUs()
-					dur := currentDurationUs()
-					n := ts + int64(seconds*1e6)
-					if dur > 0 && n > dur {
-						n = dur
-					}
-					doSeek(n)
-				},
-				SkipBack: func(seconds float64) {
-					n := currentTimestampUs() - int64(seconds*1e6)
-					if n < 0 {
-						n = 0
-					}
-					doSeek(n)
-				},
-				SeekTo: func(positionUs int64) { doSeek(positionUs) },
-				Stop: func() {
-					if closePlayer != nil {
-						closePlayer()
-					}
-				},
-			},
-		)
-		// Refine show / season titles and fetch artwork off the main thread.
-		// Safe to fire on Linux too — the SetTextMetadata / SetArtwork calls
-		// inside are no-ops there, only wasting one HTTP request.
-		go fetchAndPushArtwork(ctx, src, params)
-	}
-
 	closePlayer = func() {
 		if !cleanup() {
 			return
@@ -1081,6 +1006,64 @@ func NewPlayer(params PlayerParams) {
 		}
 		router.Refresh()
 	}
+
+	// --- macOS Now Playing integration ---
+	// Wire MPRemoteCommandCenter commands to the player's closures. No-op on
+	// non-Darwin. Runs after closePlayer is assigned so the Stop handler can
+	// invoke it directly without a nil guard.
+	nowplaying.Configure(
+		nowplaying.Info{
+			Title:      params.Title,
+			DurationUs: knownDurationUs,
+		},
+		nowplaying.Handlers{
+			PlayPause: togglePlayPause,
+			Play: func() {
+				if pcore == nil {
+					return
+				}
+				pcore.Play()
+				playing.Store(true)
+				if playPauseBtn != nil {
+					playPauseBtn.SetIconName("media-playback-pause-symbolic")
+				}
+				sendProgress(sources.StatePlaying)
+			},
+			Pause: func() {
+				if pcore == nil {
+					return
+				}
+				pcore.Pause()
+				playing.Store(false)
+				if playPauseBtn != nil {
+					playPauseBtn.SetIconName("media-playback-start-symbolic")
+				}
+				sendProgress(sources.StatePaused)
+			},
+			Next: playNextEpisode,
+			// No previous-episode concept; map to "seek to start of current".
+			Previous: func() { doSeek(0) },
+			SkipFwd: func(seconds float64) {
+				ts := currentTimestampUs()
+				dur := currentDurationUs()
+				n := ts + int64(seconds*1e6)
+				if dur > 0 && n > dur {
+					n = dur
+				}
+				doSeek(n)
+			},
+			SkipBack: func(seconds float64) {
+				n := currentTimestampUs() - int64(seconds*1e6)
+				if n < 0 {
+					n = 0
+				}
+				doSeek(n)
+			},
+			SeekTo: func(positionUs int64) { doSeek(positionUs) },
+			Stop:   closePlayer,
+		},
+	)
+	go fetchAndPushArtwork(ctx, src, params)
 	if preference.Experimental().StartInFullscreen() {
 		win.Fullscreen()
 	}

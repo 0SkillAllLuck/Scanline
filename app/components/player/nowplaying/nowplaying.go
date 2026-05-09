@@ -15,14 +15,6 @@ const (
 	StateStopped
 )
 
-// MediaKind distinguishes movies from episodes for the OS media-type field.
-type MediaKind int
-
-const (
-	KindMovie MediaKind = iota
-	KindEpisode
-)
-
 // Info is the per-session metadata we publish to MPNowPlayingInfoCenter.
 // Title is required; Artist / AlbumTitle are optional and typically only set
 // for episodes (show name and season label respectively). Duration is in
@@ -31,7 +23,6 @@ type Info struct {
 	Title      string
 	Artist     string
 	AlbumTitle string
-	Kind       MediaKind
 	DurationUs int64
 }
 

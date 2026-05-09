@@ -12,7 +12,7 @@ package nowplaying
 
 void scanline_np_init(void);
 void scanline_np_set_metadata(const char *title, const char *artist,
-    const char *album, double durationSec, int kind);
+    const char *album, double durationSec);
 void scanline_np_set_state(int state);
 void scanline_np_set_position(double positionSec);
 void scanline_np_set_artwork(const void *data, int len);
@@ -110,9 +110,8 @@ func Configure(info Info, h Handlers) {
 	initOnce.Do(func() {
 		C.scanline_np_init()
 	})
-	hCopy := h
 	mu.Lock()
-	current = &hCopy
+	current = &h
 	mu.Unlock()
 	pushMetadata(info)
 	C.scanline_np_set_handler_enabled(C.int(cmdPlayPause), C.bool(h.PlayPause != nil))
@@ -141,7 +140,7 @@ func pushMetadata(info Info) {
 	cAlbum := C.CString(info.AlbumTitle)
 	defer C.free(unsafe.Pointer(cAlbum))
 	C.scanline_np_set_metadata(cTitle, cArtist, cAlbum,
-		C.double(info.DurationUs)/1e6, C.int(info.Kind))
+		C.double(info.DurationUs)/1e6)
 }
 
 // SetState publishes the current playback state. Called from the player's

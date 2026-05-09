@@ -36,11 +36,9 @@ func fetchAndPushArtwork(ctx context.Context, src sources.Source, params PlayerP
 
 	info := nowplaying.Info{
 		Title:      params.Title,
-		Kind:       nowplayingKindFor(params),
 		DurationUs: int64(meta.Duration) * 1000,
 	}
 	if meta.Type == "episode" {
-		info.Kind = nowplaying.KindEpisode
 		info.Artist = meta.GrandparentTitle
 		info.AlbumTitle = meta.ParentTitle
 	}
@@ -73,8 +71,8 @@ func fetchAndPushArtwork(ctx context.Context, src sources.Source, params PlayerP
 }
 
 // bestArtURL picks the most square-friendly artwork URL for Now Playing.
-// Episodes prefer the show poster (GrandparentThumb); movies prefer Thumb;
-// otherwise we fall back to the generic ArtURL helper.
+// Episodes prefer the show poster (GrandparentThumb), then the episode's
+// own Thumb. Movies prefer Thumb. Falls back to sources.ArtURL otherwise.
 func bestArtURL(meta *sources.Metadata) string {
 	if meta.Type == "episode" && meta.GrandparentThumb != "" {
 		return meta.GrandparentThumb
