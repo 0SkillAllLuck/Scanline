@@ -150,10 +150,37 @@
             copy_and_fix_dylib() {
               local src="$1"
               local dest_dir="$2"
-              local base
+              local base link_target target_path target_base
               base=$(dest_basename_for "$src")
               local dest="$dest_dir/$base"
-              [ -e "$dest" ] && return 0
+              if [ -e "$dest" ] || [ -L "$dest" ]; then
+                return 0
+              fi
+              # Replicate same-directory symlinks (e.g. libgio-2.0.dylib ->
+              # libgio-2.0.0.dylib in glib.out/lib) as symlinks in the bundle.
+              # cp -L would dereference and produce a second physical file with
+              # its own LC_ID_DYLIB; dyld would then load both copies (one via
+              # an @rpath LC_LOAD_DYLIB on the versioned name, one via puregotk's
+              # bare-name dlopen of the unversioned name through
+              # DYLD_FALLBACK_LIBRARY_PATH), each with its own GType registry —
+              # libsoup signal lookups fail and playback stalls at 0:00.
+              if [ -L "$src" ]; then
+                link_target=$(readlink "$src")
+                case "$link_target" in
+                  */*|/*) ;;  # cross-directory/absolute target: handled by the cp -L below.
+                  *)
+                    target_path="$(dirname "$src")/$link_target"
+                    copy_and_fix_dylib "$target_path" "$dest_dir"
+                    target_base=$(dest_basename_for "$target_path")
+                    # Avoid a self-loop when dest_basename_for collapses both
+                    # names onto the same renamed dest (libiconv special case).
+                    if [ "$base" != "$target_base" ]; then
+                      ln -s "$target_base" "$dest"
+                    fi
+                    return 0
+                    ;;
+                esac
+              fi
               cp -L "$src" "$dest"
               chmod +w "$dest"
               install_name_tool -id "@rpath/$base" "$dest" 2>/dev/null || true
