@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"runtime"
 
 	_ "github.com/0skillallluck/scanline/internal/features/macosfixes"
 
@@ -21,6 +22,12 @@ import (
 //go:generate scss ./assets/styles/style.scss ./assets/styles/style.css
 //go:generate glib-compile-resources --sourcedir=./assets/styles --target=./assets/meta/styles.gresource ./assets/meta/styles.gresource.xml
 
+//go:embed assets/meta/icons.gresource
+var iconBundleLinux []byte
+
+//go:embed assets/meta/icons-darwin.gresource
+var iconBundleDarwin []byte
+
 //go:embed assets/meta/styles.gresource
 var StyleResources []byte
 
@@ -31,8 +38,14 @@ func init() {
 		go tracking.LogAliveObjects()
 	}
 
-	for _, bundle := range IconResources {
-		registerResource(bundle)
+	// Both bundles are embedded unconditionally so `go run main.go` works
+	// without picking up sibling files via build tags. The Linux bundle stays
+	// registered on Darwin so direct resource-path lookups (missing-album.svg,
+	// rating-source logos) still resolve. gio prepends to its registry, so
+	// the Darwin override registered last wins icon-name lookups.
+	registerResource(iconBundleLinux)
+	if runtime.GOOS == "darwin" {
+		registerResource(iconBundleDarwin)
 	}
 	registerResource(StyleResources)
 }
