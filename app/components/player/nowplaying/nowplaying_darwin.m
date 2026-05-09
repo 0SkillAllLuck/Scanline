@@ -25,69 +25,38 @@ static MPNowPlayingInfoCenter *infoCenter(void) {
     return MPNowPlayingInfoCenter.defaultCenter;
 }
 
+// Blocks capture only the primitive cmdID. Targets persist for the process
+// lifetime; per-session state lives Go-side behind `current` in
+// nowplaying_darwin.go.
+static void addCommandTarget(MPRemoteCommand *cmd, int cmdID) {
+    [cmd addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
+        double arg = 0.0;
+        if ([event isKindOfClass:[MPSkipIntervalCommandEvent class]]) {
+            arg = ((MPSkipIntervalCommandEvent *)event).interval;
+        } else if ([event isKindOfClass:[MPChangePlaybackPositionCommandEvent class]]) {
+            arg = ((MPChangePlaybackPositionCommandEvent *)event).positionTime;
+        }
+        scanlineNpDispatch(cmdID, arg);
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+}
+
 void scanline_np_init(void) {
     sInfo = [NSMutableDictionary dictionary];
     MPRemoteCommandCenter *cc = MPRemoteCommandCenter.sharedCommandCenter;
 
-    // Each block captures only the integer command ID (a primitive value
-    // type). The block is retained by the MPRemoteCommand and invoked on
-    // the AppKit main runloop; scanlineNpDispatch hops to the GLib main
-    // loop before invoking Go-side handlers. Targets are installed once
-    // for the lifetime of the process; per-session state lives Go-side
-    // behind the `current` pointer in nowplaying_darwin.go.
-    [cc.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        scanlineNpDispatch(CMD_PLAY_PAUSE, 0.0);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
-    [cc.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        scanlineNpDispatch(CMD_PLAY, 0.0);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
-    [cc.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        scanlineNpDispatch(CMD_PAUSE, 0.0);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
-    [cc.nextTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        scanlineNpDispatch(CMD_NEXT, 0.0);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
-    [cc.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        scanlineNpDispatch(CMD_PREV, 0.0);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
-
     cc.skipForwardCommand.preferredIntervals = @[@15];
-    [cc.skipForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        double interval = 15.0;
-        if ([event isKindOfClass:[MPSkipIntervalCommandEvent class]]) {
-            interval = ((MPSkipIntervalCommandEvent *)event).interval;
-        }
-        scanlineNpDispatch(CMD_SKIP_FWD, interval);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
     cc.skipBackwardCommand.preferredIntervals = @[@15];
-    [cc.skipBackwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        double interval = 15.0;
-        if ([event isKindOfClass:[MPSkipIntervalCommandEvent class]]) {
-            interval = ((MPSkipIntervalCommandEvent *)event).interval;
-        }
-        scanlineNpDispatch(CMD_SKIP_BACK, interval);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
 
-    [cc.changePlaybackPositionCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        double positionTime = 0.0;
-        if ([event isKindOfClass:[MPChangePlaybackPositionCommandEvent class]]) {
-            positionTime = ((MPChangePlaybackPositionCommandEvent *)event).positionTime;
-        }
-        scanlineNpDispatch(CMD_SEEK_TO, positionTime);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
-
-    [cc.stopCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *event) {
-        scanlineNpDispatch(CMD_STOP, 0.0);
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
+    addCommandTarget(cc.togglePlayPauseCommand,        CMD_PLAY_PAUSE);
+    addCommandTarget(cc.playCommand,                   CMD_PLAY);
+    addCommandTarget(cc.pauseCommand,                  CMD_PAUSE);
+    addCommandTarget(cc.nextTrackCommand,              CMD_NEXT);
+    addCommandTarget(cc.previousTrackCommand,          CMD_PREV);
+    addCommandTarget(cc.skipForwardCommand,            CMD_SKIP_FWD);
+    addCommandTarget(cc.skipBackwardCommand,           CMD_SKIP_BACK);
+    addCommandTarget(cc.changePlaybackPositionCommand, CMD_SEEK_TO);
+    addCommandTarget(cc.stopCommand,                   CMD_STOP);
 }
 
 void scanline_np_set_metadata(const char *title, const char *artist,

@@ -41,13 +41,9 @@ const (
 	cmdStop      = 8
 )
 
-type session struct {
-	h Handlers
-}
-
 var (
 	mu       sync.Mutex
-	current  *session
+	current  *Handlers
 	initOnce sync.Once
 )
 
@@ -61,47 +57,47 @@ func scanlineNpDispatch(handlerID C.int, doubleArg C.double) {
 	// session can rotate between the OS callback and the idle-tick.
 	schwifty.OnMainThreadOncePure(func() {
 		mu.Lock()
-		s := current
+		h := current
 		mu.Unlock()
-		if s == nil {
+		if h == nil {
 			return
 		}
 		switch id {
 		case cmdPlayPause:
-			if s.h.PlayPause != nil {
-				s.h.PlayPause()
+			if h.PlayPause != nil {
+				h.PlayPause()
 			}
 		case cmdPlay:
-			if s.h.Play != nil {
-				s.h.Play()
+			if h.Play != nil {
+				h.Play()
 			}
 		case cmdPause:
-			if s.h.Pause != nil {
-				s.h.Pause()
+			if h.Pause != nil {
+				h.Pause()
 			}
 		case cmdNext:
-			if s.h.Next != nil {
-				s.h.Next()
+			if h.Next != nil {
+				h.Next()
 			}
 		case cmdPrev:
-			if s.h.Previous != nil {
-				s.h.Previous()
+			if h.Previous != nil {
+				h.Previous()
 			}
 		case cmdSkipFwd:
-			if s.h.SkipFwd != nil {
-				s.h.SkipFwd(arg)
+			if h.SkipFwd != nil {
+				h.SkipFwd(arg)
 			}
 		case cmdSkipBack:
-			if s.h.SkipBack != nil {
-				s.h.SkipBack(arg)
+			if h.SkipBack != nil {
+				h.SkipBack(arg)
 			}
 		case cmdSeekTo:
-			if s.h.SeekTo != nil {
-				s.h.SeekTo(int64(arg * 1e6))
+			if h.SeekTo != nil {
+				h.SeekTo(int64(arg * 1e6))
 			}
 		case cmdStop:
-			if s.h.Stop != nil {
-				s.h.Stop()
+			if h.Stop != nil {
+				h.Stop()
 			}
 		}
 	})
@@ -114,8 +110,9 @@ func Configure(info Info, h Handlers) {
 	initOnce.Do(func() {
 		C.scanline_np_init()
 	})
+	hCopy := h
 	mu.Lock()
-	current = &session{h: h}
+	current = &hCopy
 	mu.Unlock()
 	pushMetadata(info)
 	C.scanline_np_set_handler_enabled(C.int(cmdPlayPause), C.bool(h.PlayPause != nil))

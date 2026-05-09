@@ -747,13 +747,17 @@ func NewPlayer(params PlayerParams) {
 	// next-episode button. End-of-stream is delivered separately by the core
 	// via OnEOS, so the ticker only needs to handle position/UI updates.
 	var tickerID atomic.Uint32
+	var lastNowPlayingPosUs int64 = -1
 	tickerCb := glib.SourceFunc(func(uintptr) bool {
 		if pcore == nil {
 			return true // keep polling, core not built yet
 		}
 		dur := currentDurationUs()
 		ts := currentTimestampUs()
-		nowplaying.SetPosition(ts)
+		if ts != lastNowPlayingPosUs {
+			nowplaying.SetPosition(ts)
+			lastNowPlayingPosUs = ts
+		}
 		if !seeking.Load() && progressScale != nil && dur > 0 {
 			progressScale.SetRange(0, float64(dur))
 			progressScale.SetValue(float64(ts))
