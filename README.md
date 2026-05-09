@@ -97,6 +97,7 @@ The following projects and resources served as inspiration or were helpful durin
 - [puregotk](https://codeberg.org/puregotk/puregotk) for making this project possible with only minimal CGO bindings
 - [Plex](https://www.plex.tv/) for the media server platform
 - [Dråfølin](https://drafolin.ch/) for the beautiful icon
+- [Phosphor Icons](https://phosphoricons.com) (MIT) for the macOS icon set
 
 
 [license-shield]: https://img.shields.io/github/license/0SkillAllLuck/Scanline?style=for-the-badge

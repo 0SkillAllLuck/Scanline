@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<gresources>
+  <gresource prefix="/dev/skillless/Scanline/icons/scalable/actions/">
+    <!-- Player -->
+    <file alias="media-playback-start-symbolic.svg">actions/media-playback-start-symbolic.svg</file>
+    <file alias="media-playback-pause-symbolic.svg">actions/media-playback-pause-symbolic.svg</file>
+    <file alias="media-seek-backward-symbolic.svg">actions/media-seek-backward-symbolic.svg</file>
+    <file alias="media-seek-forward-symbolic.svg">actions/media-seek-forward-symbolic.svg</file>
+    <file alias="media-skip-forward-symbolic.svg">actions/media-skip-forward-symbolic.svg</file>
+    <file alias="view-fullscreen-symbolic.svg">actions/view-fullscreen-symbolic.svg</file>
+    <file alias="view-restore-symbolic.svg">actions/view-restore-symbolic.svg</file>
+    <file alias="window-close-symbolic.svg">actions/window-close-symbolic.svg</file>
+    <file alias="audio-volume-high-symbolic.svg">actions/audio-volume-high-symbolic.svg</file>
+    <file alias="emblem-system-symbolic.svg">actions/emblem-system-symbolic.svg</file>
+    <!-- Header / nav -->
+    <file alias="loupe-symbolic.svg">actions/loupe-symbolic.svg</file>
+    <file alias="left-symbolic.svg">actions/left-symbolic.svg</file>
+    <file alias="right-symbolic.svg">actions/right-symbolic.svg</file>
+    <file alias="go-home-symbolic.svg">actions/go-home-symbolic.svg</file>
+    <file alias="starred-symbolic.svg">actions/starred-symbolic.svg</file>
+    <!-- Cards -->
+    <file alias="check-plain-symbolic.svg">actions/check-plain-symbolic.svg</file>
+    <!-- Library sections -->
+    <file alias="camera-video-symbolic.svg">actions/camera-video-symbolic.svg</file>
+    <file alias="tv-symbolic.svg">actions/tv-symbolic.svg</file>
+    <file alias="audio-x-generic-symbolic.svg">actions/audio-x-generic-symbolic.svg</file>
+    <file alias="image-x-generic-symbolic.svg">actions/image-x-generic-symbolic.svg</file>
+    <file alias="folder-symbolic.svg">actions/folder-symbolic.svg</file>
+    <!-- Preferences -->
+    <file alias="settings-symbolic.svg">actions/settings-symbolic.svg</file>
+    <file alias="science-symbolic.svg">actions/science-symbolic.svg</file>
+    <file alias="brush-symbolic.svg">actions/brush-symbolic.svg</file>
+    <file alias="speedometer5-symbolic.svg">actions/speedometer5-symbolic.svg</file>
+    <!-- Sources dialog -->
+    <file alias="list-add-symbolic.svg">actions/list-add-symbolic.svg</file>
+    <file alias="view-refresh-symbolic.svg">actions/view-refresh-symbolic.svg</file>
+    <file alias="system-log-out-symbolic.svg">actions/system-log-out-symbolic.svg</file>
+    <!-- Empty / error -->
+    <file alias="sentiment-dissatisfied-symbolic.svg">actions/sentiment-dissatisfied-symbolic.svg</file>
+    <file alias="image-missing-symbolic.svg">actions/image-missing-symbolic.svg</file>
+    <file alias="avatar-default-symbolic.svg">actions/avatar-default-symbolic.svg</file>
+    <!-- Ratings -->
+    <file alias="people-symbolic.svg">actions/people-symbolic.svg</file>
+    <file alias="star-filled-symbolic.svg">actions/star-filled-symbolic.svg</file>
+    <!-- Media info card -->
+    <file alias="display-symbolic.svg">actions/display-symbolic.svg</file>
+    <file alias="filmstrip-symbolic.svg">actions/filmstrip-symbolic.svg</file>
+    <file alias="audio-speakers-symbolic.svg">actions/audio-speakers-symbolic.svg</file>
+    <file alias="package-x-generic-symbolic.svg">actions/package-x-generic-symbolic.svg</file>
+  </gresource>
+</gresources>
