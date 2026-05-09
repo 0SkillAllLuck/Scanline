@@ -13,6 +13,7 @@ import (
 	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
+	"github.com/0skillallluck/scanline/app/components/player/nowplaying"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
@@ -746,12 +747,17 @@ func NewPlayer(params PlayerParams) {
 	// next-episode button. End-of-stream is delivered separately by the core
 	// via OnEOS, so the ticker only needs to handle position/UI updates.
 	var tickerID atomic.Uint32
+	var lastNowPlayingPosUs int64 = -1
 	tickerCb := glib.SourceFunc(func(uintptr) bool {
 		if pcore == nil {
 			return true // keep polling, core not built yet
 		}
 		dur := currentDurationUs()
 		ts := currentTimestampUs()
+		if ts != lastNowPlayingPosUs {
+			nowplaying.SetPosition(ts)
+			lastNowPlayingPosUs = ts
+		}
 		if !seeking.Load() && progressScale != nil && dur > 0 {
 			progressScale.SetRange(0, float64(dur))
 			progressScale.SetValue(float64(ts))
@@ -834,6 +840,9 @@ func NewPlayer(params PlayerParams) {
 		if !closed.CompareAndSwap(false, true) {
 			return false
 		}
+		// Drop the Now Playing widget immediately so the user gets a clean
+		// state transition before the GStreamer teardown and progress reports.
+		nowplaying.Clear()
 		if id := tickerID.Load(); id != 0 {
 			glib.SourceRemove(id)
 			tickerID.Store(0)
@@ -910,6 +919,12 @@ func NewPlayer(params PlayerParams) {
 			},
 			OnStateChange: func(state gst.State) {
 				slog.Debug("player: pipeline state", "state", state.String())
+				switch state {
+				case gst.StatePlaying:
+					nowplaying.SetState(nowplaying.StatePlaying)
+				case gst.StatePaused:
+					nowplaying.SetState(nowplaying.StatePaused)
+				}
 				if pcore == nil || paintableAttached.Load() {
 					return
 				}
@@ -991,6 +1006,64 @@ func NewPlayer(params PlayerParams) {
 		}
 		router.Refresh()
 	}
+
+	// --- macOS Now Playing integration ---
+	// Wire MPRemoteCommandCenter commands to the player's closures. No-op on
+	// non-Darwin. Runs after closePlayer is assigned so the Stop handler can
+	// invoke it directly without a nil guard.
+	nowplaying.Configure(
+		nowplaying.Info{
+			Title:      params.Title,
+			DurationUs: knownDurationUs,
+		},
+		nowplaying.Handlers{
+			PlayPause: togglePlayPause,
+			Play: func() {
+				if pcore == nil {
+					return
+				}
+				pcore.Play()
+				playing.Store(true)
+				if playPauseBtn != nil {
+					playPauseBtn.SetIconName("media-playback-pause-symbolic")
+				}
+				sendProgress(sources.StatePlaying)
+			},
+			Pause: func() {
+				if pcore == nil {
+					return
+				}
+				pcore.Pause()
+				playing.Store(false)
+				if playPauseBtn != nil {
+					playPauseBtn.SetIconName("media-playback-start-symbolic")
+				}
+				sendProgress(sources.StatePaused)
+			},
+			Next: playNextEpisode,
+			// No previous-episode concept; map to "seek to start of current".
+			Previous: func() { doSeek(0) },
+			SkipFwd: func(seconds float64) {
+				ts := currentTimestampUs()
+				dur := currentDurationUs()
+				n := ts + int64(seconds*1e6)
+				if dur > 0 && n > dur {
+					n = dur
+				}
+				doSeek(n)
+			},
+			SkipBack: func(seconds float64) {
+				n := currentTimestampUs() - int64(seconds*1e6)
+				if n < 0 {
+					n = 0
+				}
+				doSeek(n)
+			},
+			SeekTo: func(positionUs int64) { doSeek(positionUs) },
+			Stop:   closePlayer,
+		},
+	)
+	go fetchAndPushArtwork(ctx, src, params)
 	if preference.Experimental().StartInFullscreen() {
 		win.Fullscreen()
 	}

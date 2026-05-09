@@ -97,7 +97,11 @@
               appstream
             ];
             gstPlugins = with pkgs.gst_all_1; [
-              gstreamer
+              # gstreamer-core's default output is "bin" (just CLI tools); the
+              # plugins (libgstcoreelements.dylib — which provides 'typefind')
+              # and gst-plugin-scanner both live in the "out" output. Without
+              # this, the bundle ships without typefind and all playback fails.
+              gstreamer.out
               gst-plugins-base
               gst-plugins-good
               gst-plugins-bad
@@ -241,6 +245,45 @@
               fi
             done
 
+            # 3b. gst-plugin-scanner: GStreamer forks this helper at startup to
+            # enumerate plugins and build the registry. Without it, the bundle
+            # falls back to a degraded mode that fails to register essential
+            # elements like 'typefind', which breaks all playback. Bundle it in
+            # Contents/MacOS/ so it shares the main binary's
+            # @executable_path/../Frameworks rpath, and point GStreamer at it
+            # via GST_PLUGIN_SCANNER in the wrapper.
+            for pkg in $gstPlugins; do
+              src_scanner="$pkg/libexec/gstreamer-1.0/gst-plugin-scanner"
+              [ -f "$src_scanner" ] || continue
+              cp -L "$src_scanner" "$APP/Contents/MacOS/gst-plugin-scanner"
+              chmod +w "$APP/Contents/MacOS/gst-plugin-scanner"
+              install_name_tool -add_rpath "@executable_path/../Frameworks" \
+                "$APP/Contents/MacOS/gst-plugin-scanner" 2>/dev/null || true
+              otool -l "$APP/Contents/MacOS/gst-plugin-scanner" \
+                | awk '/cmd LC_RPATH/{f=1} f && /path /{print $2; f=0}' \
+                | while IFS= read -r rp; do
+                    case "$rp" in
+                      /nix/store/*)
+                        install_name_tool -delete_rpath "$rp" \
+                          "$APP/Contents/MacOS/gst-plugin-scanner" 2>/dev/null || true
+                        ;;
+                    esac
+                  done
+              while IFS= read -r dep; do
+                [ -z "$dep" ] && continue
+                case "$dep" in
+                  /nix/store/*)
+                    dep_base=$(dest_basename_for "$dep")
+                    copy_and_fix_dylib "$dep" "$APP/Contents/Frameworks"
+                    install_name_tool -change "$dep" "@rpath/$dep_base" \
+                      "$APP/Contents/MacOS/gst-plugin-scanner" 2>/dev/null || true
+                    ;;
+                esac
+              done < <(otool -L "$APP/Contents/MacOS/gst-plugin-scanner" | tail -n +2 | awk 'NF>0 {print $1}')
+              chmod +x "$APP/Contents/MacOS/gst-plugin-scanner"
+              break
+            done
+
             # 4. glib-networking GIO modules (TLS for libsoup). Note: glib uses
             # .so extensions for loadable modules even on Darwin.
             if [ -d "$glibNetworking/lib/gio/modules" ]; then
@@ -359,6 +402,7 @@
             export PUREGOTK_LIB_FOLDER="$APP_FW"
             export GDK_PIXBUF_MODULE_FILE="$PIXBUF_CACHE"
             export GST_PLUGIN_PATH="$APP_FW/gstreamer-1.0"
+            export GST_PLUGIN_SCANNER="$APP_DIR/MacOS/gst-plugin-scanner"
             export GIO_EXTRA_MODULES="$APP_FW/gio/modules"
             export XDG_DATA_DIRS="$APP_RES/share"
             export GSETTINGS_SCHEMA_DIR="$APP_RES/glib-2.0/schemas"
