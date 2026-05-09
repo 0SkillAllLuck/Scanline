@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	serviceName = "dev.skillless.Scanless"
+	serviceName = "dev.skillless.Scanline"
 )
 
 type serviceDarwin struct{}
@@ -86,7 +86,11 @@ func (s *serviceDarwin) Set(key string, value Item) error {
 	item.SetAccount(key)
 	item.SetLabel(value.Label)
 	item.SetData([]byte(value.Password))
-	item.SetSynchronizable(keychain.AccessibleWhenUnlocked)
+	// SynchronizableNo is required — the macOS file-based keychain rejects
+	// SetAccessible alone with errSecParam. Net effect: device-local storage
+	// with access tied to keychain unlock state.
+	item.SetSynchronizable(keychain.SynchronizableNo)
+	item.SetAccessible(keychain.AccessibleWhenUnlocked)
 
 	if err := keychain.AddItem(item); err == keychain.ErrorDuplicateItem {
 		query := keychain.NewItem()
