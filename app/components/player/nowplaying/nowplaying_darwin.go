@@ -14,7 +14,7 @@ void scanline_np_init(void);
 void scanline_np_set_metadata(const char *title, const char *artist,
     const char *album, double durationSec, int kind);
 void scanline_np_set_state(int state);
-void scanline_np_set_position(double positionSec, double rate);
+void scanline_np_set_position(double positionSec);
 void scanline_np_set_artwork(const void *data, int len);
 void scanline_np_set_handler_enabled(int handlerID, bool enabled);
 void scanline_np_clear(void);
@@ -154,9 +154,10 @@ func SetState(state State) {
 }
 
 // SetPosition publishes the elapsed playback time. Called from the existing
-// 500ms progress ticker.
+// 500ms progress ticker. Does not touch the playback rate — that's owned by
+// SetState — so a paused tick won't accidentally set rate=1.0.
 func SetPosition(positionUs int64) {
-	C.scanline_np_set_position(C.double(positionUs)/1e6, 1.0)
+	C.scanline_np_set_position(C.double(positionUs) / 1e6)
 }
 
 // SetArtwork attaches cover-art bytes (PNG or JPEG). Pass nil to leave the

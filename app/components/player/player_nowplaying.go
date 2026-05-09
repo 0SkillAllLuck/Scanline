@@ -30,11 +30,8 @@ func nowplayingKindFor(params PlayerParams) nowplaying.MediaKind {
 // artwork bytes through the existing image cache, and hops to the GTK main
 // thread to push refined text + artwork into MPNowPlayingInfoCenter.
 //
-// On Linux this still runs but the SetTextMetadata / SetArtwork calls are
-// no-ops (see nowplaying_other.go), so the goroutine and HTTP fetch are
-// wasted; we early-exit on non-Darwin builds via a build-tag wrapper —
-// that lives next to this file as fetchAndPushArtwork_other.go to keep this
-// file simple.
+// On non-Darwin platforms the SetTextMetadata / SetArtwork calls are no-ops,
+// so the metadata + image HTTP fetches are wasted but harmless.
 func fetchAndPushArtwork(ctx context.Context, src sources.Source, params PlayerParams) {
 	if ctx.Err() != nil {
 		return

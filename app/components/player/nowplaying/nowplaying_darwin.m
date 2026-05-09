@@ -129,10 +129,13 @@ void scanline_np_set_state(int state) {
     }
 }
 
-void scanline_np_set_position(double posSec, double rate) {
+void scanline_np_set_position(double posSec) {
+    // Rate is owned by scanline_np_set_state — leaving it untouched here
+    // keeps the OS-side state coherent when the 500ms ticker fires after a
+    // pause (otherwise a stale rate=1.0 would let Control Center extrapolate
+    // time forward despite the widget showing a paused playback state).
     if (sInfo) {
         sInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = @(posSec);
-        sInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(rate);
         infoCenter().nowPlayingInfo = sInfo;
     }
 }
