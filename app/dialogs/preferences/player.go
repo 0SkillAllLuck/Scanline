@@ -28,4 +28,4 @@ var playerPreferences = PreferencesPage(
 				preference.Experimental().BindAutoSkipCredits(&sr.Object, "active")
 			}),
 	).Title(gettext.Get("Player")),
-).Title(gettext.Get("Player")).IconName("play")
+).Title(gettext.Get("Player")).IconName("media-playback-start-symbolic")
