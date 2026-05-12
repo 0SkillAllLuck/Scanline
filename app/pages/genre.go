@@ -10,6 +10,7 @@ import (
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/appctx"
+	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/components/lists"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
@@ -30,9 +31,7 @@ func Genre(ctx context.Context, appCtx *appctx.AppContext, serverID, genreID str
 		return router.FromError(gettext.Get("Genre"), err)
 	}
 
-	coverURL := func(thumb string) string {
-		return src.PhotoTranscodeURL(thumb, 240, 360)
-	}
+	coverURL := cards.PosterCoverURL(src)
 
 	var allContent []sources.Metadata
 	seen := make(map[string]bool)

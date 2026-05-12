@@ -10,6 +10,7 @@ import (
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/appctx"
+	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/components/lists"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/router"
@@ -32,9 +33,7 @@ func Cast(ctx context.Context, appCtx *appctx.AppContext, serverID, tagID string
 		return router.FromError(gettext.Get("Cast"), err)
 	}
 
-	coverURL := func(thumb string) string {
-		return src.PhotoTranscodeURL(thumb, 240, 360)
-	}
+	coverURL := cards.PosterCoverURL(src)
 
 	var allContent []sources.Metadata
 	var personName, personThumb string

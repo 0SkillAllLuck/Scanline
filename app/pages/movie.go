@@ -180,9 +180,7 @@ func Movie(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey s
 	}
 
 	// Related section
-	coverURL := func(thumb string) string {
-		return src.PhotoTranscodeURL(thumb, 240, 360)
-	}
+	coverURL := cards.PosterCoverURL(src)
 	for i := range relatedHubs {
 		hub := &relatedHubs[i]
 		list := lists.NewHorizontalList(hub.Title)
