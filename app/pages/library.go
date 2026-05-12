@@ -7,6 +7,7 @@ import (
 	"codeberg.org/puregotk/puregotk/v4/adw"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/appctx"
+	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/components/lists"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
@@ -32,9 +33,7 @@ func Library(ctx context.Context, appCtx *appctx.AppContext, serverID, sectionID
 		return router.FromError(section.Title, err)
 	}
 
-	coverURL := func(thumb string) string {
-		return src.PhotoTranscodeURL(thumb, 240, 360)
-	}
+	coverURL := cards.PosterCoverURL(src)
 
 	body := WrapBox().
 		ConnectConstruct(func(w *adw.WrapBox) {

@@ -29,9 +29,7 @@ func home(ctx context.Context, appCtx *appctx.AppContext) *router.Response {
 		}
 
 		serverID := src.ID()
-		coverURL := func(thumb string) string {
-			return src.PhotoTranscodeURL(thumb, 240, 360)
-		}
+		coverURL := cards.PosterCoverURL(src)
 
 		for i := range hubList {
 			hub := &hubList[i]

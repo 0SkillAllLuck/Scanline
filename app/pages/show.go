@@ -106,7 +106,7 @@ func Show(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey st
 		seasonList := lists.NewHorizontalList(gettext.Get("Seasons"))
 		for i := range seasons {
 			s := &seasons[i]
-			seasonList.Append(cards.NewSeasonPoster(s, src.PhotoTranscodeURL(s.Thumb, 240, 360), serverID))
+			seasonList.Append(cards.NewSeasonPoster(s, src.PhotoTranscodeURL(s.Thumb, cards.PosterWidth, cards.PosterHeight), serverID))
 		}
 		body = body.Append(seasonList.SetPageMargin(0))
 	}
@@ -121,9 +121,7 @@ func Show(ctx context.Context, appCtx *appctx.AppContext, serverID, ratingKey st
 	}
 
 	// Related section
-	coverURL := func(thumb string) string {
-		return src.PhotoTranscodeURL(thumb, 240, 360)
-	}
+	coverURL := cards.PosterCoverURL(src)
 	for i := range relatedHubs {
 		hub := &relatedHubs[i]
 		list := lists.NewHorizontalList(hub.Title)

@@ -6,16 +6,17 @@ import (
 
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
 	"codeberg.org/puregotk/puregotk/v4/adw"
-	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/appctx"
+	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/0skillallluck/scanline/utils/textures"
 )
 
 var WatchlistRoute = router.NewRoute("watchlist", watchlist)
@@ -82,11 +83,11 @@ func watchlistPoster(title, subtitle, thumbURL string, match *sources.WatchlistM
 		Child(
 			VStack(
 				Picture().
-					SizeRequest(180, 270).
-					FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
+					SizeRequest(cards.PosterWidth, cards.PosterHeight).
+					FromPaintable(textures.FromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 					ConnectRealize(func(w gtk.Widget) {
 						if thumbURL != "" && preference.Performance().AllowPreviewImages() {
-							imageutils.LoadIntoPictureScaled(thumbURL, 180, 270, gtk.PictureNewFromInternalPtr(w.Ptr))
+							imageutils.LoadIntoPictureScaled(thumbURL, cards.PosterWidth, cards.PosterHeight, gtk.PictureNewFromInternalPtr(w.Ptr))
 						}
 					}).
 					CornerRadius(10).

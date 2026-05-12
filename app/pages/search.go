@@ -10,6 +10,7 @@ import (
 	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"github.com/0skillallluck/scanline/app/appctx"
+	"github.com/0skillallluck/scanline/app/components/cards"
 	"github.com/0skillallluck/scanline/app/pages/search"
 	"github.com/0skillallluck/scanline/app/router"
 	"github.com/0skillallluck/scanline/app/sources"
@@ -76,10 +77,8 @@ var SearchRoute = router.NewRoute("search", func(ctx context.Context, appCtx *ap
 				}
 				srcID := src.ID()
 				newCached = append(newCached, cachedSource{
-					hubs: hubs,
-					coverURL: func(thumb string) string {
-						return src.PhotoTranscodeURL(thumb, 240, 360)
-					},
+					hubs:     hubs,
+					coverURL: cards.PosterCoverURL(src),
 					serverID: srcID,
 				})
 			}

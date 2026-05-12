@@ -38,11 +38,13 @@ func TestMemoryEntry_LRUEvictionRespectsByteCap(t *testing.T) {
 	clearMemory()
 	t.Cleanup(clearMemory)
 
-	// Insert 65 entries of 1 MiB each — total 65 MiB > 64 MiB cap. The
-	// oldest entries should be evicted.
-	const oneMiB = 1024 * 1024
-	payload := make([]byte, oneMiB)
-	for i := byte(0); i < 65; i++ {
+	// Size each entry so 64 entries exactly fill the cap and the 65th
+	// triggers eviction of the oldest. Derived from MemoryCacheMaxBytes
+	// so the test stays correct if the cap changes.
+	const fillCount = 64
+	entrySize := MemoryCacheMaxBytes / fillCount
+	payload := make([]byte, entrySize)
+	for i := byte(0); i < fillCount+1; i++ {
 		payload[0] = i // make each payload distinguishable
 		storeInMemory(string([]byte{'k', i}), payload, 0, false)
 	}
@@ -57,7 +59,7 @@ func TestMemoryEntry_LRUEvictionRespectsByteCap(t *testing.T) {
 	}
 
 	// Most recent key should still be present.
-	if _, ok := getFromMemory(string([]byte{'k', 64})); !ok {
+	if _, ok := getFromMemory(string([]byte{'k', fillCount})); !ok {
 		t.Error("most recent entry should still be present")
 	}
 }
@@ -66,10 +68,11 @@ func TestMemoryEntry_GetMovesToFront(t *testing.T) {
 	clearMemory()
 	t.Cleanup(clearMemory)
 
-	// Fill the cache to capacity with 64 entries of 1 MiB each.
-	const oneMiB = 1024 * 1024
-	payload := make([]byte, oneMiB)
-	for i := byte(0); i < 64; i++ {
+	// Fill the cache to capacity with fillCount entries sized to MemoryCacheMaxBytes/fillCount.
+	const fillCount = 64
+	entrySize := MemoryCacheMaxBytes / fillCount
+	payload := make([]byte, entrySize)
+	for i := byte(0); i < fillCount; i++ {
 		storeInMemory(string([]byte{'k', i}), payload, 0, false)
 	}
 
@@ -79,8 +82,8 @@ func TestMemoryEntry_GetMovesToFront(t *testing.T) {
 		t.Fatal("entry 0 should be present")
 	}
 
-	// Insert one more entry to push us over the cap by 1 MiB. The LRU
-	// (entry 1, since 0 was promoted) should be evicted.
+	// Insert one more entry to push us over the cap. The LRU (entry 1,
+	// since 0 was promoted) should be evicted.
 	storeInMemory("new", payload, 0, false)
 
 	if _, ok := getFromMemory(string([]byte{'k', 0})); !ok {
@@ -149,11 +152,12 @@ func TestLRUEviction_CleansRawKeyIndex(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	Clear() //nolint:errcheck
 
-	const oneMiB = 1024 * 1024
-	payload := make([]byte, oneMiB)
+	const fillCount = 64
+	entrySize := MemoryCacheMaxBytes / fillCount
+	payload := make([]byte, entrySize)
 
 	// Fill exactly to capacity then push one over so a single eviction occurs.
-	for i := byte(0); i < 64; i++ {
+	for i := byte(0); i < fillCount; i++ {
 		_ = Store("key-"+string([]byte{i}), payload, MemoryOnly, 0)
 	}
 	_ = Store("key-evictor", payload, MemoryOnly, 0)
@@ -163,7 +167,7 @@ func TestLRUEviction_CleansRawKeyIndex(t *testing.T) {
 	hashedCount := len(hashedToRawKey)
 	rawKeyMu.RUnlock()
 
-	if rawCount > 64 {
+	if rawCount > fillCount {
 		t.Errorf("rawKeyIndex should not retain entries past LRU eviction: got %d", rawCount)
 	}
 	if rawCount != hashedCount {
@@ -217,9 +221,10 @@ func TestLayeredEviction_PreservesInvalidation(t *testing.T) {
 	SetFileCacheDir(t.TempDir())
 	Clear() //nolint:errcheck
 
-	const oneMiB = 1024 * 1024
+	const fillCount = 64
+	entrySize := MemoryCacheMaxBytes / fillCount
 	smallPayload := []byte("v")
-	bigPayload := make([]byte, oneMiB)
+	bigPayload := make([]byte, entrySize)
 
 	target := "https://server/library/metadata/42"
 	if err := Store(target, smallPayload, Layered, 600); err != nil {
@@ -227,7 +232,7 @@ func TestLayeredEviction_PreservesInvalidation(t *testing.T) {
 	}
 
 	// Push enough big entries through to evict the target from memory.
-	for i := byte(0); i < 65; i++ {
+	for i := byte(0); i < fillCount+1; i++ {
 		_ = Store("filler-"+string([]byte{i}), bigPayload, MemoryOnly, 0)
 	}
 
