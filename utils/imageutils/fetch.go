@@ -7,6 +7,7 @@ import (
 
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/cacheutils"
+	"github.com/0skillallluck/scanline/utils/httputils/request"
 )
 
 // Fetch returns the bytes for an image URL, layered through the disk +
@@ -24,7 +25,7 @@ func fetch(url string) ([]byte, error) {
 		}
 	}
 
-	resp, err := http.Get(url)
+	resp, err := request.DefaultClient().Get(url)
 	if err != nil {
 		return nil, err
 	}

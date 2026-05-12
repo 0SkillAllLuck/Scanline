@@ -41,11 +41,17 @@ func DefaultClient() *http.Client {
 				Timeout:   30 * time.Second, // Connection establishment timeout
 				KeepAlive: 30 * time.Second,
 			}).DialContext,
-			MaxIdleConns:          100,
-			MaxIdleConnsPerHost:   10,
+			// Sized for image-heavy pages: a library view fans out 20-30
+			// parallel poster fetches and we want each one to reuse a
+			// kept-alive TLS session. Idle conns cost ~16 KiB.
+			MaxIdleConns:          512,
+			MaxIdleConnsPerHost:   256,
 			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second, // TLS handshake timeout
+			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
+			// Explicit so a future TLSClientConfig override doesn't silently
+			// disable the stdlib default.
+			ForceAttemptHTTP2: true,
 		},
 	}
 
