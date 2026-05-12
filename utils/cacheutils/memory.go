@@ -8,7 +8,7 @@ import (
 
 // MemoryCacheMaxBytes is the upper bound on bytes held in the in-memory cache.
 // When exceeded, least-recently-used entries are evicted until the total fits.
-const MemoryCacheMaxBytes = 64 * 1024 * 1024 // 64 MiB
+const MemoryCacheMaxBytes = 256 * 1024 * 1024 // 256 MiB
 
 type memoryEntry struct {
 	key       string
