@@ -3,11 +3,11 @@ package cards
 import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/0skillallluck/scanline/utils/textures"
 )
 
 func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL string, progress float64) schwifty.Button {
@@ -17,7 +17,7 @@ func previewCard[T any](title string, subTitle schwifty.Widgetable[T], artURL st
 	// Create the picture widget
 	picture := Picture().
 		SizeRequest(480, 270).
-		FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
+		FromPaintable(textures.FromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 		ContentFit(gtk.ContentFitCoverValue).
 		ConnectRealize(func(w gtk.Widget) {
 			if preference.Performance().AllowPreviewImages() {

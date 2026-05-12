@@ -6,7 +6,6 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/glib"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
@@ -14,6 +13,7 @@ import (
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/internal/gettext"
 	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/0skillallluck/scanline/utils/textures"
 )
 
 // linkButtonCSS strips button chrome so it looks like inline text.
@@ -85,7 +85,7 @@ func HeroSection(poster HeroPosterParams, content schwifty.Box) schwifty.Box {
 		Picture().
 			SizeRequest(poster.Width, poster.Height).
 			ContentFit(gtk.ContentFitCoverValue).
-			FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
+			FromPaintable(textures.FromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 			ConnectRealize(func(w gtk.Widget) {
 				if preference.Performance().AllowPreviewImages() {
 					imageutils.LoadIntoPictureScaled(poster.ImageURL, poster.Width, poster.Height, gtk.PictureNewFromInternalPtr(w.Ptr))

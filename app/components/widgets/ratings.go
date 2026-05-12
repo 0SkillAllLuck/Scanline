@@ -6,8 +6,8 @@ import (
 
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"github.com/0skillallluck/scanline/app/sources"
+	"github.com/0skillallluck/scanline/utils/textures"
 )
 
 // RatingsParams contains the rating values for the Ratings component.
@@ -49,8 +49,7 @@ func Ratings(params RatingsParams) schwifty.Box {
 		iconPath := ratingIconPath(r.Image)
 		var icon schwifty.Image
 		if iconPath != "" {
-			texture := gdk.NewTextureFromResource(iconPath)
-			icon = Image().FromPaintable(texture).PixelSize(16)
+			icon = Image().FromPaintable(textures.FromResource(iconPath)).PixelSize(16)
 		} else {
 			// Fallback icons based on type
 			if r.Type == "critic" {

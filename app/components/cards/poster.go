@@ -3,12 +3,12 @@ package cards
 import (
 	"codeberg.org/dergs/tonearm/pkg/schwifty"
 	. "codeberg.org/dergs/tonearm/pkg/schwifty/syntax"
-	"codeberg.org/puregotk/puregotk/v4/gdk"
 	"codeberg.org/puregotk/puregotk/v4/gtk"
 	"codeberg.org/puregotk/puregotk/v4/pango"
 	"github.com/0skillallluck/scanline/app/preference"
 	"github.com/0skillallluck/scanline/app/sources"
 	"github.com/0skillallluck/scanline/utils/imageutils"
+	"github.com/0skillallluck/scanline/utils/textures"
 )
 
 // Poster card image dimensions. Pre-sized cover URLs (via PosterCoverURL)
@@ -59,7 +59,7 @@ func posterWithProgress[T any](title string, subTitle schwifty.Widgetable[T], co
 func posterPicture(coverURL string) schwifty.Picture {
 	return Picture().
 		SizeRequest(PosterWidth, PosterHeight).
-		FromPaintable(gdk.NewTextureFromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
+		FromPaintable(textures.FromResource("/dev/skillless/Scanline/icons/scalable/state/missing-album.svg")).
 		ConnectRealize(func(w gtk.Widget) {
 			if preference.Performance().AllowPreviewImages() {
 				imageutils.LoadIntoPictureScaled(coverURL, PosterWidth, PosterHeight, gtk.PictureNewFromInternalPtr(w.Ptr))
