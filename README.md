@@ -91,6 +91,15 @@ then add this anywhere in your system configuration as you see fit
 }
 ```
 
+#### One-Off
+If you don't want to install Scanline directly on your system, or don't feel like rebuilding it, you can run the software in a "one-off" way, with the following command:
+```sh
+nix run "github:0SkillAllLuck/Scanline"#scanline
+```
+
+> [!NOTE]
+> This command requires the `nix-command` nix experimental feature[^1]. You probably enabled it at the same time you did `flakes`.
+
 ## Acknowledgements
 The following projects and resources served as inspiration or were helpful during the development of Scanline.
 - [Tonearm](https://codeberg.org/dergs/Tonearm) and its [schwifty](https://codeberg.org/dergs/Tonearm/src/branch/main/pkg/schwifty) UI framework for providing the foundation
@@ -108,3 +117,5 @@ The following projects and resources served as inspiration or were helpful durin
 [forks-url]: https://github.com/0SkillAllLuck/Scanline/network/members
 [issues-shield]: https://img.shields.io/github/issues/0SkillAllLuck/Scanline?style=for-the-badge
 [issues-url]: https://github.com/0SkillAllLuck/Scanline/issues
+
+[^1]: https://nixos.wiki/wiki/Nix_command
