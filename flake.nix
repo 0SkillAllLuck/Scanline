@@ -507,7 +507,7 @@
           pname = "scanline";
           inherit version;
           src = pkgs.lib.cleanSource ./.;
-          vendorHash = "sha256-RQn9pK/jfkzvpJTG9xADz91W40Ss19JEtZf+0N+zLUA=";
+          vendorHash = "sha256-D3aE9Y7pLUUioPpY27e/yT2eRHkDSOKQcSZyfM+GibI=";
 
           ldflags = [
             "-X \"github.com/0skillallluck/scanline/app/dialogs/about.Commit=${
