@@ -3,7 +3,7 @@ module github.com/0skillallluck/scanline
 go 1.26.0
 
 require (
-	codeberg.org/dergs/tonearm v1.4.1
+	codeberg.org/dergs/tonearm v1.4.2
 	codeberg.org/puregotk/puregotk v0.0.0-20260512093256-2a5b38c3a1c6
 	github.com/go-gst/go-glib v1.4.0
 	github.com/go-gst/go-gst v1.4.0
